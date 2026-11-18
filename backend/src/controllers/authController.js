@@ -1,0 +1,303 @@
+// backend/src/controllers/authController.js
+const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
+const User = require('../models/User');
+const Workspace = require('../models/Workspace');
+const WorkspaceMember = require('../models/WorkspaceMember');
+const { generateToken } = require('../utils/token');
+const { successResponse, errorResponse } = require('../utils/responseHandler');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// @desc    Register a new user
+// @route   POST /api/v1/auth/register
+// @access  Public
+const register = async (req, res, next) => {
+  try {
+    const { fullName, email, password, confirmPassword } = req.body;
+
+    if (!fullName || !email || !password) {
+      return errorResponse(res, 400, 'Please provide all required fields');
+    }
+
+    if (confirmPassword && password !== confirmPassword) {
+      return errorResponse(res, 400, 'Passwords do not match');
+    }
+
+    if (password.length < 6) {
+      return errorResponse(res, 400, 'Password must be at least 6 characters long');
+    }
+
+    const userExists = await User.findOne({ email: email.toLowerCase() });
+    if (userExists) {
+      return errorResponse(res, 400, 'An account with this email already exists');
+    }
+
+    const user = await User.create({
+      fullName,
+      email: email.toLowerCase(),
+      password,
+      profilePicture: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`,
+    });
+
+    const defaultWorkspace = await Workspace.create({
+      name: `${fullName.split(' ')[0]}'s Workspace`,
+      description: 'Default personal workspace',
+      owner: user._id,
+      status: 'Active',
+    });
+
+    await WorkspaceMember.create({
+      workspace: defaultWorkspace._id,
+      user: user._id,
+      role: 'Owner',
+      status: 'Active',
+    });
+
+    const token = generateToken(user._id);
+
+    return successResponse(res, 201, 'User registered successfully', {
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        title: user.title,
+      },
+      workspace: defaultWorkspace,
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Authenticate user & get token
+// @route   POST /api/v1/auth/login
+// @access  Public
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return errorResponse(res, 400, 'Please provide email and password');
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    if (!user) {
+      return errorResponse(res, 401, 'Invalid email or password');
+    }
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return errorResponse(res, 401, 'Invalid email or password');
+    }
+
+    if (!user.isActive) {
+      return errorResponse(res, 403, 'Your account has been deactivated. Please contact support.');
+    }
+
+    const token = generateToken(user._id);
+
+    const memberships = await WorkspaceMember.find({
+      user: user._id,
+      status: 'Active',
+    }).populate('workspace');
+
+    const workspaces = memberships
+      .map((m) => m.workspace)
+      .filter((w) => w && !w.isArchived);
+
+    return successResponse(res, 200, 'Login successful', {
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        title: user.title,
+      },
+      workspaces,
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Google Login
+// @route   POST /api/v1/auth/google
+// @access  Public
+const googleLogin = async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return errorResponse(res, 400, 'Google credential token is required');
+    }
+
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      user = await User.create({
+        fullName: name,
+        email: email.toLowerCase(),
+        password: crypto.randomBytes(16).toString('hex'),
+        profilePicture: picture || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
+      });
+
+      const defaultWorkspace = await Workspace.create({
+        name: `${name.split(' ')[0]}'s Workspace`,
+        description: 'Default personal workspace',
+        owner: user._id,
+        status: 'Active',
+      });
+
+      await WorkspaceMember.create({
+        workspace: defaultWorkspace._id,
+        user: user._id,
+        role: 'Owner',
+        status: 'Active',
+      });
+    }
+
+    const token = generateToken(user._id);
+
+    const memberships = await WorkspaceMember.find({
+      user: user._id,
+      status: 'Active',
+    }).populate('workspace');
+
+    const workspaces = memberships
+      .map((m) => m.workspace)
+      .filter((w) => w && !w.isArchived);
+
+    return successResponse(res, 200, 'Google Login successful', {
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        title: user.title,
+      },
+      workspaces,
+      token,
+    });
+  } catch (error) {
+    console.error("Google Login Error:", error);
+    return errorResponse(res, 401, 'Google authentication failed. Invalid token.');
+  }
+};
+
+// @desc    Get current user profile & workspaces
+// @route   GET /api/v1/auth/me
+// @access  Private
+const getMe = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    const memberships = await WorkspaceMember.find({
+      user: user._id,
+      status: 'Active',
+    }).populate('workspace');
+
+    const workspaces = memberships
+      .map((m) => {
+        if (!m.workspace || m.workspace.isArchived) return null;
+        return {
+          ...m.workspace.toObject(),
+          memberRole: m.role,
+        };
+      })
+      .filter(Boolean);
+
+    return successResponse(res, 200, 'Profile loaded successfully', {
+      user,
+      workspaces,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Forgot Password
+// @route   POST /api/v1/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return errorResponse(res, 400, 'Please provide registered email');
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return successResponse(res, 200, 'If that email is registered, a reset token has been generated.');
+    }
+
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    return successResponse(res, 200, 'Password reset token generated successfully', {
+      resetToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset Password
+// @route   POST /api/v1/auth/reset-password
+// @access  Public
+const resetPassword = async (req, res, next) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+    if (!resetToken || !newPassword) {
+      return errorResponse(res, 400, 'Please provide token and new password');
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return errorResponse(res, 400, 'Invalid or expired password reset token');
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    return successResponse(res, 200, 'Password has been reset successfully. You can now login.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Logout user
+// @route   POST /api/v1/auth/logout
+// @access  Private
+const logout = async (req, res) => {
+  return successResponse(res, 200, 'Logged out successfully');
+};
+
+module.exports = {
+  register,
+  login,
+  googleLogin,
+  getMe,
+  forgotPassword,
+  resetPassword,
+  logout,
+};

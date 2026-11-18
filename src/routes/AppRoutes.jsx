@@ -1,0 +1,125 @@
+// src/routes/AppRoutes.jsx
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+import Login from '../pages/auth/Login';
+import Register from '../pages/auth/Register';
+import ForgotPassword from '../pages/auth/ForgotPassword';
+import ResetPassword from '../pages/auth/ResetPassword';
+
+import DashboardLayout from '../layouts/DashboardLayout';
+import Dashboard from '../pages/Dashboard';
+import Projects from '../pages/Projects';
+import ProjectDetails from '../pages/ProjectDetails';
+import TaskBoard from '../pages/TaskBoard';
+import Tasks from '../pages/Tasks';
+import Team from '../pages/Team';
+import Reports from '../pages/Reports';
+import Settings from '../pages/Settings';
+import Notifications from '../pages/Notifications';
+import Workspaces from '../pages/Workspaces';
+
+// Protected Route Guard
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#F8F9FA]">
+        <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+// Public Route Guard (redirect to dashboard if already logged in)
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#F8F9FA]">
+        <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+const AppRoutes = () => {
+  return (
+    <Routes>
+      {/* Public Auth Routes */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <PublicRoute>
+            <ForgotPassword />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/reset-password/:token"
+        element={
+          <PublicRoute>
+            <ResetPassword />
+          </PublicRoute>
+        }
+      />
+
+      {/* Protected App Routes */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:id" element={<ProjectDetails />} />
+        <Route path="/kanban" element={<TaskBoard />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/team" element={<Team />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/workspaces" element={<Workspaces />} />
+      </Route>
+
+      {/* Redirects */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;

@@ -1,0 +1,345 @@
+// src/pages/Team.jsx
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { 
+  Users, 
+  UserPlus, 
+  Search, 
+  Mail, 
+  ShieldCheck, 
+  Trash2, 
+  Loader2, 
+  AlertCircle,
+  CheckCircle2,
+  Clock
+} from 'lucide-react';
+
+const Team = () => {
+  const { activeWorkspace, user } = useAuth();
+
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('All');
+  const [showInviteModal, setShowInviteModal] = useState(false);
+
+  // Invite state
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('Member');
+  const [submittingInvite, setSubmittingInvite] = useState(false);
+  const [inviteError, setInviteError] = useState('');
+  const [inviteSuccess, setInviteSuccess] = useState('');
+
+  const fetchMembers = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members`);
+      if (res?.data) {
+        setMembers(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeWorkspace) {
+      fetchMembers();
+    }
+  }, [activeWorkspace]);
+
+  const handleInvite = async (e) => {
+    e.preventDefault();
+    setInviteError('');
+    setInviteSuccess('');
+
+    if (!inviteEmail) return;
+
+    try {
+      setSubmittingInvite(true);
+      const res = await api.post(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/invitations`, {
+        email: inviteEmail.trim(),
+        role: inviteRole,
+      });
+
+      setInviteSuccess(res.message || 'Invitation sent successfully!');
+      setInviteEmail('');
+      setTimeout(() => {
+        setShowInviteModal(false);
+        setInviteSuccess('');
+        fetchMembers();
+      }, 1500);
+    } catch (err) {
+      setInviteError(err.message || 'Failed to send invitation');
+    } finally {
+      setSubmittingInvite(false);
+    }
+  };
+
+  const handleRoleChange = async (memberUserId, newRole) => {
+    try {
+      await api.patch(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${memberUserId}/role`, {
+        role: newRole,
+      });
+      fetchMembers();
+    } catch (err) {
+      alert(err.message || 'Failed to change role');
+    }
+  };
+
+  const handleRemoveMember = async (memberUserId, memberName) => {
+    if (!window.confirm(`Are you sure you want to remove ${memberName} from this workspace?`)) return;
+
+    try {
+      const res = await api.delete(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${memberUserId}`);
+      if (res?.data?.uncompletedTasksNeedingReassignment > 0) {
+        alert(`${memberName} has been removed. Note: ${res.data.uncompletedTasksNeedingReassignment} uncompleted tasks are now flagged for reassignment.`);
+      }
+      fetchMembers();
+    } catch (err) {
+      alert(err.message || 'Failed to remove member');
+    }
+  };
+
+  const filteredMembers = members.filter((m) => {
+    const roleMatch = roleFilter === 'All' ? true : m.role === roleFilter;
+    const nameMatch = m.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase());
+    const emailMatch = m.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    return roleMatch && (nameMatch || emailMatch);
+  });
+
+  const isOwner = activeWorkspace?.memberRole === 'Owner';
+
+  const getRoleStyle = (role) => {
+    switch (role) {
+      case 'Owner': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'Manager': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'Member': return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+            <Users className="w-5 h-5 text-purple-600" /> Team Members & Roles
+          </h1>
+          <p className="text-xs text-gray-400">
+            Manage departmental access, permissions, and employee assignments
+          </p>
+        </div>
+
+        {isOwner && (
+          <button
+            onClick={() => setShowInviteModal(true)}
+            className="px-4 py-2.5 bg-[#7C3AED] hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md shadow-purple-200 transition-all flex items-center gap-1.5"
+          >
+            <UserPlus className="w-4 h-4" /> Invite New Member
+          </button>
+        )}
+      </div>
+
+      {/* Filter Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex items-center gap-2">
+          {['All', 'Owner', 'Manager', 'Member'].map((r) => (
+            <button
+              key={r}
+              onClick={() => setRoleFilter(r)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                roleFilter === r
+                  ? 'bg-purple-100 text-purple-700 shadow-sm'
+                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-100'
+              }`}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative w-full sm:w-64">
+          <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-8 pr-3 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-purple-600"
+          />
+        </div>
+      </div>
+
+      {/* Members Table */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center min-h-[300px]">
+            <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin mb-2" />
+            <p className="text-xs text-gray-500 font-semibold">Loading members...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-gray-50 text-gray-400 font-semibold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3.5 px-6">Member</th>
+                  <th className="py-3.5 px-6">Email</th>
+                  <th className="py-3.5 px-6">Title / Designation</th>
+                  <th className="py-3.5 px-6">Workspace Role</th>
+                  <th className="py-3.5 px-6">Joined Date</th>
+                  {isOwner && <th className="py-3.5 px-6 text-right">Actions</th>}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filteredMembers.map((m) => {
+                  const u = m.user || {};
+                  return (
+                    <tr key={m._id} className="hover:bg-gray-50/60 transition-colors">
+                      <td className="py-3.5 px-6">
+                        <div className="flex items-center gap-3">
+                          <span className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                            {u.fullName?.charAt(0) || 'U'}
+                          </span>
+                          <div>
+                            <p className="font-bold text-gray-900">{u.fullName || 'User'}</p>
+                            <span className="text-[10px] text-gray-400">{u.phone || 'No phone'}</span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-6 text-gray-600 font-medium">
+                        {u.email}
+                      </td>
+
+                      <td className="py-3.5 px-6 text-gray-500">
+                        {u.title || 'Team Member'}
+                      </td>
+
+                      <td className="py-3.5 px-6">
+                        {isOwner && u._id !== user?.id ? (
+                          <select
+                            value={m.role}
+                            onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                            className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-gray-200 bg-gray-50 focus:outline-none"
+                          >
+                            <option value="Owner">Owner</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Member">Member</option>
+                          </select>
+                        ) : (
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getRoleStyle(m.role)}`}>
+                            {m.role}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-6 text-gray-400">
+                        {m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : 'N/A'}
+                      </td>
+
+                      {isOwner && (
+                        <td className="py-3.5 px-6 text-right">
+                          {u._id !== user?.id && (
+                            <button
+                              onClick={() => handleRemoveMember(u._id, u.fullName)}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Remove member"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Invite Member Modal (FR-MEM-001) */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Invite Team Member</h2>
+            <p className="text-xs text-gray-500 mb-4">
+              Add employees to <span className="font-bold text-purple-700">{activeWorkspace?.name}</span>
+            </p>
+
+            {inviteSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-green-600" />
+                <span>{inviteSuccess}</span>
+              </div>
+            )}
+
+            {inviteError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                <span>{inviteError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleInvite} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Employee Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. ahmed@company.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-purple-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Assigned Workspace Role
+                </label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-purple-600 bg-white"
+                >
+                  <option value="Member">Team Member (Can view & update assigned work)</option>
+                  <option value="Manager">Project Manager (Can create projects & assign tasks)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowInviteModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingInvite}
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#7C3AED] hover:bg-purple-700 rounded-xl shadow-md shadow-purple-200 transition-all disabled:opacity-50"
+                >
+                  {submittingInvite ? 'Inviting...' : 'Send Invitation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default Team;
