@@ -143,6 +143,9 @@ const getDashboardOverview = async (req, res, next) => {
           updatedAt: { $gte: start, $lte: end },
         });
         return {
+          month: m,
+          completed: approved,
+          inReview: reviewed,
           name: m,
           approved,
           reviewed,

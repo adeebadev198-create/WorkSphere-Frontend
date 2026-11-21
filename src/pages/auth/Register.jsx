@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import logoImg from '../../assets/logo/logo.png';
 import { AlertCircle, Lock, Mail, User, Loader2, Eye, EyeOff, KanbanSquare, ShieldCheck, LayoutDashboard, BarChart3, CheckCircle2 } from 'lucide-react';
 
 const Register = () => {
@@ -69,17 +70,15 @@ const Register = () => {
           <div className="flex-1 flex items-center justify-center" style={{ padding: '40px 48px' }}>
             <div style={{ width: '100%', maxWidth: 360 }}>
               
-              {/* Brand Logo */}
-              <div className="flex items-center gap-2 mb-8">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
-                    <rect x="2" y="2" width="8" height="8" rx="1.5" />
-                    <rect x="14" y="2" width="8" height="8" rx="1.5" opacity="0.6" />
-                    <rect x="2" y="14" width="8" height="8" rx="1.5" opacity="0.6" />
-                    <rect x="14" y="14" width="8" height="8" rx="1.5" />
-                  </svg>
-                </div>
-                <span className="text-xl font-bold text-slate-900 tracking-tight">WorkSphere</span>
+              {/* Official Brand Logo */}
+              <div className="mb-6">
+                <Link to="/" className="inline-block transition-opacity hover:opacity-90">
+                  <img
+                    src={logoImg}
+                    alt="WorkSphere - Plan • Collaborate • Achieve"
+                    className="h-11 w-auto max-w-[180px] object-contain"
+                  />
+                </Link>
               </div>
 
               {/* Heading */}

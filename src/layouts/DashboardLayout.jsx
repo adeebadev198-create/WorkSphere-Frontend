@@ -20,7 +20,6 @@ import {
   Menu,
   X,
   Search,
-  Sparkles,
   Building2,
   Calendar,
   Layers
@@ -126,26 +125,29 @@ const DashboardLayout = () => {
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
-  // ── Sidebar Component (Light Neo-SaaS style matching user's uploaded images) ──
+  // ── Sidebar Component (Clean, minimal, professional with official logo) ──
   const Sidebar = ({ onClose }) => (
     <div className="flex flex-col h-full bg-[#FAFAFC] w-64 shrink-0 border-r border-slate-200/70 select-none">
       
-      {/* Brand Logo Header */}
-      <div className="flex items-center justify-between px-6 h-18 border-b border-slate-100">
+      {/* Official Brand Logo Header */}
+      <div className="flex items-center justify-between px-5 h-20 border-b border-slate-100">
         <Link
           to="/dashboard"
-          className="flex items-center gap-3 group"
+          className="flex items-center group transition-opacity hover:opacity-95"
           onClick={onClose}
         >
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#6366F1] to-[#8B5CF6] p-1.5 shadow-md shadow-indigo-500/20 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-            <img src={logoImg} alt="WorkSphere" className="h-6 w-auto object-contain brightness-0 invert" />
-          </div>
-          <span className="text-slate-900 font-extrabold text-base tracking-tight">
-            WorkSphere<span className="text-[#6366F1]">.</span>
-          </span>
+          <img
+            src={logoImg}
+            alt="WorkSphere - Plan • Collaborate • Achieve"
+            className="h-12 w-auto max-w-[185px] object-contain"
+          />
         </Link>
         {onClose && (
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 md:hidden">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 p-1 lg:hidden rounded-lg hover:bg-slate-100"
+            aria-label="Close menu"
+          >
             <X className="w-5 h-5" />
           </button>
         )}
@@ -153,22 +155,22 @@ const DashboardLayout = () => {
 
       {/* Workspace Switcher Pill */}
       <div className="px-4 py-4" ref={workspaceDropdownRef}>
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1.5">
+        <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider px-2 mb-1.5">
           Workspace
         </div>
         <button
           onClick={() => setWorkspaceDropdownOpen((v) => !v)}
-          className="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 transition-all text-left group"
+          className="w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 transition-all text-left group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-6 h-6 rounded-xl bg-indigo-50 text-[#6366F1] font-extrabold text-[10px] flex items-center justify-center shrink-0 border border-indigo-100">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-50 to-indigo-50 text-indigo-600 font-semibold text-xs flex items-center justify-center shrink-0 border border-indigo-100">
               {activeWorkspace?.name?.charAt(0)?.toUpperCase() || 'W'}
             </div>
             <div className="truncate">
-              <p className="text-xs font-bold text-slate-800 truncate leading-tight">
+              <p className="text-xs font-medium text-slate-800 truncate leading-tight">
                 {activeWorkspace?.name || 'My Workspace'}
               </p>
-              <p className="text-[10px] text-slate-400 truncate font-medium">
+              <p className="text-[11px] text-slate-400 truncate font-normal">
                 {activeWorkspace?.memberRole || 'Member'}
               </p>
             </div>
@@ -181,7 +183,7 @@ const DashboardLayout = () => {
         </button>
 
         {workspaceDropdownOpen && (
-          <div className="mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
             <div className="py-1 max-h-48 overflow-y-auto">
               {workspaces && workspaces.length > 0 ? (
                 workspaces.map((ws) => {
@@ -197,15 +199,15 @@ const DashboardLayout = () => {
                       }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs transition-colors ${
                         isCur
-                          ? 'bg-indigo-50/70 text-[#6366F1] font-bold'
-                          : 'text-slate-700 hover:bg-slate-50 font-medium'
+                          ? 'bg-indigo-50/80 text-indigo-700 font-medium'
+                          : 'text-slate-700 hover:bg-slate-50 font-normal'
                       }`}
                     >
-                      <span className="w-5 h-5 rounded-lg bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-600">
+                      <span className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center text-[10px] font-medium text-slate-600">
                         {ws.name?.charAt(0)}
                       </span>
                       <span className="truncate">{ws.name}</span>
-                      {isCur && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#6366F1]" />}
+                      {isCur && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600" />}
                     </button>
                   );
                 })
@@ -217,7 +219,7 @@ const DashboardLayout = () => {
                   setWorkspaceDropdownOpen(false);
                   setShowWorkspaceModal(true);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6366F1] font-bold hover:bg-indigo-50 rounded-xl transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-indigo-600 font-medium hover:bg-indigo-50 rounded-lg transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" /> New Workspace
               </button>
@@ -227,8 +229,8 @@ const DashboardLayout = () => {
       </div>
 
       {/* Main Navigation Section */}
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto pt-1">
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2">
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto pt-1">
+        <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider px-3 mb-2">
           Main Menu
         </div>
         {navItems.map((item) => {
@@ -239,49 +241,50 @@ const DashboardLayout = () => {
               key={item.path}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-150 ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                 active
-                  ? 'bg-[#6366F1] text-white shadow-md shadow-indigo-500/25'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                  ? 'bg-gradient-to-r from-blue-50/90 to-indigo-50/90 text-indigo-700 font-medium shadow-xs border-l-2 border-indigo-600'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-normal'
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-slate-400'}`} />
+              <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-indigo-600' : 'text-slate-400'}`} />
               <span>{item.name}</span>
             </Link>
           );
         })}
 
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 pt-6 mb-2">
+        <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider px-3 pt-6 mb-2">
           General
         </div>
         <Link
           to="/settings"
           onClick={onClose}
-          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-150 ${
+          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
             isActive('/settings')
-              ? 'bg-[#6366F1] text-white shadow-md shadow-indigo-500/25'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+              ? 'bg-gradient-to-r from-blue-50/90 to-indigo-50/90 text-indigo-700 font-medium shadow-xs border-l-2 border-indigo-600'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-normal'
           }`}
         >
-          <SettingsIcon className={`w-4 h-4 shrink-0 ${isActive('/settings') ? 'text-white' : 'text-slate-400'}`} />
+          <SettingsIcon className={`w-4 h-4 shrink-0 ${isActive('/settings') ? 'text-indigo-600' : 'text-slate-400'}`} />
           <span>Settings</span>
         </Link>
       </nav>
 
       {/* User Card at bottom of sidebar */}
-      <div className="p-4 border-t border-slate-100">
-        <div className="flex items-center gap-3 p-2 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#6366F1] to-purple-500 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-sm">
+      <div className="p-3 border-t border-slate-100">
+        <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-medium text-xs flex items-center justify-center shrink-0 shadow-xs">
             {userInitial}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold text-slate-800 truncate">{user?.fullName || 'User'}</p>
-            <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
+            <p className="text-xs font-medium text-slate-800 truncate">{user?.fullName || 'User'}</p>
+            <p className="text-[10px] text-slate-400 truncate font-normal">{user?.email}</p>
           </div>
           <button
             onClick={handleLogout}
             title="Sign out"
-            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-xl hover:bg-rose-50 transition-colors"
+            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"
+            aria-label="Sign out"
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -314,22 +317,23 @@ const DashboardLayout = () => {
       {/* Main Workspace Frame */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         
-        {/* Top Floating App Navbar (Matching Organix / TaskFlow header) */}
+        {/* Top Navbar */}
         <header className="h-18 px-6 lg:px-8 bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-20 flex items-center justify-between">
           
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100"
+              aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-base font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-base font-semibold text-slate-900 tracking-tight">
                 {pageTitle}
               </h1>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Workspace: <span className="font-semibold text-slate-700">{activeWorkspace?.name || 'Default'}</span>
+              <p className="text-xs text-slate-400 hidden sm:block font-normal">
+                Workspace: <span className="font-medium text-slate-700">{activeWorkspace?.name || 'Default'}</span>
               </p>
             </div>
           </div>
@@ -343,7 +347,7 @@ const DashboardLayout = () => {
               <input
                 type="text"
                 placeholder="Search anything..."
-                className="bg-transparent border-none outline-none text-slate-800 placeholder-slate-400 text-xs w-full"
+                className="bg-transparent border-none outline-none text-slate-800 placeholder-slate-400 text-xs w-full font-normal"
               />
             </div>
 
@@ -351,10 +355,11 @@ const DashboardLayout = () => {
             <Link
               to="/notifications"
               className="relative p-2.5 rounded-full bg-slate-100/80 hover:bg-slate-200/80 text-slate-600 hover:text-slate-900 transition-colors"
+              aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#6366F1] ring-2 ring-white animate-pulse" />
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white animate-pulse" />
               )}
             </Link>
 
@@ -364,28 +369,28 @@ const DashboardLayout = () => {
                 onClick={() => setUserMenuOpen((v) => !v)}
                 className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-slate-100 transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-medium text-xs flex items-center justify-center shadow-xs">
                   {userInitial}
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-4 py-2.5 border-b border-slate-100">
-                    <p className="text-xs font-bold text-slate-900 truncate">{user?.fullName || 'User'}</p>
-                    <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
+                    <p className="text-xs font-medium text-slate-900 truncate">{user?.fullName || 'User'}</p>
+                    <p className="text-[10px] text-slate-400 truncate font-normal">{user?.email}</p>
                   </div>
                   <Link
                     to="/settings"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#6366F1]"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-normal text-slate-700 hover:bg-slate-50 hover:text-indigo-600"
                   >
                     <User className="w-3.5 h-3.5" /> My Profile
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-normal text-rose-600 hover:bg-rose-50"
                   >
                     <LogOut className="w-3.5 h-3.5" /> Sign out
                   </button>
@@ -400,58 +405,57 @@ const DashboardLayout = () => {
         <main className="flex-1 p-5 sm:p-7 lg:p-8 max-w-[1500px] w-full mx-auto">
           <Outlet />
         </main>
-
       </div>
 
-      {/* Workspace Creation Modal */}
+      {/* Modal: Create Workspace */}
       {showWorkspaceModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
-            <h2 className="text-base font-extrabold text-slate-900 mb-1">Create Workspace</h2>
-            <p className="text-xs text-slate-400 mb-5">
-              Isolate teams, initiatives, and role permissions.
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-base font-semibold text-slate-900 mb-1">Create New Workspace</h2>
+            <p className="text-xs text-slate-500 mb-4 font-normal">
+              Organize projects and teammates in isolated environments.
             </p>
 
             <form onSubmit={handleCreateWorkspace} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Workspace Name *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Design & Creative Hub"
+                  placeholder="e.g. Engineering, Marketing, Operations"
                   value={newWorkspaceName}
                   onChange={(e) => setNewWorkspaceName(e.target.value)}
-                  className="w-full px-4 py-2.5 text-xs rounded-2xl border border-slate-200 focus:outline-none focus:border-[#6366F1] focus:ring-4 focus:ring-indigo-500/10"
+                  className="w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 font-normal"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Description
                 </label>
                 <textarea
-                  rows="3"
-                  placeholder="What is this workspace responsible for?"
+                  rows="2"
+                  placeholder="Workspace purpose and team goals..."
                   value={newWorkspaceDesc}
                   onChange={(e) => setNewWorkspaceDesc(e.target.value)}
-                  className="w-full px-4 py-2.5 text-xs rounded-2xl border border-slate-200 focus:outline-none focus:border-[#6366F1] focus:ring-4 focus:ring-indigo-500/10 resize-none"
+                  className="w-full px-3.5 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 font-normal"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowWorkspaceModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmittingWorkspace}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#6366F1] hover:bg-indigo-600 rounded-xl shadow-md shadow-indigo-500/25 transition-all disabled:opacity-50"
+                  disabled={isSubmittingWorkspace || !newWorkspaceName.trim()}
+                  className="px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-sm transition-all disabled:opacity-50"
                 >
                   {isSubmittingWorkspace ? 'Creating...' : 'Create Workspace'}
                 </button>

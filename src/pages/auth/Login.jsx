@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import logoImg from '../../assets/logo/logo.png';
 
 const BrandIllustration = () => {
   return (
@@ -475,37 +476,28 @@ const Login = () => {
             }}
           />
 
-          {/* Brand row */}
+          {/* Official Brand Logo */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
               position: 'relative',
               zIndex: 10,
-              marginBottom: 40,
+              marginBottom: 36,
             }}
           >
-            <div
+            <img
+              src={logoImg}
+              alt="WorkSphere - Plan • Collaborate • Achieve"
               style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.22)',
-                border: '1.5px solid rgba(255,255,255,0.4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                height: 48,
+                width: 'auto',
+                maxWidth: 200,
+                objectFit: 'contain',
+                filter: 'brightness(0) invert(1)',
+                opacity: 0.95,
               }}
-            >
-              <svg viewBox="0 0 20 20" style={{ width: 18, height: 18 }}>
-                <circle cx="10" cy="10" r="8" fill="none" stroke="white" strokeWidth="2" />
-                <circle cx="10" cy="10" r="3" fill="white" />
-              </svg>
-            </div>
-            <span style={{ color: 'white', fontWeight: 800, fontSize: 15, letterSpacing: '-0.3px' }}>
-              WorkSphere
-            </span>
+            />
           </div>
 
           {/* Headline */}
