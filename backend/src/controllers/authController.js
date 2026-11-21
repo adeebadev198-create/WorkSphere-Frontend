@@ -1,5 +1,6 @@
 // backend/src/controllers/authController.js
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Workspace = require('../models/Workspace');
@@ -292,6 +293,55 @@ const logout = async (req, res) => {
   return successResponse(res, 200, 'Logged out successfully');
 };
 
+// @desc    Refresh JWT — issue a new token for a valid, non-expired existing token
+// @route   POST /api/v1/auth/refresh-token
+// @access  Public (requires valid Bearer token in header)
+const refreshToken = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return errorResponse(res, 401, 'No token provided. Please include a Bearer token.');
+    }
+
+    const oldToken = authHeader.split(' ')[1];
+    let decoded;
+
+    try {
+      decoded = jwt.verify(
+        oldToken,
+        process.env.JWT_SECRET || 'worksphere_jwt_secret_super_secure_key_2026'
+      );
+    } catch (jwtErr) {
+      // Token is invalid or expired — require fresh login
+      return errorResponse(res, 401, 'Token is invalid or has expired. Please login again.');
+    }
+
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user) {
+      return errorResponse(res, 401, 'User account no longer exists.');
+    }
+    if (!user.isActive) {
+      return errorResponse(res, 403, 'Your account has been deactivated. Please contact support.');
+    }
+
+    // Issue new token with fresh expiry
+    const newToken = generateToken(user._id);
+
+    return successResponse(res, 200, 'Token refreshed successfully', {
+      token: newToken,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        title: user.title,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -300,4 +350,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   logout,
+  refreshToken,
 };

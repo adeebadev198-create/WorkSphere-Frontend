@@ -75,6 +75,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Google OAuth login — uses shared api service so token key is consistent
+  const googleLogin = async (credential) => {
+    const res = await api.post('/auth/google', { credential });
+    if (res?.data) {
+      const { user: userData, token: userToken, workspaces: wsList } = res.data;
+      setUser(userData);
+      setToken(userToken);
+      localStorage.setItem('worksphere_token', userToken);
+      localStorage.setItem('worksphere_user', JSON.stringify(userData));
+
+      if (wsList && wsList.length > 0) {
+        setWorkspaces(wsList);
+        setActiveWorkspace(wsList[0]);
+        localStorage.setItem('worksphere_active_workspace', JSON.stringify(wsList[0]));
+      }
+
+      return res.data;
+    }
+  };
+
   const register = async (fullName, email, password, confirmPassword) => {
     const res = await api.post('/auth/register', {
       fullName,
@@ -138,6 +158,7 @@ export const AuthProvider = ({ children }) => {
         activeWorkspace,
         loading,
         login,
+        googleLogin,
         register,
         logout,
         switchWorkspace,

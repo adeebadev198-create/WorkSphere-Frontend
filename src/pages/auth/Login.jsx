@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios'; // Axios import kiya backend call ke liye
 
 const BrandIllustration = () => {
   return (
@@ -106,7 +105,7 @@ const BrandIllustration = () => {
 ══════════════════════════════════════════════════════════════ */
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -148,26 +147,15 @@ const Login = () => {
     }
   };
 
-  // === GOOGLE LOGIN BACKEND CONNECTION ===
+  // === GOOGLE LOGIN — uses AuthContext.googleLogin for consistent token storage ===
   const handleGoogleSuccess = async (credentialResponse) => {
     setError('');
     setLoading(true);
     try {
-      // Backend API ko call karein
-      const response = await axios.post('http://localhost:5000/api/v1/auth/google', {
-        credential: credentialResponse.credential
-      });
-
-      // Backend se token aur user data receive karein
-      const { token, user } = response.data.data;
-
-      // Token save karein
-      localStorage.setItem('token', token);
-      
-      // Direct Dashboard par bhej dein
+      await googleLogin(credentialResponse.credential);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Google login failed. Please try again.');
+      setError(err.message || 'Google login failed. Please try again.');
     } finally {
       setLoading(false);
     }
