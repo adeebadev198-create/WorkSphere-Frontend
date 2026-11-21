@@ -88,12 +88,12 @@ const Reports = () => {
     <div className="space-y-6">
       
       {/* Top Banner & Export Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-purple-600" /> Workspace Analytics & Reports
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-indigo-600" /> Workspace Analytics & Reports
           </h1>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-500 font-normal mt-0.5">
             Real-time project velocity, employee workload, and CSV data export
           </p>
         </div>
@@ -102,14 +102,14 @@ const Reports = () => {
           <button
             onClick={() => handleExportCSV('tasks')}
             disabled={exporting}
-            className="px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold rounded-xl border border-emerald-200 transition-all flex items-center gap-1.5 disabled:opacity-50"
+            className="px-3.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-medium rounded-xl border border-blue-200 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" /> Export Tasks (CSV)
           </button>
           <button
             onClick={() => handleExportCSV('projects')}
             disabled={exporting}
-            className="px-3.5 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 text-xs font-bold rounded-xl border border-purple-200 transition-all flex items-center gap-1.5 disabled:opacity-50"
+            className="px-3.5 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-medium rounded-xl border border-indigo-200 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" /> Export Projects (CSV)
           </button>
@@ -120,20 +120,20 @@ const Reports = () => {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setActiveReportTab('projects')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${
             activeReportTab === 'projects'
-              ? 'bg-purple-100 text-purple-700 shadow-sm'
-              : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-100'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs shadow-indigo-500/20'
+              : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
           }`}
         >
           Project Summary Report
         </button>
         <button
           onClick={() => setActiveReportTab('team')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${
             activeReportTab === 'team'
-              ? 'bg-purple-100 text-purple-700 shadow-sm'
-              : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-100'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs shadow-indigo-500/20'
+              : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
           }`}
         >
           Employee Workload & Performance
@@ -141,51 +141,51 @@ const Reports = () => {
       </div>
 
       {/* Report Table View */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {loading ? (
           <div className="flex flex-col items-center justify-center min-h-[300px]">
-            <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin mb-2" />
-            <p className="text-xs text-gray-500 font-semibold">Generating report statistics...</p>
+            <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-2" />
+            <p className="text-xs text-slate-500 font-medium">Generating report statistics...</p>
           </div>
         ) : activeReportTab === 'projects' ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50 text-gray-400 font-semibold uppercase tracking-wider">
+              <thead className="bg-slate-50 text-slate-500 font-medium uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="py-3.5 px-6">Project Name</th>
-                  <th className="py-3.5 px-6">Manager</th>
-                  <th className="py-3.5 px-6">Status</th>
-                  <th className="py-3.5 px-6">Total Deliverables</th>
-                  <th className="py-3.5 px-6">Completed</th>
-                  <th className="py-3.5 px-6">Overdue</th>
-                  <th className="py-3.5 px-6">Completion Progress</th>
+                  <th className="py-3 px-6">Project Name</th>
+                  <th className="py-3 px-6">Manager</th>
+                  <th className="py-3 px-6">Status</th>
+                  <th className="py-3 px-6">Total Deliverables</th>
+                  <th className="py-3 px-6">Completed</th>
+                  <th className="py-3 px-6">Overdue</th>
+                  <th className="py-3 px-6">Completion Progress</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-slate-100">
                 {projectReports && projectReports.length > 0 ? (
                   projectReports.map((p) => (
-                    <tr key={p.id} className="hover:bg-gray-50/60 transition-colors">
-                      <td className="py-3.5 px-6 font-bold text-gray-900">{p.name}</td>
-                      <td className="py-3.5 px-6 text-gray-600 font-semibold">{p.manager}</td>
+                    <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-6 font-medium text-slate-900">{p.name}</td>
+                      <td className="py-3.5 px-6 text-slate-600 font-normal">{p.manager}</td>
                       <td className="py-3.5 px-6">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100/80">
                           {p.status}
                         </span>
                       </td>
-                      <td className="py-3.5 px-6 font-medium text-gray-700">{p.totalTasks}</td>
-                      <td className="py-3.5 px-6 text-emerald-600 font-bold">{p.completedTasks}</td>
+                      <td className="py-3.5 px-6 font-normal text-slate-700">{p.totalTasks}</td>
+                      <td className="py-3.5 px-6 text-emerald-600 font-medium">{p.completedTasks}</td>
                       <td className="py-3.5 px-6">
                         {p.overdueTasks > 0 ? (
-                          <span className="text-rose-600 font-bold">{p.overdueTasks} Overdue</span>
+                          <span className="text-rose-600 font-medium">{p.overdueTasks} Overdue</span>
                         ) : (
-                          <span className="text-gray-400">0</span>
+                          <span className="text-slate-400">0</span>
                         )}
                       </td>
-                      <td className="py-3.5 px-6 font-bold text-purple-700">
+                      <td className="py-3.5 px-6 font-medium text-indigo-600">
                         <div className="flex items-center gap-2">
-                          <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-purple-600 rounded-full"
+                              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"
                               style={{ width: p.progress }}
                             ></div>
                           </div>
@@ -196,7 +196,7 @@ const Reports = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="p-8 text-center text-gray-400">
+                    <td colSpan="7" className="p-8 text-center text-slate-400 font-normal">
                       No project records available for reporting.
                     </td>
                   </tr>
@@ -207,45 +207,45 @@ const Reports = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50 text-gray-400 font-semibold uppercase tracking-wider">
+              <thead className="bg-slate-50 text-slate-500 font-medium uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="py-3.5 px-6">Team Member</th>
-                  <th className="py-3.5 px-6">Email</th>
-                  <th className="py-3.5 px-6">Role</th>
-                  <th className="py-3.5 px-6">Assigned Tasks</th>
-                  <th className="py-3.5 px-6">In Progress</th>
-                  <th className="py-3.5 px-6">Completed</th>
-                  <th className="py-3.5 px-6">Overdue</th>
-                  <th className="py-3.5 px-6">Success Rate</th>
+                  <th className="py-3 px-6">Team Member</th>
+                  <th className="py-3 px-6">Email</th>
+                  <th className="py-3 px-6">Role</th>
+                  <th className="py-3 px-6">Assigned Tasks</th>
+                  <th className="py-3 px-6">In Progress</th>
+                  <th className="py-3 px-6">Completed</th>
+                  <th className="py-3 px-6">Overdue</th>
+                  <th className="py-3 px-6">Success Rate</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-slate-100">
                 {teamReports && teamReports.length > 0 ? (
                   teamReports.map((m) => (
-                    <tr key={m.id} className="hover:bg-gray-50/60 transition-colors">
-                      <td className="py-3.5 px-6 font-bold text-gray-900">{m.name}</td>
-                      <td className="py-3.5 px-6 text-gray-500">{m.email}</td>
+                    <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-6 font-medium text-slate-900">{m.name}</td>
+                      <td className="py-3.5 px-6 text-slate-500 font-normal">{m.email}</td>
                       <td className="py-3.5 px-6">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-700">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
                           {m.role}
                         </span>
                       </td>
-                      <td className="py-3.5 px-6 font-semibold text-gray-800">{m.totalAssigned}</td>
-                      <td className="py-3.5 px-6 text-blue-600 font-semibold">{m.inProgress}</td>
-                      <td className="py-3.5 px-6 text-emerald-600 font-bold">{m.completed}</td>
+                      <td className="py-3.5 px-6 font-normal text-slate-800">{m.totalAssigned}</td>
+                      <td className="py-3.5 px-6 text-blue-600 font-medium">{m.inProgress}</td>
+                      <td className="py-3.5 px-6 text-emerald-600 font-medium">{m.completed}</td>
                       <td className="py-3.5 px-6">
                         {m.overdue > 0 ? (
-                          <span className="text-rose-600 font-bold">{m.overdue}</span>
+                          <span className="text-rose-600 font-medium">{m.overdue}</span>
                         ) : (
-                          <span className="text-gray-400">0</span>
+                          <span className="text-slate-400">0</span>
                         )}
                       </td>
-                      <td className="py-3.5 px-6 font-bold text-purple-700">{m.completionRate}</td>
+                      <td className="py-3.5 px-6 font-medium text-indigo-600">{m.completionRate}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className="p-8 text-center text-gray-400">
+                    <td colSpan="8" className="p-8 text-center text-slate-400 font-normal">
                       No team workload records available.
                     </td>
                   </tr>

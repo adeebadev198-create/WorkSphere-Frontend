@@ -81,43 +81,43 @@ const OverviewTab = ({ project }) => {
       {/* Project info grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Completion */}
-        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 rounded-2xl p-5">
-          <p className="text-xs font-semibold text-purple-500 uppercase tracking-wider mb-1">Completion</p>
-          <p className="text-3xl font-extrabold text-purple-700">{project.progress || 0}%</p>
-          <div className="mt-3 w-full h-2 bg-purple-100 rounded-full overflow-hidden">
+        <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-indigo-100/80 rounded-2xl p-5">
+          <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider mb-1">Completion</p>
+          <p className="text-2xl font-semibold text-indigo-900">{project.progress || 0}%</p>
+          <div className="mt-3 w-full h-2 bg-indigo-100/60 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#7C3AED] rounded-full transition-all"
+              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all"
               style={{ width: `${project.progress || 0}%` }}
             />
           </div>
-          <div className="flex justify-between text-[11px] text-purple-400 mt-1.5">
+          <div className="flex justify-between text-[11px] text-slate-500 mt-1.5 font-normal">
             <span>{project.completedTasks || 0} done</span>
             <span>{project.pendingTasks || 0} pending</span>
           </div>
         </div>
 
         {/* Total Tasks */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Total Tasks</p>
-          <p className="text-3xl font-extrabold text-gray-900">{project.totalTasks || 0}</p>
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Total Tasks</p>
+          <p className="text-2xl font-semibold text-slate-900">{project.totalTasks || 0}</p>
           <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-            <div className="rounded-xl bg-blue-50 text-blue-700 font-semibold px-2 py-1 text-center">
+            <div className="rounded-xl bg-blue-50 text-blue-700 font-medium px-2 py-1 text-center border border-blue-100/60">
               {project.tasks?.filter(t => t.status === 'In Progress').length || 0} In Progress
             </div>
-            <div className="rounded-xl bg-amber-50 text-amber-700 font-semibold px-2 py-1 text-center">
+            <div className="rounded-xl bg-amber-50 text-amber-700 font-medium px-2 py-1 text-center border border-amber-100/60">
               {project.tasks?.filter(t => t.status === 'In Review').length || 0} In Review
             </div>
           </div>
         </div>
 
         {/* Deadline */}
-        <div className={`bg-white border rounded-2xl p-5 shadow-sm ${daysLeft !== null && daysLeft < 0 ? 'border-red-200' : 'border-gray-100'}`}>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Deadline</p>
-          <p className="text-xl font-extrabold text-gray-900">
+        <div className={`bg-white border rounded-2xl p-5 shadow-xs ${daysLeft !== null && daysLeft < 0 ? 'border-rose-200' : 'border-slate-200/80'}`}>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Deadline</p>
+          <p className="text-xl font-semibold text-slate-900">
             {endDate ? endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
           </p>
           {daysLeft !== null && (
-            <p className={`mt-1 text-xs font-semibold ${daysLeft < 0 ? 'text-red-600' : daysLeft < 7 ? 'text-orange-600' : 'text-gray-400'}`}>
+            <p className={`mt-1 text-xs font-normal ${daysLeft < 0 ? 'text-rose-600' : daysLeft < 7 ? 'text-amber-600' : 'text-slate-500'}`}>
               {daysLeft < 0 ? `${Math.abs(daysLeft)} days overdue` : daysLeft === 0 ? 'Due today!' : `${daysLeft} days remaining`}
             </p>
           )}
@@ -125,23 +125,23 @@ const OverviewTab = ({ project }) => {
       </div>
 
       {/* Timeline bar */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-purple-500" />
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
+        <h3 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-indigo-600" />
           Project Timeline
         </h3>
 
         <div className="relative">
-          <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <div className="flex items-center justify-between text-xs text-slate-500 mb-2 font-normal">
             <span>{startDate ? startDate.toLocaleDateString() : 'Start'}</span>
-            <span className="font-semibold text-purple-600">
+            <span className="font-medium text-indigo-600">
               {timelineProgress}% elapsed
             </span>
             <span>{endDate ? endDate.toLocaleDateString() : 'End'}</span>
           </div>
-          <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden relative">
+          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden relative">
             <div
-              className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all"
+              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all"
               style={{ width: `${timelineProgress}%` }}
             />
             {/* Today marker */}
@@ -260,15 +260,15 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-xl transition-colors cursor-pointer ${
                 filterStatus === s
-                  ? 'bg-[#7C3AED] text-white shadow-sm'
-                  : 'bg-white text-gray-500 border border-gray-100 hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs shadow-indigo-500/20'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
               }`}
             >
               {s}
               {s !== 'All' && (
-                <span className="ml-1.5 opacity-70">
+                <span className="ml-1.5 opacity-80 text-[11px]">
                   {tasks.filter(t => t.status === s).length}
                 </span>
               )}
@@ -279,7 +279,7 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
         {isOwnerOrManager && (
           <button
             onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md shadow-purple-200 transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-xs font-medium rounded-xl shadow-xs shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
             <Plus className="w-4 h-4" /> Add Task
           </button>
@@ -287,10 +287,10 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
       </div>
 
       {/* Task table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-gray-50 text-gray-400 font-semibold uppercase tracking-wider">
+            <thead className="bg-slate-50 text-slate-500 font-medium uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="py-3 px-5">Task</th>
                 <th className="py-3 px-5">Assignee</th>
@@ -426,7 +426,7 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
                 </button>
                 <button
                   type="submit" disabled={submitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#7C3AED] hover:bg-purple-700 rounded-xl shadow-md shadow-purple-200 transition-all disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-xs shadow-indigo-500/20 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {submitting ? 'Saving...' : 'Add Task'}
                 </button>
@@ -668,61 +668,61 @@ const ProjectDetails = () => {
       {/* Back link */}
       <Link
         to="/projects"
-        className="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors"
+        className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-indigo-600 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Projects Directory
       </Link>
 
       {/* Project header card */}
-      <div className="bg-white rounded-3xl p-6 lg:p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-xs border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors}`}>
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors}`}>
               {project.status}
             </span>
-            <span className={`px-2.5 py-0.5 rounded-lg text-xs font-bold ${PRIORITY_COLORS[project.priority] || ''}`}>
+            <span className={`px-2.5 py-0.5 rounded-lg text-xs font-medium ${PRIORITY_COLORS[project.priority] || ''}`}>
               {project.priority} Priority
             </span>
           </div>
 
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+          <h1 className="text-xl lg:text-2xl font-semibold text-slate-900 tracking-tight mb-2">
             {project.name}
           </h1>
 
-          <p className="text-xs text-gray-500 max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-500 max-w-2xl leading-relaxed font-normal">
             {project.description || 'No description provided.'}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-gray-400" /> Deadline:{' '}
-              <strong className="text-gray-800">
+          <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-slate-500">
+            <span className="flex items-center gap-1.5 font-normal">
+              <Calendar className="w-4 h-4 text-slate-400" /> Deadline:{' '}
+              <strong className="text-slate-800 font-medium">
                 {new Date(project.endDate).toLocaleDateString()}
               </strong>
             </span>
-            <span className="flex items-center gap-1.5">
-              <User className="w-4 h-4 text-gray-400" /> Manager:{' '}
-              <strong className="text-gray-800">{project.manager?.fullName || 'Unassigned'}</strong>
+            <span className="flex items-center gap-1.5 font-normal">
+              <User className="w-4 h-4 text-slate-400" /> Manager:{' '}
+              <strong className="text-slate-800 font-medium">{project.manager?.fullName || 'Unassigned'}</strong>
             </span>
-            <span className="flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-gray-400" /> {project.members?.length || 0} Members
+            <span className="flex items-center gap-1.5 font-normal">
+              <Users className="w-4 h-4 text-slate-400" /> {project.members?.length || 0} Members
             </span>
           </div>
         </div>
 
         {/* Progress KPI */}
-        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100/80 rounded-2xl p-5 min-w-[220px]">
-          <div className="flex justify-between items-center mb-2 text-xs font-bold">
-            <span className="text-gray-600">Completion</span>
-            <span className="text-purple-700 text-base">{project.progress || 0}%</span>
+        <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-indigo-100/80 rounded-2xl p-5 min-w-[220px]">
+          <div className="flex justify-between items-center mb-2 text-xs font-medium">
+            <span className="text-slate-600">Completion</span>
+            <span className="text-indigo-700 text-sm font-semibold">{project.progress || 0}%</span>
           </div>
-          <div className="w-full h-2.5 bg-white rounded-full overflow-hidden mb-3 border border-purple-100">
+          <div className="w-full h-2 bg-indigo-100/60 rounded-full overflow-hidden mb-3">
             <div
-              className="h-full bg-[#7C3AED] rounded-full transition-all"
+              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all"
               style={{ width: `${project.progress || 0}%` }}
             />
           </div>
-          <div className="flex justify-between text-[11px] text-gray-500">
+          <div className="flex justify-between text-[11px] text-slate-500 font-normal">
             <span>{project.completedTasks || 0} Done</span>
             <span>{project.pendingTasks || 0} Pending</span>
           </div>
@@ -730,17 +730,17 @@ const ProjectDetails = () => {
       </div>
 
       {/* ── Tab Navigation ── */}
-      <div className="flex gap-1 flex-wrap bg-white border border-gray-100 rounded-2xl p-1.5 shadow-sm w-fit">
+      <div className="flex gap-1.5 flex-wrap bg-white border border-slate-200/80 rounded-2xl p-1.5 shadow-xs w-fit">
         {TABS.map(tab => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-xl transition-all cursor-pointer ${
                 activeTab === tab.id
-                  ? 'bg-[#7C3AED] text-white shadow-md shadow-purple-200'
-                  : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs shadow-indigo-500/20'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />

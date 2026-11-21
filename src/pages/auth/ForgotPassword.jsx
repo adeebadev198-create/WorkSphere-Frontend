@@ -32,11 +32,11 @@ const ForgotPassword = () => {
   return (
     <AuthLayout>
       <div className="mb-6">
-        <Link to="/login" className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 mb-4 transition-colors">
+        <Link to="/login" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 mb-4 transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Login
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Reset Password</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-slate-900 mb-2 tracking-tight">Reset Password</h1>
+        <p className="text-xs text-slate-500 font-normal">
           Enter your registered email address and we'll send you instructions to reset your password.
         </p>
       </div>
@@ -72,7 +72,7 @@ const ForgotPassword = () => {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl font-semibold shadow-lg shadow-purple-500/20 bg-[#7C3AED] hover:bg-purple-700 text-white flex items-center justify-center gap-2 py-2.5"
+          className="w-full rounded-xl font-medium shadow-xs shadow-indigo-500/20 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white flex items-center justify-center gap-2 py-2.5 active:scale-[0.99] cursor-pointer"
         >
           {loading ? (
             <>

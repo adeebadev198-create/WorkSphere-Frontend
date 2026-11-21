@@ -115,10 +115,10 @@ const Team = () => {
 
   const getRoleStyle = (role) => {
     switch (role) {
-      case 'Owner': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'Manager': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'Member': return 'bg-gray-100 text-gray-700 border-gray-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'Owner': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case 'Manager': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'Member': return 'bg-slate-100 text-slate-700 border-slate-200';
+      default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
 
@@ -126,12 +126,12 @@ const Team = () => {
     <div className="space-y-6">
       
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <Users className="w-5 h-5 text-purple-600" /> Team Members & Roles
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <Users className="w-5 h-5 text-indigo-600" /> Team Members & Roles
           </h1>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-500 font-normal mt-0.5">
             Manage departmental access, permissions, and employee assignments
           </p>
         </div>
@@ -139,7 +139,7 @@ const Team = () => {
         {isOwner && (
           <button
             onClick={() => setShowInviteModal(true)}
-            className="px-4 py-2.5 bg-[#7C3AED] hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md shadow-purple-200 transition-all flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-medium text-xs rounded-xl shadow-xs shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
             <UserPlus className="w-4 h-4" /> Invite New Member
           </button>
@@ -148,15 +148,15 @@ const Team = () => {
 
       {/* Filter Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {['All', 'Owner', 'Manager', 'Member'].map((r) => (
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                 roleFilter === r
-                  ? 'bg-purple-100 text-purple-700 shadow-sm'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-100'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs shadow-indigo-500/20'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               {r}
@@ -165,13 +165,13 @@ const Team = () => {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-purple-600"
+            className="w-full pl-8 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 placeholder-slate-400 text-slate-800"
           />
         </div>
       </div>
@@ -267,30 +267,30 @@ const Team = () => {
 
       {/* Invite Member Modal (FR-MEM-001) */}
       {showInviteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Invite Team Member</h2>
-            <p className="text-xs text-gray-500 mb-4">
-              Add employees to <span className="font-bold text-purple-700">{activeWorkspace?.name}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+            <h2 className="text-base font-semibold text-slate-900 mb-1">Invite Team Member</h2>
+            <p className="text-xs text-slate-500 mb-4 font-normal">
+              Add employees to <span className="font-medium text-indigo-600">{activeWorkspace?.name}</span>
             </p>
 
             {inviteSuccess && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-green-600" />
+              <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                 <span>{inviteSuccess}</span>
               </div>
             )}
 
             {inviteError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
                 <span>{inviteError}</span>
               </div>
             )}
 
             <form onSubmit={handleInvite} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Employee Email Address *
                 </label>
                 <input
@@ -299,36 +299,36 @@ const Team = () => {
                   placeholder="e.g. ahmed@company.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-purple-600"
+                  className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Assigned Workspace Role
                 </label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-purple-600 bg-white"
+                  className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 bg-white"
                 >
                   <option value="Member">Team Member (Can view & update assigned work)</option>
                   <option value="Manager">Project Manager (Can create projects & assign tasks)</option>
                 </select>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowInviteModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingInvite}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#7C3AED] hover:bg-purple-700 rounded-xl shadow-md shadow-purple-200 transition-all disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-xs shadow-indigo-500/20 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {submittingInvite ? 'Inviting...' : 'Send Invitation'}
                 </button>

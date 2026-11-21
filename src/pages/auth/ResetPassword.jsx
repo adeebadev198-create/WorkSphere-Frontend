@@ -53,14 +53,14 @@ const ResetPassword = () => {
       <div className="mb-6">
         <Link
           to="/login"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 mb-4 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 mb-4 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Login
         </Link>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">
+        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight mb-1">
           Create new password
         </h1>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 font-normal">
           Enter your new password below to regain access to WorkSphere.
         </p>
       </div>

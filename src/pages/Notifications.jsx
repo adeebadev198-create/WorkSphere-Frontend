@@ -94,12 +94,12 @@ const Notifications = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <Bell className="w-5 h-5 text-purple-600" /> Notifications & Reminders
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <Bell className="w-5 h-5 text-indigo-600" /> Notifications & Reminders
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 font-normal mt-0.5">
             Real-time activity alerts, task updates, and deadline reminders for this workspace.
           </p>
         </div>
@@ -109,7 +109,7 @@ const Notifications = () => {
             <button
               onClick={handleMarkAllRead}
               disabled={markingAll}
-              className="px-3.5 py-2 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-xl border border-purple-200 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="px-3.5 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200 transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
               {markingAll ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -123,12 +123,12 @@ const Notifications = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <button
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${
             filter === 'all'
-              ? 'bg-purple-600 text-white shadow-sm'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs shadow-indigo-500/20'
               : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
           }`}
         >
@@ -136,9 +136,9 @@ const Notifications = () => {
         </button>
         <button
           onClick={() => setFilter('unread')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${
             filter === 'unread'
-              ? 'bg-purple-600 text-white shadow-sm'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs shadow-indigo-500/20'
               : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
           }`}
         >
@@ -147,10 +147,10 @@ const Notifications = () => {
       </div>
 
       {/* Notifications List */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {loading ? (
           <div className="p-12 flex flex-col items-center justify-center">
-            <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-3" />
+            <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
             <p className="text-xs font-medium text-slate-500">Loading notifications...</p>
           </div>
         ) : filtered.length > 0 ? (
@@ -159,7 +159,7 @@ const Notifications = () => {
               <div
                 key={item._id}
                 className={`p-4 sm:p-5 flex items-start justify-between gap-4 transition-colors ${
-                  item.isRead ? 'bg-white hover:bg-slate-50/50' : 'bg-purple-50/30 hover:bg-purple-50/50'
+                  item.isRead ? 'bg-white hover:bg-slate-50/50' : 'bg-indigo-50/30 hover:bg-indigo-50/50'
                 }`}
               >
                 <div className="flex items-start gap-3.5 min-w-0">
@@ -169,13 +169,13 @@ const Notifications = () => {
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-bold text-slate-900">{item.title}</span>
+                      <span className="text-xs font-semibold text-slate-900">{item.title}</span>
                       {!item.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-purple-600 shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 shrink-0" />
                       )}
                     </div>
-                    <p className="text-xs text-slate-600 leading-relaxed">{item.message}</p>
-                    <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-400">
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal">{item.message}</p>
+                    <div className="flex items-center gap-3 mt-2 text-[10px] text-slate-400 font-normal">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {new Date(item.createdAt).toLocaleString()}
@@ -183,7 +183,7 @@ const Notifications = () => {
                       {item.link && (
                         <Link
                           to={item.link}
-                          className="font-semibold text-purple-600 hover:underline"
+                          className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
                         >
                           View context &rarr;
                         </Link>
@@ -195,7 +195,7 @@ const Notifications = () => {
                 {!item.isRead && (
                   <button
                     onClick={() => handleMarkAsRead(item._id)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 transition-colors shrink-0"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors shrink-0 cursor-pointer"
                     title="Mark as read"
                   >
                     <Check className="w-4 h-4" />
@@ -209,8 +209,8 @@ const Notifications = () => {
             <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
               <Bell className="w-6 h-6" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900">No notifications</h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            <h3 className="text-sm font-semibold text-slate-900">No notifications</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto font-normal">
               {filter === 'unread'
                 ? 'You have caught up with all your updates!'
                 : 'When tasks are assigned, updated, or approaching deadlines, notifications will appear here.'}

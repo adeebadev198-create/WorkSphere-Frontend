@@ -37,7 +37,7 @@ const Modal = ({ isOpen, onClose, title, description, children, maxWidth = 'max-
         <div className="flex items-start justify-between mb-4">
           <div>
             {title && (
-              <h2 className="text-base font-bold text-slate-900 tracking-tight">{title}</h2>
+              <h2 className="text-base font-semibold text-slate-900 tracking-tight">{title}</h2>
             )}
             {description && (
               <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{description}</p>
