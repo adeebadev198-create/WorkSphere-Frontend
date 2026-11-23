@@ -53,9 +53,10 @@ const Reports = () => {
       setExporting(true);
       const token = localStorage.getItem('worksphere_token');
       const wsId = activeWorkspace?._id || activeWorkspace?.id;
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/reports/export?type=${type}`,
+        `${apiBase}/reports/export?type=${type}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

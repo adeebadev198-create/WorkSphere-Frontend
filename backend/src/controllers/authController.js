@@ -65,7 +65,10 @@ const register = async (req, res, next) => {
         profilePicture: user.profilePicture,
         title: user.title,
       },
-      workspace: defaultWorkspace,
+      workspace: {
+        ...defaultWorkspace.toObject(),
+        memberRole: 'Owner',
+      },
       token,
     });
   } catch (error) {
@@ -106,8 +109,14 @@ const login = async (req, res, next) => {
     }).populate('workspace');
 
     const workspaces = memberships
-      .map((m) => m.workspace)
-      .filter((w) => w && !w.isArchived);
+      .map((m) => {
+        if (!m.workspace || m.workspace.isArchived) return null;
+        return {
+          ...m.workspace.toObject(),
+          memberRole: m.role,
+        };
+      })
+      .filter(Boolean);
 
     return successResponse(res, 200, 'Login successful', {
       user: {
@@ -176,8 +185,14 @@ const googleLogin = async (req, res, next) => {
     }).populate('workspace');
 
     const workspaces = memberships
-      .map((m) => m.workspace)
-      .filter((w) => w && !w.isArchived);
+      .map((m) => {
+        if (!m.workspace || m.workspace.isArchived) return null;
+        return {
+          ...m.workspace.toObject(),
+          memberRole: m.role,
+        };
+      })
+      .filter(Boolean);
 
     return successResponse(res, 200, 'Google Login successful', {
       user: {

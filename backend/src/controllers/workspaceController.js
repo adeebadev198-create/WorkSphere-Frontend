@@ -127,6 +127,11 @@ const getWorkspaceById = async (req, res, next) => {
 // @access  Private (Owner only)
 const updateWorkspace = async (req, res, next) => {
   try {
+    // 4.4 Permission Matrix: Workspace management - Owner: Full, Manager: No, Member: No
+    if (req.memberRole !== 'Owner') {
+      return errorResponse(res, 403, 'Permission denied: Workspace management is restricted to workspace owners');
+    }
+
     const { name, description, logo, status } = req.body;
     const workspace = req.workspace;
 
@@ -155,6 +160,11 @@ const updateWorkspace = async (req, res, next) => {
 // @access  Private (Owner only)
 const deleteWorkspace = async (req, res, next) => {
   try {
+    // 4.4 Permission Matrix: Workspace management - Owner: Full, Manager: No, Member: No
+    if (req.memberRole !== 'Owner') {
+      return errorResponse(res, 403, 'Permission denied: Workspace deletion is restricted to workspace owners');
+    }
+
     const workspace = req.workspace;
 
     // BR-005 & Soft delete per FR-WS-004

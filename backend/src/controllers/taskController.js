@@ -18,6 +18,21 @@ const getTasks = async (req, res, next) => {
       isArchived: false,
     };
 
+    // 4.4 Permission Matrix: View assigned tasks
+    // If user is a Member, scope tasks to those assigned to them or in projects they belong to
+    if (req.memberRole === 'Member') {
+      const memberProjects = await Project.find({
+        workspace: req.workspace._id,
+        members: req.user._id,
+      }).select('_id');
+      const memberProjectIds = memberProjects.map((p) => p._id);
+
+      filter.$or = [
+        { assignedTo: req.user._id },
+        { project: { $in: memberProjectIds } },
+      ];
+    }
+
     if (project) filter.project = project;
     if (status && status !== 'All') filter.status = status;
     if (priority && priority !== 'All') filter.priority = priority;
@@ -97,6 +112,23 @@ const getTaskById = async (req, res, next) => {
       return errorResponse(res, 404, 'Task not found in this workspace');
     }
 
+    // 4.4 Permission Matrix: Member view access check
+    if (req.memberRole === 'Member') {
+      const isAssignee = task.assignedTo.some(
+        (u) => (u._id || u).toString() === req.user._id.toString()
+      );
+      const isProjectMember =
+        task.project &&
+        task.project.members &&
+        task.project.members.some(
+          (m) => (m._id || m).toString() === req.user._id.toString()
+        );
+
+      if (!isAssignee && !isProjectMember) {
+        return errorResponse(res, 403, 'Permission denied: You do not have access to view this task');
+      }
+    }
+
     const comments = await Comment.find({ task: task._id })
       .populate('user', 'fullName email profilePicture')
       .sort({ createdAt: 1 });
@@ -121,6 +153,15 @@ const getTaskById = async (req, res, next) => {
 // @access  Private (Owner, Manager)
 const createTask = async (req, res, next) => {
   try {
+    // 4.4 Permission Matrix: Assign tasks / Create tasks - Owner: Yes, Manager: Yes, Member: No
+    if (!['Owner', 'Manager'].includes(req.memberRole)) {
+      return errorResponse(
+        res,
+        403,
+        'Permission denied: Only workspace owners and managers can create/assign tasks'
+      );
+    }
+
     const {
       project,
       title,
@@ -231,8 +272,20 @@ const updateTask = async (req, res, next) => {
       (uid) => uid.toString() === req.user._id.toString()
     );
 
-    if (!isOwnerOrManager && !isAssignee) {
-      return errorResponse(res, 403, 'You do not have permission to modify this task');
+    // 4.4 Permission Matrix: Update task status - Owner: Yes, Manager: Yes, Member: Assigned tasks
+    // 4.4 Permission Matrix: Assign tasks - Owner: Yes, Manager: Yes, Member: No
+    if (!isOwnerOrManager) {
+      if (!isAssignee) {
+        return errorResponse(res, 403, 'Permission denied: Members can only update tasks assigned to them');
+      }
+      // Members are strictly restricted to updating task status on their assigned tasks
+      if (title || assignedTo || priority || startDate || dueDate || dependencies) {
+        return errorResponse(
+          res,
+          403,
+          'Permission denied: Members cannot modify task assignments or project parameters'
+        );
+      }
     }
 
     const {

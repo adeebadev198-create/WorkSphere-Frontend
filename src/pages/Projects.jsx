@@ -237,7 +237,10 @@ const Projects = () => {
                       <FolderKanban className="w-5 h-5" />
                     </div>
 
-                    {activeWorkspace?.memberRole === 'Owner' && (
+                    {(activeWorkspace?.memberRole === 'Owner' ||
+                      (activeWorkspace?.memberRole === 'Manager' &&
+                        (p.manager?._id === (user?._id || user?.id) ||
+                         p.manager === (user?._id || user?.id)))) && (
                       <button
                         onClick={(e) => handleDeleteProject(p._id, e)}
                         className="text-slate-300 hover:text-rose-600 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"

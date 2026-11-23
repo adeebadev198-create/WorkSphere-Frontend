@@ -44,6 +44,11 @@ const getMembers = async (req, res, next) => {
 // @access  Private (Owner only)
 const inviteMember = async (req, res, next) => {
   try {
+    // 4.4 Permission Matrix: Invite members - Owner: Yes, Manager: No, Member: No
+    if (req.memberRole !== 'Owner') {
+      return errorResponse(res, 403, 'Permission denied: Only workspace owners can invite members');
+    }
+
     const { email, role = 'Member' } = req.body;
     if (!email) {
       return errorResponse(res, 400, 'Employee email is required');
@@ -205,6 +210,11 @@ const acceptInvitation = async (req, res, next) => {
 // @access  Private (Owner only)
 const updateMemberRole = async (req, res, next) => {
   try {
+    // 4.4 Permission Matrix: Assign workspace roles - Owner: Yes, Manager: No, Member: No
+    if (req.memberRole !== 'Owner') {
+      return errorResponse(res, 403, 'Permission denied: Only workspace owners can assign workspace roles');
+    }
+
     const { role } = req.body;
     const { userId } = req.params;
 
@@ -261,6 +271,11 @@ const updateMemberRole = async (req, res, next) => {
 // @access  Private (Owner only)
 const removeMember = async (req, res, next) => {
   try {
+    // 4.4 Permission Matrix: Workspace management / membership - Owner only
+    if (req.memberRole !== 'Owner') {
+      return errorResponse(res, 403, 'Permission denied: Only workspace owners can remove members');
+    }
+
     const { userId } = req.params;
 
     const member = await WorkspaceMember.findOne({

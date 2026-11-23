@@ -17,21 +17,44 @@ const getDashboardOverview = async (req, res, next) => {
     // Base filters
     let projectFilter = { workspace: workspaceId, isArchived: false };
     let taskFilter = { workspace: workspaceId, isArchived: false };
+    let activityFilter = { workspace: workspaceId };
 
-    // If Team Member, filter tasks assigned to them for personal stats
-    if (!isOwner && !isManager) {
-      taskFilter.assignedTo = req.user._id;
+    if (isOwner) {
+      // Owner has full visibility across the entire workspace
     } else if (isManager) {
-      // For manager, find their managed or assigned projects
+      // Manager analytics: Scoped to assigned / managed projects
       const managedProjects = await Project.find({
         workspace: workspaceId,
         $or: [{ manager: req.user._id }, { members: req.user._id }],
       }).select('_id');
       const pIds = managedProjects.map((p) => p._id);
-      // If they manage projects, filter by those projects
-      if (pIds.length > 0) {
-        projectFilter._id = { $in: pIds };
-      }
+
+      projectFilter._id = { $in: pIds };
+      taskFilter.project = { $in: pIds };
+      activityFilter.project = { $in: pIds };
+    } else {
+      // Team Member analytics: Scoped to personal tasks and member projects
+      taskFilter.assignedTo = req.user._id;
+
+      const memberProjects = await Project.find({
+        workspace: workspaceId,
+        members: req.user._id,
+      }).select('_id');
+      const memberPIds = memberProjects.map((p) => p._id);
+      projectFilter._id = { $in: memberPIds };
+
+      // Relevant activities for Member (own actions, assigned tasks, or member projects)
+      const assignedTasks = await Task.find({
+        workspace: workspaceId,
+        assignedTo: req.user._id,
+      }).select('_id');
+      const assignedTaskIds = assignedTasks.map((t) => t._id);
+
+      activityFilter.$or = [
+        { actor: req.user._id },
+        { task: { $in: assignedTaskIds } },
+        { project: { $in: memberPIds } },
+      ];
     }
 
     // Projects stats
@@ -117,8 +140,8 @@ const getDashboardOverview = async (req, res, next) => {
       .sort({ updatedAt: -1 })
       .limit(6);
 
-    // Recent activities
-    const recentActivities = await ActivityLog.find({ workspace: workspaceId })
+    // Recent activities (role-scoped)
+    const recentActivities = await ActivityLog.find(activityFilter)
       .populate('actor', 'fullName email profilePicture')
       .populate('project', 'name')
       .populate('task', 'title')

@@ -126,6 +126,11 @@ const getProjectById = async (req, res, next) => {
 // @access  Private (Owner, Manager)
 const createProject = async (req, res, next) => {
   try {
+    // 4.4 Permission Matrix: Create projects - Owner: Yes, Manager: Yes, Member: No
+    if (!['Owner', 'Manager'].includes(req.memberRole)) {
+      return errorResponse(res, 403, 'Permission denied: Only workspace owners and managers can create projects');
+    }
+
     const { name, description, manager, members = [], startDate, endDate, priority } = req.body;
 
     if (!name || !endDate) {
@@ -269,11 +274,19 @@ const archiveProject = async (req, res, next) => {
       return errorResponse(res, 404, 'Project not found');
     }
 
-    if (
-      req.memberRole !== 'Owner' &&
-      project.manager.toString() !== req.user._id.toString()
-    ) {
-      return errorResponse(res, 403, 'Permission denied to archive project');
+    // 4.4 Permission Matrix: Delete projects - Owner: Yes, Manager: Authorized projects, Member: No
+    const isOwner = req.memberRole === 'Owner';
+    const isAuthorizedManager =
+      req.memberRole === 'Manager' &&
+      project.manager &&
+      project.manager.toString() === req.user._id.toString();
+
+    if (!isOwner && !isAuthorizedManager) {
+      return errorResponse(
+        res,
+        403,
+        'Permission denied: Only workspace owners or designated project managers can delete/archive this project'
+      );
     }
 
     project.isArchived = true;

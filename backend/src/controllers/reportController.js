@@ -10,10 +10,23 @@ const { successResponse, errorResponse } = require('../utils/responseHandler');
 // @access  Private
 const getProjectReport = async (req, res, next) => {
   try {
-    const projects = await Project.find({
+    const isOwner = req.memberRole === 'Owner';
+    const isManager = req.memberRole === 'Manager';
+
+    const projectFilter = {
       workspace: req.workspace._id,
       isArchived: false,
-    })
+    };
+
+    if (!isOwner) {
+      if (isManager) {
+        projectFilter.$or = [{ manager: req.user._id }, { members: req.user._id }];
+      } else {
+        projectFilter.members = req.user._id;
+      }
+    }
+
+    const projects = await Project.find(projectFilter)
       .populate('manager', 'fullName email')
       .populate('members', 'fullName email');
 
@@ -61,11 +74,34 @@ const getProjectReport = async (req, res, next) => {
 const getTaskReport = async (req, res, next) => {
   try {
     const { status, priority, projectId } = req.query;
+    const isOwner = req.memberRole === 'Owner';
+    const isManager = req.memberRole === 'Manager';
+
     const filter = { workspace: req.workspace._id, isArchived: false };
+
+    if (!isOwner) {
+      if (isManager) {
+        const managedProjects = await Project.find({
+          workspace: req.workspace._id,
+          $or: [{ manager: req.user._id }, { members: req.user._id }],
+        }).select('_id');
+        const pIds = managedProjects.map((p) => p._id);
+        filter.project = { $in: pIds };
+      } else {
+        // Member: Personal tasks only
+        filter.assignedTo = req.user._id;
+      }
+    }
 
     if (status && status !== 'All') filter.status = status;
     if (priority && priority !== 'All') filter.priority = priority;
-    if (projectId) filter.project = projectId;
+    if (projectId) {
+      // If manager already filtered projects, check if projectId is within manager's projects
+      if (isManager && filter.project && !filter.project.$in.some((id) => id.toString() === projectId)) {
+        return successResponse(res, 200, 'Task report generated', []);
+      }
+      filter.project = projectId;
+    }
 
     const tasks = await Task.find(filter)
       .populate('project', 'name')
@@ -97,10 +133,35 @@ const getTaskReport = async (req, res, next) => {
 // @access  Private
 const getTeamPerformanceReport = async (req, res, next) => {
   try {
-    const members = await WorkspaceMember.find({
+    const isOwner = req.memberRole === 'Owner';
+    const isManager = req.memberRole === 'Manager';
+
+    let memberQuery = {
       workspace: req.workspace._id,
       status: 'Active',
-    }).populate('user', 'fullName email title');
+    };
+
+    if (!isOwner) {
+      if (!isManager) {
+        // Member: Only personal performance
+        memberQuery.user = req.user._id;
+      } else {
+        // Manager: Members belonging to assigned projects
+        const managedProjects = await Project.find({
+          workspace: req.workspace._id,
+          $or: [{ manager: req.user._id }, { members: req.user._id }],
+        }).select('members manager');
+        const userIds = new Set();
+        userIds.add(req.user._id.toString());
+        managedProjects.forEach((p) => {
+          if (p.manager) userIds.add(p.manager.toString());
+          (p.members || []).forEach((m) => userIds.add(m.toString()));
+        });
+        memberQuery.user = { $in: Array.from(userIds) };
+      }
+    }
+
+    const members = await WorkspaceMember.find(memberQuery).populate('user', 'fullName email title');
 
     const performance = await Promise.all(
       members.map(async (m) => {
@@ -163,14 +224,31 @@ const getTeamPerformanceReport = async (req, res, next) => {
 const exportCSV = async (req, res, next) => {
   try {
     const { type = 'tasks' } = req.query;
+    const isOwner = req.memberRole === 'Owner';
+    const isManager = req.memberRole === 'Manager';
     let data = [];
     let fields = [];
 
     if (type === 'tasks') {
-      const tasks = await Task.find({
+      const taskFilter = {
         workspace: req.workspace._id,
         isArchived: false,
-      })
+      };
+
+      if (!isOwner) {
+        if (isManager) {
+          const managedProjects = await Project.find({
+            workspace: req.workspace._id,
+            $or: [{ manager: req.user._id }, { members: req.user._id }],
+          }).select('_id');
+          const pIds = managedProjects.map((p) => p._id);
+          taskFilter.project = { $in: pIds };
+        } else {
+          taskFilter.assignedTo = req.user._id;
+        }
+      }
+
+      const tasks = await Task.find(taskFilter)
         .populate('project', 'name')
         .populate('assignedTo', 'fullName')
         .sort({ createdAt: -1 });
@@ -187,10 +265,20 @@ const exportCSV = async (req, res, next) => {
       }));
       fields = ['Task_Title', 'Project', 'Status', 'Priority', 'Assignees', 'Due_Date', 'Is_Overdue'];
     } else if (type === 'projects') {
-      const projects = await Project.find({
+      const projectFilter = {
         workspace: req.workspace._id,
         isArchived: false,
-      }).populate('manager', 'fullName');
+      };
+
+      if (!isOwner) {
+        if (isManager) {
+          projectFilter.$or = [{ manager: req.user._id }, { members: req.user._id }];
+        } else {
+          projectFilter.members = req.user._id;
+        }
+      }
+
+      const projects = await Project.find(projectFilter).populate('manager', 'fullName');
 
       data = projects.map((p) => ({
         Project_Name: p.name,

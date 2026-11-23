@@ -60,6 +60,10 @@ const TaskBoard = () => {
   const [createLoading, setCreateLoading] = useState(false);
   const [modalError, setModalError] = useState('');
 
+  const isOwner = activeWorkspace?.memberRole === 'Owner';
+  const isManager = activeWorkspace?.memberRole === 'Manager';
+  const canAssignTasks = isOwner || isManager;
+
   const fetchBoardData = async () => {
     try {
       setLoading(true);
@@ -109,6 +113,16 @@ const TaskBoard = () => {
 
     const currentTask = tasks.find((t) => t._id === taskId);
     if (!currentTask || currentTask.status === targetStatus) {
+      setDraggedTaskId(null);
+      return;
+    }
+
+    // SRS 4.4 Permission Matrix: Members can only update status of assigned tasks
+    const isAssigned = (currentTask.assignedTo || []).some(
+      (u) => (u._id || u.id || u) === (user?._id || user?.id)
+    );
+    if (!canAssignTasks && !isAssigned) {
+      alert('Permission denied: Members can only update the status of tasks assigned to them.');
       setDraggedTaskId(null);
       return;
     }
@@ -236,17 +250,19 @@ const TaskBoard = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              setCreateColumnStatus('To Do');
-              setShowCreateModal(true);
-            }}
-            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-medium text-xs rounded-xl shadow-xs shadow-indigo-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-[0.99]"
-          >
-            <Plus className="w-4 h-4" /> Add Task
-          </button>
-        </div>
+        {canAssignTasks && (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setCreateColumnStatus('To Do');
+                setShowCreateModal(true);
+              }}
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-medium text-xs rounded-xl shadow-xs shadow-indigo-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-[0.99]"
+            >
+              <Plus className="w-4 h-4" /> Add Task
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Filter and View Bar */}
@@ -318,15 +334,17 @@ const TaskBoard = () => {
                     <span className="font-semibold">{col.label}</span>
                     <span className="text-[11px] opacity-75">({colTasks.length})</span>
                   </div>
-                  <button
-                    onClick={() => {
-                      setCreateColumnStatus(col.key);
-                      setShowCreateModal(true);
-                    }}
-                    className="w-5 h-5 rounded-lg bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
-                  >
-                    +
-                  </button>
+                  {canAssignTasks && (
+                    <button
+                      onClick={() => {
+                        setCreateColumnStatus(col.key);
+                        setShowCreateModal(true);
+                      }}
+                      className="w-5 h-5 rounded-lg bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                    >
+                      +
+                    </button>
+                  )}
                 </div>
 
                 {/* Column Cards Stream */}
@@ -340,13 +358,20 @@ const TaskBoard = () => {
                           ? 'text-amber-600 bg-amber-50 border-amber-100'
                           : 'text-slate-600 bg-slate-100 border-slate-200';
 
+                      const isTaskAssigned = (task.assignedTo || []).some(
+                        (u) => (u._id || u.id || u) === (user?._id || user?.id)
+                      );
+                      const canDrag = canAssignTasks || isTaskAssigned;
+
                       return (
                         <div
                           key={task._id}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, task._id)}
+                          draggable={canDrag}
+                          onDragStart={(e) => canDrag && handleDragStart(e, task._id)}
                           onClick={() => openTaskModal(task._id)}
-                          className="group p-4 rounded-xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all duration-200 cursor-grab active:cursor-grabbing"
+                          className={`group p-4 rounded-xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all duration-200 ${
+                            canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+                          }`}
                         >
                           {/* Label tag & Priority */}
                           <div className="flex items-center justify-between mb-2">
