@@ -307,11 +307,77 @@ const archiveProject = async (req, res, next) => {
   }
 };
 
+// @desc    Add member to project
+// @route   POST /api/v1/projects/:id/members
+// @access  Private (Owner / Manager)
+const addProjectMember = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return errorResponse(res, 400, 'User ID is required');
+
+    const project = await Project.findOne({
+      _id: req.params.id,
+      workspace: req.workspace._id,
+    });
+    if (!project) return errorResponse(res, 404, 'Project not found in this workspace');
+
+    const isMember = await WorkspaceMember.findOne({
+      workspace: req.workspace._id,
+      user: userId,
+      status: 'Active',
+    });
+    if (!isMember) return errorResponse(res, 400, 'User must be an active workspace member');
+
+    if (project.members.some((m) => m.toString() === userId.toString())) {
+      return errorResponse(res, 400, 'User is already a member of this project');
+    }
+
+    project.members.push(userId);
+    await project.save();
+
+    await logActivity({
+      actor: req.user._id,
+      workspace: req.workspace._id,
+      project: project._id,
+      action: 'MEMBER_ADDED',
+      description: `${req.user.fullName} added a member to project "${project.name}"`,
+    });
+
+    return successResponse(res, 200, 'Member added to project', project);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Remove member from project
+// @route   DELETE /api/v1/projects/:id/members/:userId
+// @access  Private (Owner / Manager)
+const removeProjectMember = async (req, res, next) => {
+  try {
+    const project = await Project.findOne({
+      _id: req.params.id,
+      workspace: req.workspace._id,
+    });
+    if (!project) return errorResponse(res, 404, 'Project not found in this workspace');
+
+    project.members = project.members.filter(
+      (m) => m.toString() !== req.params.userId.toString()
+    );
+    await project.save();
+
+    return successResponse(res, 200, 'Member removed from project', project);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProjects,
   getProjectById,
   createProject,
   updateProject,
   archiveProject,
+  addProjectMember,
+  removeProjectMember,
 };
 

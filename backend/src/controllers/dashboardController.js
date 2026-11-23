@@ -207,7 +207,101 @@ const getDashboardOverview = async (req, res, next) => {
   }
 };
 
+// @desc    Get detailed task statistics
+// @route   GET /api/v1/dashboard/task-statistics
+// @access  Private
+const getTaskStatistics = async (req, res, next) => {
+  try {
+    const workspaceId = req.workspace._id;
+    const isOwner = req.memberRole === 'Owner';
+    const isManager = req.memberRole === 'Manager';
+
+    let taskFilter = { workspace: workspaceId, isArchived: false };
+
+    if (!isOwner) {
+      if (isManager) {
+        const managedProjects = await Project.find({
+          workspace: workspaceId,
+          $or: [{ manager: req.user._id }, { members: req.user._id }],
+        }).select('_id');
+        taskFilter.project = { $in: managedProjects.map((p) => p._id) };
+      } else {
+        taskFilter.assignedTo = req.user._id;
+      }
+    }
+
+    const total = await Task.countDocuments(taskFilter);
+    const completed = await Task.countDocuments({ ...taskFilter, status: 'Completed' });
+    const inProgress = await Task.countDocuments({ ...taskFilter, status: 'In Progress' });
+    const inReview = await Task.countDocuments({ ...taskFilter, status: 'In Review' });
+    const todo = await Task.countDocuments({ ...taskFilter, status: 'To Do' });
+    const overdue = await Task.countDocuments({
+      ...taskFilter,
+      status: { $ne: 'Completed' },
+      dueDate: { $lt: new Date() },
+    });
+
+    return successResponse(res, 200, 'Task statistics retrieved', {
+      total,
+      completed,
+      inProgress,
+      inReview,
+      todo,
+      overdue,
+      completionRate: total > 0 ? `${Math.round((completed / total) * 100)}%` : '0%',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get detailed project statistics
+// @route   GET /api/v1/dashboard/project-statistics
+// @access  Private
+const getProjectStatistics = async (req, res, next) => {
+  try {
+    const workspaceId = req.workspace._id;
+    const isOwner = req.memberRole === 'Owner';
+    const isManager = req.memberRole === 'Manager';
+
+    let projectFilter = { workspace: workspaceId, isArchived: false };
+
+    if (!isOwner) {
+      if (isManager) {
+        projectFilter.$or = [{ manager: req.user._id }, { members: req.user._id }];
+      } else {
+        projectFilter.members = req.user._id;
+      }
+    }
+
+    const total = await Project.countDocuments(projectFilter);
+    const active = await Project.countDocuments({
+      ...projectFilter,
+      status: { $in: ['Planning', 'In Progress'] },
+    });
+    const completed = await Project.countDocuments({
+      ...projectFilter,
+      status: 'Completed',
+    });
+    const onHold = await Project.countDocuments({
+      ...projectFilter,
+      status: 'On Hold',
+    });
+
+    return successResponse(res, 200, 'Project statistics retrieved', {
+      total,
+      active,
+      completed,
+      onHold,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboardOverview,
+  getTaskStatistics,
+  getProjectStatistics,
 };
 

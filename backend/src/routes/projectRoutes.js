@@ -7,6 +7,8 @@ const {
   createProject,
   updateProject,
   archiveProject,
+  addProjectMember,
+  removeProjectMember,
 } = require('../controllers/projectController');
 const { protect } = require('../middlewares/authMiddleware');
 const { verifyWorkspaceAccess, requireRole } = require('../middlewares/workspaceMiddleware');
@@ -23,6 +25,8 @@ router.route('/:id')
   .patch(updateProject)
   .delete(archiveProject);
 
+router.post('/:id/members', requireRole(['Owner', 'Manager']), addProjectMember);
+router.delete('/:id/members/:userId', requireRole(['Owner', 'Manager']), removeProjectMember);
 router.patch('/:id/archive', archiveProject);
 
 module.exports = router;

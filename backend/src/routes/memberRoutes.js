@@ -8,6 +8,8 @@ const {
   updateMemberRole,
   removeMember,
   getInvitations,
+  resendInvitation,
+  deleteInvitation,
 } = require('../controllers/memberController');
 const { protect } = require('../middlewares/authMiddleware');
 const { verifyWorkspaceAccess, requireRole } = require('../middlewares/workspaceMiddleware');
@@ -22,6 +24,8 @@ router.use(verifyWorkspaceAccess);
 router.get('/members', getMembers);
 router.post('/invitations', requireRole(['Owner']), inviteMember);
 router.get('/invitations', requireRole(['Owner']), getInvitations);
+router.post('/invitations/:id/resend', requireRole(['Owner']), resendInvitation);
+router.delete('/invitations/:id', requireRole(['Owner']), deleteInvitation);
 router.patch('/members/:userId/role', requireRole(['Owner']), updateMemberRole);
 router.delete('/members/:userId', requireRole(['Owner']), removeMember);
 

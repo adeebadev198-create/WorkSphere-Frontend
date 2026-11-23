@@ -343,6 +343,58 @@ const getInvitations = async (req, res, next) => {
   }
 };
 
+// @desc    Resend invitation
+// @route   POST /api/v1/invitations/:id/resend
+// @access  Private (Owner only)
+const resendInvitation = async (req, res, next) => {
+  try {
+    if (req.memberRole !== 'Owner') {
+      return errorResponse(res, 403, 'Permission denied: Only workspace owners can resend invitations');
+    }
+
+    const invitation = await WorkspaceInvitation.findOne({
+      _id: req.params.id,
+      workspace: req.workspace._id,
+    });
+    if (!invitation) return errorResponse(res, 404, 'Invitation not found');
+
+    const crypto = require('crypto');
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    invitation.tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    invitation.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    invitation.status = 'Pending';
+    await invitation.save();
+
+    return successResponse(res, 200, 'Invitation resent successfully', {
+      invitation,
+      invitationToken: rawToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete/Revoke invitation
+// @route   DELETE /api/v1/invitations/:id
+// @access  Private (Owner only)
+const deleteInvitation = async (req, res, next) => {
+  try {
+    if (req.memberRole !== 'Owner') {
+      return errorResponse(res, 403, 'Permission denied: Only workspace owners can delete invitations');
+    }
+
+    const invitation = await WorkspaceInvitation.findOneAndDelete({
+      _id: req.params.id,
+      workspace: req.workspace._id,
+    });
+    if (!invitation) return errorResponse(res, 404, 'Invitation not found');
+
+    return successResponse(res, 200, 'Invitation cancelled successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getMembers,
   inviteMember,
@@ -350,5 +402,7 @@ module.exports = {
   updateMemberRole,
   removeMember,
   getInvitations,
+  resendInvitation,
+  deleteInvitation,
 };
 
