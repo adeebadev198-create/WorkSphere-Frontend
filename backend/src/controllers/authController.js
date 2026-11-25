@@ -5,6 +5,7 @@ const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Workspace = require('../models/Workspace');
 const WorkspaceMember = require('../models/WorkspaceMember');
+const WorkspaceInvitation = require('../models/WorkspaceInvitation');
 const { generateToken } = require('../utils/token');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
 
@@ -39,21 +40,93 @@ const register = async (req, res, next) => {
       email: email.toLowerCase(),
       password,
       profilePicture: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`,
+      title: 'Team Member',
     });
 
-    const defaultWorkspace = await Workspace.create({
-      name: `${fullName.split(' ')[0]}'s Workspace`,
-      description: 'Default personal workspace',
-      owner: user._id,
-      status: 'Active',
-    });
+    // Check if user has a pending invitation
+    const pendingInvitation = await WorkspaceInvitation.findOne({
+      email: email.toLowerCase(),
+      status: 'Pending',
+      expiresAt: { $gt: Date.now() },
+    }).populate('workspace');
 
-    await WorkspaceMember.create({
-      workspace: defaultWorkspace._id,
-      user: user._id,
-      role: 'Owner',
-      status: 'Active',
-    });
+    let assignedWorkspace = null;
+
+    if (pendingInvitation && pendingInvitation.workspace && !pendingInvitation.workspace.isArchived) {
+      // User was invited: assign invited role (default: Member)
+      await WorkspaceMember.create({
+        workspace: pendingInvitation.workspace._id,
+        user: user._id,
+        role: pendingInvitation.role || 'Member',
+        status: 'Active',
+      });
+
+      pendingInvitation.status = 'Accepted';
+      pendingInvitation.acceptedAt = Date.now();
+      await pendingInvitation.save();
+
+      assignedWorkspace = {
+        ...pendingInvitation.workspace.toObject(),
+        memberRole: pendingInvitation.role || 'Member',
+      };
+    } else {
+      // Rule 1: Every newly registered user must automatically receive the Member role.
+      // Never assign Owner, Manager, Admin, or elevated permissions automatically.
+      let primaryWorkspace = await Workspace.findOne({
+        name: /Software Engineering & Product/i,
+        isArchived: { $ne: true },
+      });
+
+      if (!primaryWorkspace) {
+        const adminUser = await User.findOne({ email: 'admin@worksphere.com' });
+        if (adminUser) {
+          primaryWorkspace = await Workspace.findOne({
+            owner: adminUser._id,
+            isArchived: { $ne: true },
+          });
+        }
+      }
+
+      if (!primaryWorkspace) {
+        primaryWorkspace = await Workspace.findOne({
+          isArchived: { $ne: true },
+        }).sort({ createdAt: -1 });
+      }
+
+      if (primaryWorkspace) {
+        await WorkspaceMember.create({
+          workspace: primaryWorkspace._id,
+          user: user._id,
+          role: 'Member', // Strictly 'Member'
+          status: 'Active',
+        });
+
+        assignedWorkspace = {
+          ...primaryWorkspace.toObject(),
+          memberRole: 'Member',
+        };
+      } else {
+        // Fallback only if no workspace exists in database at all
+        const firstWorkspace = await Workspace.create({
+          name: `${fullName.split(' ')[0]}'s Workspace`,
+          description: 'Default personal workspace',
+          owner: user._id,
+          status: 'Active',
+        });
+
+        await WorkspaceMember.create({
+          workspace: firstWorkspace._id,
+          user: user._id,
+          role: 'Member',
+          status: 'Active',
+        });
+
+        assignedWorkspace = {
+          ...firstWorkspace.toObject(),
+          memberRole: 'Member',
+        };
+      }
+    }
 
     const token = generateToken(user._id);
 
@@ -65,10 +138,7 @@ const register = async (req, res, next) => {
         profilePicture: user.profilePicture,
         title: user.title,
       },
-      workspace: {
-        ...defaultWorkspace.toObject(),
-        memberRole: 'Owner',
-      },
+      workspace: assignedWorkspace,
       token,
     });
   } catch (error) {
@@ -160,21 +230,58 @@ const googleLogin = async (req, res, next) => {
         email: email.toLowerCase(),
         password: crypto.randomBytes(16).toString('hex'),
         profilePicture: picture || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
+        title: 'Team Member',
       });
 
-      const defaultWorkspace = await Workspace.create({
-        name: `${name.split(' ')[0]}'s Workspace`,
-        description: 'Default personal workspace',
-        owner: user._id,
-        status: 'Active',
-      });
+      // Check if user has a pending invitation
+      const pendingInvitation = await WorkspaceInvitation.findOne({
+        email: email.toLowerCase(),
+        status: 'Pending',
+        expiresAt: { $gt: Date.now() },
+      }).populate('workspace');
 
-      await WorkspaceMember.create({
-        workspace: defaultWorkspace._id,
-        user: user._id,
-        role: 'Owner',
-        status: 'Active',
-      });
+      if (pendingInvitation && pendingInvitation.workspace && !pendingInvitation.workspace.isArchived) {
+        await WorkspaceMember.create({
+          workspace: pendingInvitation.workspace._id,
+          user: user._id,
+          role: pendingInvitation.role || 'Member',
+          status: 'Active',
+        });
+        pendingInvitation.status = 'Accepted';
+        pendingInvitation.acceptedAt = Date.now();
+        await pendingInvitation.save();
+      } else {
+        // Rule 1: Every newly registered user receives Member role in the primary workspace
+        let primaryWorkspace = await Workspace.findOne({
+          name: /Software Engineering & Product/i,
+          isArchived: { $ne: true },
+        });
+
+        if (!primaryWorkspace) {
+          const adminUser = await User.findOne({ email: 'admin@worksphere.com' });
+          if (adminUser) {
+            primaryWorkspace = await Workspace.findOne({
+              owner: adminUser._id,
+              isArchived: { $ne: true },
+            });
+          }
+        }
+
+        if (!primaryWorkspace) {
+          primaryWorkspace = await Workspace.findOne({
+            isArchived: { $ne: true },
+          }).sort({ createdAt: -1 });
+        }
+
+        if (primaryWorkspace) {
+          await WorkspaceMember.create({
+            workspace: primaryWorkspace._id,
+            user: user._id,
+            role: 'Member',
+            status: 'Active',
+          });
+        }
+      }
     }
 
     const token = generateToken(user._id);

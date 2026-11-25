@@ -58,6 +58,21 @@ const createWorkspace = async (req, res, next) => {
       return errorResponse(res, 400, 'Workspace name is required');
     }
 
+    // SRS 4.4 Permission Matrix: Create Workspace - Owner: Yes, Manager: No, Member: No
+    const isOwner = await WorkspaceMember.findOne({
+      user: req.user._id,
+      role: 'Owner',
+      status: 'Active',
+    });
+
+    if (!isOwner) {
+      return errorResponse(
+        res,
+        403,
+        'Permission denied: Only workspace Owners can create workspaces'
+      );
+    }
+
     const workspace = await Workspace.create({
       name,
       description: description || '',

@@ -25,26 +25,25 @@ const verifyWorkspaceAccess = async (req, res, next) => {
       return errorResponse(res, 404, 'Workspace not found');
     }
 
-    // Check if user is the direct owner or a member
+    // Database source of truth: check active membership in WorkspaceMember collection
     let memberRole = null;
 
-    if (workspace.owner.toString() === req.user._id.toString()) {
+    const membership = await WorkspaceMember.findOne({
+      workspace: workspaceId,
+      user: req.user._id,
+      status: 'Active',
+    });
+
+    if (membership) {
+      memberRole = membership.role;
+    } else if (workspace.owner && workspace.owner.toString() === req.user._id.toString()) {
       memberRole = 'Owner';
     } else {
-      const membership = await WorkspaceMember.findOne({
-        workspace: workspaceId,
-        user: req.user._id,
-        status: 'Active',
-      });
-
-      if (!membership) {
-        return errorResponse(
-          res,
-          403,
-          'Access denied: You are not an active member of this workspace'
-        );
-      }
-      memberRole = membership.role;
+      return errorResponse(
+        res,
+        403,
+        'Access denied: You are not an active member of this workspace'
+      );
     }
 
     req.workspace = workspace;

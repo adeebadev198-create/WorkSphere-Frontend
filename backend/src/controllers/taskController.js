@@ -266,6 +266,19 @@ const updateTask = async (req, res, next) => {
       return errorResponse(res, 404, 'Task not found');
     }
 
+    const {
+      title,
+      description,
+      assignedTo,
+      priority,
+      status,
+      startDate,
+      dueDate,
+      labels,
+      dependencies,
+      version, // Optimistic Concurrency - Scenario 10
+    } = req.body || {};
+
     // Authorization check
     const isOwnerOrManager = ['Owner', 'Manager'].includes(req.memberRole);
     const isAssignee = task.assignedTo.some(
@@ -287,19 +300,6 @@ const updateTask = async (req, res, next) => {
         );
       }
     }
-
-    const {
-      title,
-      description,
-      assignedTo,
-      priority,
-      status,
-      startDate,
-      dueDate,
-      labels,
-      dependencies,
-      version, // Optimistic Concurrency - Scenario 10
-    } = req.body;
 
     // Check version conflict if client sent version
     if (version !== undefined && task.version !== version) {
