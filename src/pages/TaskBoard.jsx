@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
+import { PageLoader } from '../components/common/Loader';
 import {
   Plus,
   Search,
@@ -386,9 +387,8 @@ const TaskBoard = () => {
 
       {/* ── 4-Column Soft Pastel Kanban Board ── */}
       {loading ? (
-        <div className="p-16 flex flex-col items-center justify-center bg-white rounded-2xl border border-slate-200">
-          <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
-          <p className="text-xs font-medium text-slate-500">Loading board from MongoDB...</p>
+        <div className="p-12 flex items-center justify-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+          <PageLoader text="Loading board from MongoDB..." />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">

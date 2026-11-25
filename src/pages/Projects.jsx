@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
+import { PageLoader } from '../components/common/Loader';
 import {
   FolderKanban,
   Plus,
@@ -275,9 +276,8 @@ const Projects = () => {
 
       {/* Projects Grid */}
       {loading ? (
-        <div className="p-16 flex flex-col items-center justify-center bg-white rounded-2xl border border-slate-200">
-          <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
-          <p className="text-xs font-medium text-slate-500">Loading projects from MongoDB...</p>
+        <div className="p-12 flex items-center justify-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+          <PageLoader text="Loading projects from MongoDB..." />
         </div>
       ) : filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

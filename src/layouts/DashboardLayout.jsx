@@ -162,23 +162,23 @@ const DashboardLayout = () => {
   const Sidebar = ({ onClose }) => (
     <div className="flex flex-col h-full bg-[#FAFAFC] w-64 shrink-0 border-r border-slate-200/80 select-none">
       
-      {/* Brand Header */}
-      <div className="flex items-center justify-between px-5 h-20 border-b border-slate-200/70 bg-white">
+      {/* Brand Header — Exact h-16 alignment matching top navbar */}
+      <div className="flex items-center justify-between px-5 h-16 border-b border-slate-200/80 bg-white shrink-0">
         <Link
           to="/dashboard"
-          className="flex items-center gap-2 group transition-opacity hover:opacity-95"
+          className="flex items-center group transition-opacity hover:opacity-95"
           onClick={onClose}
         >
           <img
             src={logoImg}
             alt="WorkSphere - Plan • Collaborate • Achieve"
-            className="h-10 w-auto max-w-[170px] object-contain"
+            className="h-8 sm:h-9 w-auto max-w-[170px] object-contain"
           />
         </Link>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 lg:hidden rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-slate-400 hover:text-slate-600 p-1.5 lg:hidden rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
@@ -383,36 +383,36 @@ const DashboardLayout = () => {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         
         {/* Top Navbar */}
-        <header className="h-16 px-6 lg:px-8 bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-20 flex items-center justify-between">
+        <header className="h-16 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200/80 sticky top-0 z-20 flex items-center justify-between">
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 cursor-pointer"
+              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
               aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold text-slate-900 tracking-tight">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 truncate">
+                <h1 className="text-sm font-bold text-slate-900 tracking-tight truncate">
                   {pageTitle}
                 </h1>
                 <span className="hidden sm:inline-block text-slate-300">•</span>
-                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 truncate">
                   <span className="text-slate-400">Workspace:</span>
-                  <strong className="text-slate-800 font-semibold">{activeWorkspace?.name || 'Default'}</strong>
+                  <strong className="text-slate-800 font-semibold truncate">{activeWorkspace?.name || 'Default'}</strong>
                 </span>
               </div>
             </div>
           </div>
 
           {/* Right Header Utilities */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
             
             {/* Search Pill */}
-            <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200/70 text-xs text-slate-400 w-60 focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all">
-              <Search className="w-3.5 h-3.5 text-slate-400" />
+            <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200/70 text-xs text-slate-400 w-56 lg:w-64 focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all">
+              <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <input
                 type="text"
                 placeholder="Search projects, tasks, members..."
@@ -423,7 +423,7 @@ const DashboardLayout = () => {
             {/* Notifications Bell */}
             <Link
               to="/notifications"
-              className="relative p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors"
+              className="relative p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors shrink-0"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
@@ -433,7 +433,7 @@ const DashboardLayout = () => {
             </Link>
 
             {/* User Dropdown */}
-            <div className="relative" ref={userMenuRef}>
+            <div className="relative shrink-0" ref={userMenuRef}>
               <button
                 onClick={() => setUserMenuOpen((v) => !v)}
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
+import { PageLoader } from '../components/common/Loader';
 import { 
   CheckSquare, 
   Search, 
@@ -300,9 +301,8 @@ const Tasks = () => {
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {loading ? (
-          <div className="flex flex-col items-center justify-center min-h-[300px]">
-            <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-2" />
-            <p className="text-xs text-slate-500 font-medium">Loading tasks...</p>
+          <div className="p-12 flex items-center justify-center">
+            <PageLoader text="Loading tasks..." />
           </div>
         ) : filteredTasks.length > 0 ? (
           <div className="overflow-x-auto">

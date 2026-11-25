@@ -36,6 +36,7 @@ import {
   User,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PageLoader } from '../components/common/Loader';
 
 const Dashboard = () => {
   const { activeWorkspace, user } = useAuth();
@@ -77,9 +78,8 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[480px]">
-        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
-        <p className="text-xs font-semibold text-slate-500">Aggregating workspace intelligence from MongoDB Atlas...</p>
+      <div className="min-h-[480px] flex items-center justify-center">
+        <PageLoader text="Aggregating workspace intelligence..." />
       </div>
     );
   }

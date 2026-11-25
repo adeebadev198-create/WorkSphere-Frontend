@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
+import { PageLoader } from '../components/common/Loader';
 import { 
   Users, 
   UserPlus, 
@@ -210,11 +211,10 @@ const Team = () => {
       </div>
 
       {/* Members Table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {loading ? (
-          <div className="flex flex-col items-center justify-center min-h-[300px]">
-            <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin mb-2" />
-            <p className="text-xs text-gray-500 font-semibold">Loading members...</p>
+          <div className="p-12 flex items-center justify-center">
+            <PageLoader text="Loading members..." />
           </div>
         ) : (
           <div className="overflow-x-auto">

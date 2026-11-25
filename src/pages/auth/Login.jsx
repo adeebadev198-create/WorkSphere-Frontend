@@ -103,15 +103,31 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#090D16] p-4 sm:p-6 lg:p-8 font-sans selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 font-sans selection:bg-indigo-600 selection:text-white relative overflow-hidden">
       
+      {/* Ambient Logo Theme Orbs */}
+      <div
+        className="fixed -top-40 -left-40 w-96 h-96 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+      />
+      <div
+        className="fixed -bottom-40 -right-40 w-96 h-96 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.10) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+      />
+
       {/* ── Outer Shell Container ── */}
-      <div className="w-full max-w-6xl min-h-[660px] rounded-3xl bg-[#0F1422] border border-white/10 shadow-2xl overflow-hidden flex flex-col lg:flex-row relative z-10 backdrop-blur-xl">
+      <div className="w-full max-w-6xl min-h-[660px] rounded-3xl bg-white border border-slate-200/90 shadow-xl overflow-hidden flex flex-col lg:flex-row relative z-10">
         
         {/* ══════════════════════════════════════════════════
             LEFT PANEL: BRAND VISUAL & ABSTRACT WORKSPACE
         ══════════════════════════════════════════════════ */}
-        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-gradient-to-br from-[#121829] via-[#0E1322] to-[#0A0D17] border-r border-white/10">
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-10 xl:p-12 relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E1B4B] to-[#0F172A] border-r border-slate-200/40 text-white">
           
           {/* Ambient Lighting Orbs */}
           <div
@@ -131,8 +147,8 @@ const Login = () => {
 
           {/* Top Brand Tag */}
           <div className="relative z-10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 p-2 backdrop-blur-md flex items-center justify-center shadow-lg">
-              <img src={logoImg} alt="WorkSphere" className="w-full h-full object-contain" />
+            <div className="h-10 px-3 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-lg">
+              <img src={logoImg} alt="WorkSphere" className="h-6 w-auto object-contain brightness-0 invert" />
             </div>
             <div>
               <span className="text-base font-bold text-white tracking-tight">WorkSphere</span>
@@ -223,15 +239,18 @@ const Login = () => {
         {/* ══════════════════════════════════════════════════
             RIGHT PANEL: CLEAN, ELEGANT LOGIN FORM
         ══════════════════════════════════════════════════ */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 sm:p-12 bg-white">
+        <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 xl:p-12 bg-white">
           
           <div className="max-w-md w-full mx-auto my-auto space-y-6">
             
-            {/* Header */}
-            <div>
-              <div className="flex items-center gap-2 lg:hidden mb-4">
-                <img src={logoImg} alt="WorkSphere" className="h-8 w-auto object-contain" />
-                <span className="font-bold text-slate-900 text-base">WorkSphere</span>
+            {/* Header with Centered Official Logo on Mobile */}
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left mb-6">
+              <div className="lg:hidden mb-4">
+                <img
+                  src={logoImg}
+                  alt="WorkSphere - Plan • Collaborate • Achieve"
+                  className="h-10 sm:h-12 w-auto max-w-[220px] object-contain"
+                />
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 Welcome back

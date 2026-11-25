@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { PageLoader } from '../components/common/Loader';
 import {
   ArrowLeft,
   Calendar,
@@ -648,9 +649,8 @@ const ProjectDetails = () => {
   /* ── Loading state ── */
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin mb-2" />
-        <p className="text-xs text-gray-500 font-semibold">Loading project details…</p>
+      <div className="min-h-[420px] flex items-center justify-center">
+        <PageLoader text="Loading project details..." />
       </div>
     );
   }
