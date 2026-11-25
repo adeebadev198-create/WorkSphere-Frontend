@@ -274,18 +274,12 @@ const archiveProject = async (req, res, next) => {
       return errorResponse(res, 404, 'Project not found');
     }
 
-    // 4.4 Permission Matrix: Delete projects - Owner: Yes, Manager: Authorized projects, Member: No
-    const isOwner = req.memberRole === 'Owner';
-    const isAuthorizedManager =
-      req.memberRole === 'Manager' &&
-      project.manager &&
-      project.manager.toString() === req.user._id.toString();
-
-    if (!isOwner && !isAuthorizedManager) {
+    // SRS 4.4 Permission Matrix: Delete projects - Owner: Yes, Manager: No, Member: No
+    if (req.memberRole !== 'Owner') {
       return errorResponse(
         res,
         403,
-        'Permission denied: Only workspace owners or designated project managers can delete/archive this project'
+        'Permission denied: Only workspace owners can delete or archive projects'
       );
     }
 

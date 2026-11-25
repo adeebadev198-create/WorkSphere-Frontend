@@ -17,6 +17,7 @@ import {
 
 const Reports = () => {
   const { activeWorkspace } = useAuth();
+  const canExport = activeWorkspace?.memberRole === 'Owner' || activeWorkspace?.memberRole === 'Manager';
 
   const [projectReports, setProjectReports] = useState([]);
   const [teamReports, setTeamReports] = useState([]);
@@ -99,22 +100,24 @@ const Reports = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleExportCSV('tasks')}
-            disabled={exporting}
-            className="px-3.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-medium rounded-xl border border-blue-200 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" /> Export Tasks (CSV)
-          </button>
-          <button
-            onClick={() => handleExportCSV('projects')}
-            disabled={exporting}
-            className="px-3.5 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-medium rounded-xl border border-indigo-200 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" /> Export Projects (CSV)
-          </button>
-        </div>
+        {canExport && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleExportCSV('tasks')}
+              disabled={exporting}
+              className="px-3.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-medium rounded-xl border border-blue-200 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" /> Export Tasks (CSV)
+            </button>
+            <button
+              onClick={() => handleExportCSV('projects')}
+              disabled={exporting}
+              className="px-3.5 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-medium rounded-xl border border-indigo-200 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" /> Export Projects (CSV)
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}

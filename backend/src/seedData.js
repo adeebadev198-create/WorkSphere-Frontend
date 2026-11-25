@@ -1,3 +1,4 @@
+
 // backend/src/seedData.js
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const mongoose = require('mongoose');
@@ -31,10 +32,10 @@ const seed = async () => {
       await WorkspaceMember.deleteMany({ user: { $in: existingUserIds } });
       const workspaces = await Workspace.find({ owner: { $in: existingUserIds } });
       const wsIds = workspaces.map((w) => w._id);
-      
+
       const projects = await Project.find({ workspace: { $in: wsIds } });
       const pIds = projects.map((p) => p._id);
-      
+
       await Task.deleteMany({ project: { $in: pIds } });
       await ActivityLog.deleteMany({ workspace: { $in: wsIds } });
       await Project.deleteMany({ workspace: { $in: wsIds } });

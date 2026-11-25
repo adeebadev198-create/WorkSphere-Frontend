@@ -8,7 +8,7 @@ const {
   exportCSV,
 } = require('../controllers/reportController');
 const { protect } = require('../middlewares/authMiddleware');
-const { verifyWorkspaceAccess } = require('../middlewares/workspaceMiddleware');
+const { verifyWorkspaceAccess, requireRole } = require('../middlewares/workspaceMiddleware');
 
 router.use(protect);
 router.use(verifyWorkspaceAccess);
@@ -16,7 +16,7 @@ router.use(verifyWorkspaceAccess);
 router.get('/projects', getProjectReport);
 router.get('/tasks', getTaskReport);
 router.get('/team-performance', getTeamPerformanceReport);
-router.get('/export', exportCSV);
+router.get('/export', requireRole(['Owner', 'Manager']), exportCSV);
 
 module.exports = router;
 

@@ -21,6 +21,7 @@ import {
 
 const Tasks = () => {
   const { activeWorkspace, user } = useAuth();
+  const canManage = activeWorkspace?.memberRole === 'Owner' || activeWorkspace?.memberRole === 'Manager';
 
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -242,7 +243,7 @@ const Tasks = () => {
                   <th className="py-3 px-6">Due Date</th>
                   <th className="py-3 px-6">Assignee</th>
                   <th className="py-3 px-6">Status</th>
-                  <th className="py-3 px-6 text-right">Actions</th>
+                  {canManage && <th className="py-3 px-6 text-right">Actions</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -296,36 +297,51 @@ const Tasks = () => {
                       </td>
 
                       <td className="py-3.5 px-6">
-                        <select
-                          value={t.status}
-                          onChange={(e) => handleStatusChange(t._id, e.target.value)}
-                          className="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50/80 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500"
-                        >
-                          <option value="To Do">To Do</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="In Review">In Review</option>
-                          <option value="Completed">Completed</option>
-                        </select>
+                        {(() => {
+                          const isAssigned = (t.assignedTo || []).some(
+                            (u) => (u._id || u.id || u) === (user?._id || user?.id)
+                          );
+                          const canUpdate = canManage || isAssigned;
+
+                          return canUpdate ? (
+                            <select
+                              value={t.status}
+                              onChange={(e) => handleStatusChange(t._id, e.target.value)}
+                              className="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50/80 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                            >
+                              <option value="To Do">To Do</option>
+                              <option value="In Progress">In Progress</option>
+                              <option value="In Review">In Review</option>
+                              <option value="Completed">Completed</option>
+                            </select>
+                          ) : (
+                            <span className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 rounded-lg">
+                              {t.status}
+                            </span>
+                          );
+                        })()}
                       </td>
 
-                      <td className="py-3.5 px-6 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => openEditTaskModal(t)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors cursor-pointer"
-                            title="Edit Task"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => setTaskToDelete(t)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                            title="Archive Task"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
+                      {canManage && (
+                        <td className="py-3.5 px-6 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => openEditTaskModal(t)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                              title="Edit Task"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setTaskToDelete(t)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Archive Task"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}

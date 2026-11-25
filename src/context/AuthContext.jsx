@@ -48,12 +48,17 @@ export const AuthProvider = ({ children }) => {
             setWorkspaces(wList);
 
             if (wList.length > 0) {
-              // If active workspace is not set or not in current list, set first
+              // Always verify and match against wList to guarantee memberRole matches the logged-in user
               const currentActive = localStorage.getItem('worksphere_active_workspace');
               const parsedCurrent = currentActive ? JSON.parse(currentActive) : null;
-              const exists = parsedCurrent && wList.some((w) => (w._id || w.id) === (parsedCurrent._id || parsedCurrent.id));
+              const matched = parsedCurrent
+                ? wList.find((w) => (w._id || w.id) === (parsedCurrent._id || parsedCurrent.id))
+                : null;
 
-              if (!exists) {
+              if (matched) {
+                setActiveWorkspace(matched);
+                localStorage.setItem('worksphere_active_workspace', JSON.stringify(matched));
+              } else {
                 setActiveWorkspace(wList[0]);
                 localStorage.setItem('worksphere_active_workspace', JSON.stringify(wList[0]));
               }

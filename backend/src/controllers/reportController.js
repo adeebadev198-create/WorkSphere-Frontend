@@ -223,6 +223,11 @@ const getTeamPerformanceReport = async (req, res, next) => {
 // @access  Private
 const exportCSV = async (req, res, next) => {
   try {
+    // SRS 4.4 Permission Matrix: Export reports - Owner: Yes, Manager: Yes, Member: No
+    if (!['Owner', 'Manager'].includes(req.memberRole)) {
+      return errorResponse(res, 403, 'Permission denied: Team members cannot export workspace reports');
+    }
+
     const { type = 'tasks' } = req.query;
     const isOwner = req.memberRole === 'Owner';
     const isManager = req.memberRole === 'Manager';

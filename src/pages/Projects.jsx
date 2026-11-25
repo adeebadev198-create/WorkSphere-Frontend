@@ -300,11 +300,12 @@ const Projects = () => {
                       <FolderKanban className="w-5 h-5" />
                     </div>
 
-                    {(activeWorkspace?.memberRole === 'Owner' ||
-                      (activeWorkspace?.memberRole === 'Manager' &&
-                        (p.manager?._id === (user?._id || user?.id) ||
-                         p.manager === (user?._id || user?.id)))) && (
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Edit Project: Owner or designated Manager */}
+                      {(activeWorkspace?.memberRole === 'Owner' ||
+                        (activeWorkspace?.memberRole === 'Manager' &&
+                          (p.manager?._id === (user?._id || user?.id) ||
+                           p.manager === (user?._id || user?.id)))) && (
                         <button
                           onClick={(e) => openEditModal(p, e)}
                           className="text-slate-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
@@ -312,6 +313,10 @@ const Projects = () => {
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
+                      )}
+
+                      {/* Archive/Delete Project: Owner ONLY */}
+                      {activeWorkspace?.memberRole === 'Owner' && (
                         <button
                           onClick={(e) => openDeleteModal(p, e)}
                           className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
@@ -319,8 +324,8 @@ const Projects = () => {
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   {/* Title and Short Description */}

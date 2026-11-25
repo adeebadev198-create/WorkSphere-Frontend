@@ -235,14 +235,16 @@ const Dashboard = () => {
             </Link>
           )}
 
-          <Link
-            to="/reports"
-            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors flex items-center gap-1.5"
-            title="Export CSV Reports"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-            Export CSV
-          </Link>
+          {canManage && (
+            <Link
+              to="/reports"
+              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors flex items-center gap-1.5"
+              title="Export CSV Reports"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              Export CSV
+            </Link>
+          )}
         </div>
       </div>
 

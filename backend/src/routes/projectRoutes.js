@@ -22,12 +22,12 @@ router.route('/')
 
 router.route('/:id')
   .get(getProjectById)
-  .patch(updateProject)
-  .delete(archiveProject);
+  .patch(requireRole(['Owner', 'Manager']), updateProject)
+  .delete(requireRole(['Owner']), archiveProject);
 
 router.post('/:id/members', requireRole(['Owner', 'Manager']), addProjectMember);
 router.delete('/:id/members/:userId', requireRole(['Owner', 'Manager']), removeProjectMember);
-router.patch('/:id/archive', archiveProject);
+router.patch('/:id/archive', requireRole(['Owner']), archiveProject);
 
 module.exports = router;
 

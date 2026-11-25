@@ -230,17 +230,19 @@ const DashboardLayout = () => {
                 })
               ) : null}
             </div>
-            <div className="border-t border-slate-100 p-1 bg-slate-50/50">
-              <button
-                onClick={() => {
-                  setWorkspaceDropdownOpen(false);
-                  setShowWorkspaceModal(true);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-indigo-600 font-semibold hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" /> Create Workspace
-              </button>
-            </div>
+            {activeWorkspace?.memberRole === 'Owner' && (
+              <div className="border-t border-slate-100 p-1 bg-slate-50/50">
+                <button
+                  onClick={() => {
+                    setWorkspaceDropdownOpen(false);
+                    setShowWorkspaceModal(true);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-indigo-600 font-semibold hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Create Workspace
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
