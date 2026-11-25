@@ -23,11 +23,11 @@ router.route('/')
 router.route('/:id')
   .get(getProjectById)
   .patch(requireRole(['Owner', 'Manager']), updateProject)
-  .delete(requireRole(['Owner']), archiveProject);
+  .delete(requireRole(['Owner', 'Manager']), archiveProject); // Manager can delete their own managed projects (enforced in controller)
 
 router.post('/:id/members', requireRole(['Owner', 'Manager']), addProjectMember);
 router.delete('/:id/members/:userId', requireRole(['Owner', 'Manager']), removeProjectMember);
-router.patch('/:id/archive', requireRole(['Owner']), archiveProject);
+router.patch('/:id/archive', requireRole(['Owner', 'Manager']), archiveProject); // Controller enforces Manager scope
 
 module.exports = router;
 

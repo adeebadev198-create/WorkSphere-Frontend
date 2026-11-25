@@ -315,8 +315,12 @@ const Projects = () => {
                         </button>
                       )}
 
-                      {/* Archive/Delete Project: Owner ONLY */}
-                      {activeWorkspace?.memberRole === 'Owner' && (
+                      {/* Archive/Delete Project: Owner OR Manager of THIS project */}
+                      {(activeWorkspace?.memberRole === 'Owner' ||
+                        (activeWorkspace?.memberRole === 'Manager' &&
+                          (p.manager?._id === (user?._id || user?.id) ||
+                           p.manager === (user?._id || user?.id) ||
+                           p.manager?.toString() === (user?._id || user?.id)?.toString()))) && (
                         <button
                           onClick={(e) => openDeleteModal(p, e)}
                           className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
