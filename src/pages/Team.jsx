@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from '../components/common/ConfirmModal';
 import { 
   Users, 
   UserPlus, 
@@ -23,6 +24,9 @@ const Team = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState(null);
+  const [removeLoading, setRemoveLoading] = useState(false);
+  const [feedbackNotice, setFeedbackNotice] = useState(null); // { type: 'success' | 'error', text: '' }
 
   // Invite state
   const [inviteEmail, setInviteEmail] = useState('');
@@ -84,23 +88,34 @@ const Team = () => {
       await api.patch(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${memberUserId}/role`, {
         role: newRole,
       });
+      setFeedbackNotice({ type: 'success', text: 'Member role updated successfully.' });
+      setTimeout(() => setFeedbackNotice(null), 3000);
       fetchMembers();
     } catch (err) {
-      alert(err.message || 'Failed to change role');
+      setFeedbackNotice({ type: 'error', text: err.message || 'Failed to change role' });
+      setTimeout(() => setFeedbackNotice(null), 4000);
     }
   };
 
-  const handleRemoveMember = async (memberUserId, memberName) => {
-    if (!window.confirm(`Are you sure you want to remove ${memberName} from this workspace?`)) return;
+  const handleConfirmRemoveMember = async () => {
+    if (!memberToRemove) return;
 
     try {
-      const res = await api.delete(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${memberUserId}`);
+      setRemoveLoading(true);
+      const res = await api.delete(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${memberToRemove.id}`);
+      let note = `${memberToRemove.name} has been removed from the workspace.`;
       if (res?.data?.uncompletedTasksNeedingReassignment > 0) {
-        alert(`${memberName} has been removed. Note: ${res.data.uncompletedTasksNeedingReassignment} uncompleted tasks are now flagged for reassignment.`);
+        note += ` (${res.data.uncompletedTasksNeedingReassignment} uncompleted tasks are now flagged for reassignment)`;
       }
+      setFeedbackNotice({ type: 'success', text: note });
+      setTimeout(() => setFeedbackNotice(null), 5000);
+      setMemberToRemove(null);
       fetchMembers();
     } catch (err) {
-      alert(err.message || 'Failed to remove member');
+      setFeedbackNotice({ type: 'error', text: err.message || 'Failed to remove member' });
+      setTimeout(() => setFeedbackNotice(null), 4000);
+    } finally {
+      setRemoveLoading(false);
     }
   };
 
@@ -145,6 +160,24 @@ const Team = () => {
           </button>
         )}
       </div>
+
+      {/* Feedback Banner */}
+      {feedbackNotice && (
+        <div
+          className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
+            feedbackNotice.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          {feedbackNotice.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
+          <span>{feedbackNotice.text}</span>
+        </div>
+      )}
 
       {/* Filter Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -247,8 +280,8 @@ const Team = () => {
                         <td className="py-3.5 px-6 text-right">
                           {u._id !== user?.id && (
                             <button
-                              onClick={() => handleRemoveMember(u._id, u.fullName)}
-                              className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              onClick={() => setMemberToRemove({ id: u._id, name: u.fullName || 'this member' })}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                               title="Remove member"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -337,6 +370,19 @@ const Team = () => {
           </div>
         </div>
       )}
+
+      {/* Remove Member Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!memberToRemove}
+        onClose={() => setMemberToRemove(null)}
+        onConfirm={handleConfirmRemoveMember}
+        title="Remove Member from Workspace"
+        message={`Are you sure you want to remove ${memberToRemove?.name} from this workspace? Historical task logs, comments, and activities will be retained, and any uncompleted tasks will be flagged for reassignment.`}
+        confirmText="Remove Member"
+        cancelText="Cancel"
+        type="danger"
+        loading={removeLoading}
+      />
 
     </div>
   );

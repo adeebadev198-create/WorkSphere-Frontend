@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from '../components/common/ConfirmModal';
 import {
   Plus,
   Search,
@@ -12,6 +13,7 @@ import {
   CheckCircle2,
   Clock,
   Loader2,
+  Trash2,
   X,
   Send,
   User,
@@ -46,6 +48,8 @@ const TaskBoard = () => {
   const [taskDetailsLoading, setTaskDetailsLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Create Task Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -182,6 +186,21 @@ const TaskBoard = () => {
       alert(err.message || 'Failed to post comment');
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  const handleConfirmDeleteTask = async () => {
+    if (!taskToDelete) return;
+    try {
+      setDeleteLoading(true);
+      await api.delete(`/tasks/${taskToDelete._id}`);
+      setTasks((prev) => prev.filter((t) => t._id !== taskToDelete._id));
+      setSelectedTask(null);
+      setTaskToDelete(null);
+    } catch (err) {
+      alert(err.message || 'Failed to delete task');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -444,12 +463,23 @@ const TaskBoard = () => {
                 </span>
                 <h3 className="text-base font-semibold text-slate-900 mt-1">{selectedTask.title}</h3>
               </div>
-              <button
-                onClick={() => setSelectedTask(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                {canAssignTasks && (
+                  <button
+                    onClick={() => setTaskToDelete(selectedTask)}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                    title="Archive Task"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedTask(null)}
+                  className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-4 pr-1">
@@ -634,6 +664,19 @@ const TaskBoard = () => {
           </div>
         </div>
       )}
+
+      {/* Delete/Archive Task Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!taskToDelete}
+        onClose={() => setTaskToDelete(null)}
+        onConfirm={handleConfirmDeleteTask}
+        title="Archive Task"
+        message={`Are you sure you want to archive "${taskToDelete?.title}"?`}
+        confirmText="Archive Task"
+        cancelText="Cancel"
+        type="danger"
+        loading={deleteLoading}
+      />
 
     </div>
   );
