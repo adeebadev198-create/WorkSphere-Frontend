@@ -23,10 +23,15 @@ import Workspaces from '../pages/Workspaces';
 
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, authTransition } = useAuth();
 
-  if (loading) {
-    return <LoadingScreen />;
+  if (loading || authTransition?.active) {
+    return (
+      <LoadingScreen
+        message={authTransition?.message || 'Preparing your workspace...'}
+        submessage={authTransition?.submessage || 'Synchronizing real-time projects, tasks & permissions'}
+      />
+    );
   }
 
   if (!isAuthenticated) {
@@ -38,10 +43,15 @@ const ProtectedRoute = ({ children }) => {
 
 // Public Route Guard (redirect to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, authTransition } = useAuth();
 
-  if (loading) {
-    return <LoadingScreen />;
+  if (loading || authTransition?.active) {
+    return (
+      <LoadingScreen
+        message={authTransition?.message || 'Authenticating session...'}
+        submessage={authTransition?.submessage || 'Verifying credentials and security tokens'}
+      />
+    );
   }
 
   if (isAuthenticated) {

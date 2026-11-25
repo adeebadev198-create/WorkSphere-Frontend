@@ -2,12 +2,25 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+  Sparkles,
+  Zap,
+} from 'lucide-react';
 import logoImg from '../../assets/logo/logo.png';
-import { AlertCircle, Lock, Mail, User, Loader2, Eye, EyeOff, KanbanSquare, ShieldCheck, LayoutDashboard, BarChart3, CheckCircle2 } from 'lucide-react';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, startAuthTransition, endAuthTransition } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -17,246 +30,334 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Dynamic Password Strength Meter
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return { label: 'Empty', score: 0, color: 'bg-slate-200' };
+    let score = 0;
+    if (pwd.length >= 6) score += 1;
+    if (pwd.length >= 10) score += 1;
+    if (/[A-Z]/.test(pwd)) score += 1;
+    if (/[0-9]/.test(pwd)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+    if (score <= 2) return { label: 'Weak', score: 1, color: 'bg-rose-500', width: '33%' };
+    if (score <= 4) return { label: 'Good', score: 2, color: 'bg-amber-500', width: '66%' };
+    return { label: 'Strong', score: 3, color: 'bg-emerald-500', width: '100%' };
+  };
+
+  const strength = getPasswordStrength(password);
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Passwords do not match.');
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError('Password must be at least 6 characters long.');
       return;
     }
 
     setLoading(true);
 
     try {
+      // 1. Complete existing registration API request
       await register(fullName, email, password, confirmPassword);
-      navigate('/dashboard');
+
+      // 2. Display full-screen WorkSphere loading screen smoothly
+      startAuthTransition(
+        'Provisioning your enterprise workspace...',
+        'Creating isolated database schema & generating administrative credentials...'
+      );
+
+      setTimeout(() => {
+        navigate('/dashboard');
+        setTimeout(() => {
+          endAuthTransition();
+        }, 400);
+      }, 800);
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
-    } finally {
+      setError(err.message || 'Registration failed. Please verify your details.');
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center font-sans selection:bg-[#4F46E5] selection:text-white"
-      style={{ background: '#F0F2F8', padding: '24px 16px' }}
-    >
-      {/* Floating card container */}
-      <div
-        className="w-full flex flex-col lg:flex-row overflow-hidden"
-        style={{
-          maxWidth: 1160,
-          minHeight: 680,
-          borderRadius: 24,
-          boxShadow: '0 20px 60px rgba(15,23,42,0.10)',
-          border: '1px solid rgba(226,232,240,0.6)',
-          background: 'white'
-        }}
-      >
-        {/* ══════════════════════════════
-            LEFT PANE — white form
-        ══════════════════════════════ */}
-        <div
-          className="w-full lg:w-[45%] flex flex-col bg-white"
-          style={{ borderRight: '1px solid #F1F5F9' }}
-        >
-          <div className="flex-1 flex items-center justify-center" style={{ padding: '40px 48px' }}>
-            <div style={{ width: '100%', maxWidth: 360 }}>
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#090D16] p-4 sm:p-6 lg:p-8 font-sans selection:bg-indigo-600 selection:text-white">
+      
+      {/* ── Outer Shell Container ── */}
+      <div className="w-full max-w-6xl min-h-[700px] rounded-3xl bg-[#0F1422] border border-white/10 shadow-2xl overflow-hidden flex flex-col lg:flex-row relative z-10 backdrop-blur-xl">
+        
+        {/* ══════════════════════════════════════════════════
+            LEFT PANEL: BRAND VISUAL & ABSTRACT WORKSPACE
+        ══════════════════════════════════════════════════ */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-gradient-to-br from-[#121829] via-[#0E1322] to-[#0A0D17] border-r border-white/10">
+          
+          {/* Ambient Lighting Orbs */}
+          <div
+            className="absolute -top-24 -left-24 w-80 h-80 rounded-full pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
+              filter: 'blur(50px)',
+            }}
+          />
+          <div
+            className="absolute -bottom-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.20) 0%, transparent 70%)',
+              filter: 'blur(50px)',
+            }}
+          />
+
+          {/* Top Brand Tag */}
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 p-2 backdrop-blur-md flex items-center justify-center shadow-lg">
+              <img src={logoImg} alt="WorkSphere" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <span className="text-base font-bold text-white tracking-tight">WorkSphere</span>
+              <p className="text-[10px] text-indigo-300 font-medium">Enterprise Workspace Provisioning</p>
+            </div>
+          </div>
+
+          {/* Centerpiece: Interactive Features Matrix Card */}
+          <div className="relative z-10 my-auto py-6">
+            <div className="p-6 rounded-2xl bg-white/[0.05] border border-white/10 shadow-2xl backdrop-blur-xl space-y-4">
               
-              {/* Official Brand Logo */}
-              <div className="mb-6">
-                <Link to="/" className="inline-block transition-opacity hover:opacity-90">
-                  <img
-                    src={logoImg}
-                    alt="WorkSphere - Plan • Collaborate • Achieve"
-                    className="h-11 w-auto max-w-[180px] object-contain"
-                  />
-                </Link>
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse" />
+                  <span className="text-xs font-semibold text-white">Included With Your Account</span>
+                </div>
+                <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  Full Suite
+                </span>
               </div>
 
-              {/* Heading */}
-              <h1 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">Create an account</h1>
-              <p className="text-sm text-slate-500 mb-8">Get started with your collaborative workspace.</p>
-
-              {/* Error banner */}
-              {error && (
-                <div className="mb-6 flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-xs">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span className="font-medium">{error}</span>
-                </div>
-              )}
-
-              {/* Form */}
-              <form onSubmit={handleRegister} className="space-y-4">
-                {/* Full Name */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Full Name *</label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Sarah Jenkins"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                    />
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                {[
+                  { title: 'Isolated Workspaces', desc: 'Separate environments for departments and teams.' },
+                  { title: 'Interactive Kanban', desc: 'Fluid drag & drop task progression with cycle checks.' },
+                  { title: 'Permission Matrix', desc: 'Strict Owner, Manager & Member security enforcement.' },
+                  { title: 'CSV & PDF Export', desc: 'Instant audit and velocity export for leadership.' },
+                ].map((feat, i) => (
+                  <div key={i} className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+                    <p className="text-xs font-semibold text-white flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                      <span>{feat.title}</span>
+                    </p>
+                    <p className="text-[10px] text-slate-400 leading-normal">{feat.desc}</p>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
 
-                {/* Email */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address *</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type="email"
-                      required
-                      placeholder="admin@worksphere.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password *</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Minimum 6 characters"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-11 pr-10 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Confirm Password */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Confirm Password *</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Re-enter password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full rounded-xl font-semibold shadow-md shadow-indigo-500/25 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white flex items-center justify-center gap-2 py-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer active:scale-[0.99]"
-                  >
-                    {loading ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> Creating account...</>
-                    ) : (
-                      'Create Account'
-                    )}
-                  </button>
-                </div>
-              </form>
-
-              {/* Footer Link */}
-              <p className="mt-8 text-xs text-center text-slate-500">
-                Already have an account?{' '}
-                <Link to="/login" className="text-indigo-600 font-semibold hover:text-indigo-800 hover:underline">
-                  Sign In
-                </Link>
+            {/* Inspiring Headline */}
+            <div className="mt-8 space-y-2">
+              <h2 className="text-2xl font-bold text-white tracking-tight leading-snug">
+                Join thousands of teams building<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
+                  the future of modern software.
+                </span>
+              </h2>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+                Get started in seconds with an isolated workspace, automatic sprint tracking, and real-time MongoDB data persistence.
               </p>
             </div>
           </div>
-          
-          {/* Footer Text */}
-          <div className="pb-6 text-center text-[11px] text-slate-400">
-            &copy; {new Date().getFullYear()} WorkSphere Inc. All rights reserved. Secure enterprise session.
+
+          {/* Bottom Security / Trust Badges */}
+          <div className="relative z-10 flex items-center gap-6 pt-4 border-t border-white/10 text-xs text-slate-400">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Multi-tenant Isolation</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-indigo-400" />
+              <span>Zero Dummy Data</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-violet-400" />
+              <span>Free Starter Tier</span>
+            </div>
           </div>
         </div>
 
-        {/* ══════════════════════════════
-            RIGHT PANE — Dark Purple Gradient
-        ══════════════════════════════ */}
-        <div
-          className="hidden lg:flex lg:w-[55%] flex-col justify-center overflow-hidden"
-          style={{
-            background: 'linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)', // Darker premium purple
-            padding: '48px',
-            position: 'relative',
-          }}
-        >
-          {/* Ambient glow blobs */}
-          <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,0.3), transparent 70%)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: -100, left: -100, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.5), transparent 70%)', pointerEvents: 'none' }} />
-
-          <div className="relative z-10">
-            {/* Small pill badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-indigo-200 mb-6 backdrop-blur-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
-              Enterprise Project & Team Management
+        {/* ══════════════════════════════════════════════════
+            RIGHT PANEL: CLEAN, ELEGANT REGISTRATION FORM
+        ══════════════════════════════════════════════════ */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 sm:p-12 bg-white">
+          
+          <div className="max-w-md w-full mx-auto my-auto space-y-5">
+            
+            {/* Header */}
+            <div>
+              <div className="flex items-center gap-2 lg:hidden mb-4">
+                <img src={logoImg} alt="WorkSphere" className="h-8 w-auto object-contain" />
+                <span className="font-bold text-slate-900 text-base">WorkSphere</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Create your account
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-normal">
+                Start managing projects with role-based access control.
+              </p>
             </div>
 
-            {/* Headline */}
-            <h2 className="text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
-              Coordinate projects, teams & deliverables from one central hub.
-            </h2>
-            <p className="text-sm text-indigo-100/70 leading-relaxed mb-10 max-w-md">
-              WorkSphere centralizes multi-workspace management, drag-and-drop Kanban execution, activity audits, and workload intelligence.
-            </p>
+            {/* Error Banner */}
+            {error && (
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+                <span className="font-medium">{error}</span>
+              </div>
+            )}
 
-            {/* Feature Grid (2x2) */}
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { icon: KanbanSquare, title: 'Interactive Kanban', desc: 'Drag & drop workflow status updates with real-time database sync.' },
-                { icon: ShieldCheck, title: 'Role-Based Access', desc: 'Enforced Owner, Project Manager & Team Member permissions.' },
-                { icon: LayoutDashboard, title: 'Isolated Workspaces', desc: 'Departmental multi-tenancy with secure member invitations.' },
-                { icon: BarChart3, title: 'Live Analytics & CSV', desc: 'Automated project progress calculation and report exports.' },
-              ].map((feature, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                  <feature.icon className="w-5 h-5 text-indigo-300 mb-3" />
-                  <h3 className="text-sm font-semibold text-white mb-1">{feature.title}</h3>
-                  <p className="text-[11px] text-indigo-200/60 leading-relaxed">{feature.desc}</p>
+            {/* Registration Form */}
+            <form onSubmit={handleRegister} className="space-y-3.5">
+              
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Full Name *
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Alex Morgan"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                  />
                 </div>
-              ))}
+              </div>
+
+              {/* Email Address */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Work Email Address *
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="alex@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Password *
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="Minimum 6 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-10 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 rounded cursor-pointer"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+
+                {/* Password Strength Indicator */}
+                {password.length > 0 && (
+                  <div className="mt-1.5 space-y-1">
+                    <div className="flex items-center justify-between text-[10px] text-slate-500">
+                      <span>Password Strength:</span>
+                      <span className="font-semibold text-slate-700">{strength.label}</span>
+                    </div>
+                    <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${strength.color} transition-all duration-300 rounded-full`}
+                        style={{ width: strength.width }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Confirm Password *
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="Re-enter your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold text-xs rounded-xl shadow-md shadow-indigo-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Creating workspace...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Create Enterprise Account</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Navigation to Login */}
+            <div className="text-center pt-2">
+              <p className="text-xs text-slate-500 font-normal">
+                Already have an enterprise account?{' '}
+                <Link
+                  to="/login"
+                  className="text-indigo-600 font-bold hover:text-indigo-800 hover:underline transition-colors"
+                >
+                  Sign in
+                </Link>
+              </p>
             </div>
 
-            {/* Bottom Trust Badges */}
-            <div className="mt-10 flex items-center gap-6 border-t border-white/10 pt-6">
-              <div className="flex items-center gap-2 text-xs font-medium text-indigo-200">
-                <CheckCircle2 className="w-4 h-4 text-green-400" /> MongoDB Data Persistence
-              </div>
-              <div className="flex items-center gap-2 text-xs font-medium text-indigo-200">
-                <CheckCircle2 className="w-4 h-4 text-green-400" /> JWT Bearer Security
-              </div>
-            </div>
           </div>
+
+          {/* Footer */}
+          <div className="text-center text-[11px] text-slate-400 pt-6">
+            &copy; {new Date().getFullYear()} WorkSphere. By creating an account you agree to our Terms of Service.
+          </div>
+
         </div>
 
       </div>
+
     </div>
   );
 };

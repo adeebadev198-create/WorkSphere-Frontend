@@ -28,28 +28,42 @@ import {
   Activity,
   PlusCircle,
   FileSpreadsheet,
-  Check,
   Shield,
   Layers,
+  Sparkles,
+  ExternalLink,
+  ChevronRight,
+  User,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const { activeWorkspace, user } = useAuth();
   const [data, setData] = useState(null);
+  const [projectsList, setProjectsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeBottomTab, setActiveBottomTab] = useState('tasks'); // 'tasks' | 'activity'
 
-  const fetchDashboard = async () => {
+  const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/dashboard/overview');
-      if (res?.data) {
-        setData(res.data);
+      const [overviewRes, projectsRes] = await Promise.allSettled([
+        api.get('/dashboard/overview'),
+        api.get('/projects'),
+      ]);
+
+      if (overviewRes.status === 'fulfilled' && overviewRes.value?.data) {
+        setData(overviewRes.value.data);
+      } else if (overviewRes.status === 'rejected') {
+        throw new Error(overviewRes.reason?.message || 'Failed to load dashboard metrics');
+      }
+
+      if (projectsRes.status === 'fulfilled' && projectsRes.value?.data) {
+        setProjectsList(projectsRes.value.data || []);
       }
     } catch (err) {
-      setError(err.message || 'Failed to load dashboard data');
+      setError(err.message || 'Failed to aggregate workspace data');
     } finally {
       setLoading(false);
     }
@@ -57,7 +71,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (activeWorkspace) {
-      fetchDashboard();
+      fetchDashboardData();
     }
   }, [activeWorkspace]);
 
@@ -65,7 +79,7 @@ const Dashboard = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[480px]">
         <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
-        <p className="text-xs font-semibold text-slate-500">Aggregating workspace intelligence from MongoDB...</p>
+        <p className="text-xs font-semibold text-slate-500">Aggregating workspace intelligence from MongoDB Atlas...</p>
       </div>
     );
   }
@@ -73,13 +87,13 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs">
-        <p className="font-semibold text-sm">Error loading dashboard</p>
+        <p className="font-semibold text-sm">Error loading workspace dashboard</p>
         <p className="mt-1 font-normal">{error}</p>
         <button
-          onClick={fetchDashboard}
+          onClick={fetchDashboardData}
           className="mt-3 px-4 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-medium hover:bg-rose-700 cursor-pointer transition-colors"
         >
-          Try Again
+          Retry Connection
         </button>
       </div>
     );
@@ -95,16 +109,16 @@ const Dashboard = () => {
   const isManager = activeWorkspace?.memberRole === 'Manager';
   const canManage = isOwner || isManager;
 
-  // Top metric cards
+  // Top metric cards with Linear / ClickUp design
   const topMetrics = [
     {
       label: 'Task Completion Rate',
       value: kpis.completionRate || '0%',
-      sub: `${kpis.completedTasks ?? 0} of ${kpis.totalTasks ?? 0} finished`,
+      sub: `${kpis.completedTasks ?? 0} of ${kpis.totalTasks ?? 0} closed`,
       icon: CheckCircle2,
       iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
-      badge: 'Performance',
-      badgeColor: 'text-emerald-700 bg-emerald-50',
+      badge: 'Sprint Delivery',
+      badgeColor: 'text-emerald-700 bg-emerald-50 border-emerald-200',
     },
     {
       label: 'Active Projects',
@@ -112,26 +126,26 @@ const Dashboard = () => {
       sub: `${kpis.totalProjects ?? 0} registered total`,
       icon: FolderKanban,
       iconBg: 'bg-indigo-50 text-indigo-600 border border-indigo-100',
-      badge: 'Portfolio',
-      badgeColor: 'text-indigo-700 bg-indigo-50',
+      badge: 'Portfolio Health',
+      badgeColor: 'text-indigo-700 bg-indigo-50 border-indigo-200',
     },
     {
       label: 'Team Velocity',
       value: `${kpis.inProgressTasks ?? 0}`,
-      sub: `${kpis.inReviewTasks ?? 0} in review stage`,
+      sub: `${kpis.inReviewTasks ?? 0} tasks awaiting review`,
       icon: Zap,
       iconBg: 'bg-blue-50 text-blue-600 border border-blue-100',
-      badge: 'Active Sprint',
-      badgeColor: 'text-blue-700 bg-blue-50',
+      badge: 'Active Workload',
+      badgeColor: 'text-blue-700 bg-blue-50 border-blue-200',
     },
     {
       label: 'Overdue Warnings',
       value: kpis.overdueTasks ?? 0,
-      sub: kpis.overdueTasks > 0 ? 'Urgent attention needed' : 'All deadlines on track',
+      sub: kpis.overdueTasks > 0 ? 'Requires immediate action' : 'Zero overdue milestones',
       icon: AlertTriangle,
       iconBg: kpis.overdueTasks > 0 ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-slate-50 text-slate-400 border border-slate-100',
-      badge: kpis.overdueTasks > 0 ? 'Attention' : 'Healthy',
-      badgeColor: kpis.overdueTasks > 0 ? 'text-rose-700 bg-rose-50' : 'text-slate-600 bg-slate-100',
+      badge: kpis.overdueTasks > 0 ? 'Action Needed' : 'On Schedule',
+      badgeColor: kpis.overdueTasks > 0 ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-slate-600 bg-slate-100 border-slate-200',
     },
   ];
 
@@ -173,25 +187,25 @@ const Dashboard = () => {
     : [{ name: 'No tasks', value: 1, color: '#E2E8F0' }];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7 animate-in fade-in duration-300">
       
-      {/* ── Executive Header Bar ── */}
+      {/* ── Executive Header Banner ── */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Executive Workspace Overview
+              Workspace Overview & Telemetry
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live MongoDB Sync
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live MongoDB Atlas Sync
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
-            <span>Welcome, <strong className="text-slate-800 font-semibold">{user?.fullName || 'User'}</strong></span>
+          <p className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+            <span>Welcome, <strong className="text-slate-900 font-semibold">{user?.fullName || 'User'}</strong></span>
             <span>•</span>
-            <span className="inline-flex items-center gap-1 font-medium text-indigo-600">
-              <Shield className="w-3.5 h-3.5" />
+            <span className="inline-flex items-center gap-1 font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+              <Shield className="w-3 h-3" />
               {activeWorkspace?.memberRole || 'Member'} Role
             </span>
             <span>•</span>
@@ -199,35 +213,35 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Quick Action buttons based on permissions */}
+        {/* Quick Action buttons */}
         <div className="flex items-center gap-2 self-stretch sm:self-auto flex-wrap">
           {canManage && (
             <Link
               to="/projects"
-              className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs rounded-xl border border-slate-200 shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <FolderKanban className="w-3.5 h-3.5 text-indigo-600" />
-              Manage Projects
+              Projects
             </Link>
           )}
 
           {canManage && (
             <Link
               to="/tasks"
-              className="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium text-xs rounded-xl shadow-xs shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl shadow-xs shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.99]"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              Add Task
+              New Task
             </Link>
           )}
 
           <Link
             to="/reports"
-            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition-colors flex items-center gap-1.5"
+            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors flex items-center gap-1.5"
             title="Export CSV Reports"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-            Reports
+            Export CSV
           </Link>
         </div>
       </div>
@@ -242,7 +256,7 @@ const Dashboard = () => {
               className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between transition-all hover:border-slate-300 hover:shadow-sm"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500">{m.label}</span>
+                <span className="text-xs font-semibold text-slate-500">{m.label}</span>
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${m.iconBg}`}>
                   <Icon className="w-4 h-4" />
                 </div>
@@ -252,9 +266,9 @@ const Dashboard = () => {
                 <div className="text-2xl font-bold text-slate-900 tracking-tight">
                   {m.value}
                 </div>
-                <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center justify-between mt-1.5">
                   <span className="text-[11px] text-slate-400 font-normal">{m.sub}</span>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${m.badgeColor}`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${m.badgeColor}`}>
                     {m.badge}
                   </span>
                 </div>
@@ -264,18 +278,18 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* ── Visual Charts Row (Monthly Progress & Productivity Trends) ── */}
+      {/* ── Visual Charts Row: Monthly Completion Velocity & Status Breakdown ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Monthly Progress Area Chart (8 cols) */}
         <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 tracking-tight">Monthly Completion Velocity</h3>
-              <p className="text-xs font-normal text-slate-400">Aggregate tasks finalized and reviewed per month</p>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">Monthly Completion Velocity</h3>
+              <p className="text-xs font-normal text-slate-400">Aggregated task completions and reviews per calendar month</p>
             </div>
-            <span className="text-[11px] font-medium text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
-              Annual Trend
+            <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
+              Annual Cadence
             </span>
           </div>
 
@@ -298,7 +312,7 @@ const Dashboard = () => {
                     border: '1px solid #E2E8F0',
                     boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
                     fontSize: '12px',
-                    fontWeight: 500,
+                    fontWeight: 600,
                   }}
                   formatter={(val) => [`${val} tasks`, 'Completed']}
                 />
@@ -316,7 +330,7 @@ const Dashboard = () => {
             {totalMonthlyCompleted === 0 && (
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-white/40 backdrop-blur-[0.5px]">
                 <TrendingUp className="w-6 h-6 text-slate-300 mb-1" />
-                <span className="text-xs font-normal text-slate-400">Ready to record completed tasks as progress happens</span>
+                <span className="text-xs font-normal text-slate-400">Ready to record completed tasks as work progresses</span>
               </div>
             )}
           </div>
@@ -325,8 +339,8 @@ const Dashboard = () => {
         {/* Productivity Trends Donut (4 cols) */}
         <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 tracking-tight">Workflow Status Breakdown</h3>
-            <p className="text-xs font-normal text-slate-400">Task distribution across stages</p>
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Workflow Stage Breakdown</h3>
+            <p className="text-xs font-normal text-slate-400">Task volume distributed by Kanban status</p>
           </div>
 
           <div className="h-48 relative flex items-center justify-center my-2">
@@ -353,7 +367,7 @@ const Dashboard = () => {
                       borderRadius: '10px',
                       border: '1px solid #E2E8F0',
                       fontSize: '11px',
-                      fontWeight: 500,
+                      fontWeight: 600,
                     }}
                     formatter={(val, name) => [`${val} tasks`, name]}
                   />
@@ -361,30 +375,106 @@ const Dashboard = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-xl font-bold text-slate-900">{kpis.completionRate || '0%'}</span>
-              <span className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider">
+              <span className="text-xl font-extrabold text-slate-900">{kpis.completionRate || '0%'}</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
                 {totalTasksCount > 0 ? 'Completed' : 'No Tasks'}
               </span>
             </div>
           </div>
 
           {/* Status Breakdown Legend Grid */}
-          <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-slate-100">
+          <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100">
             {statusData.map((s, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs text-slate-600 bg-slate-50/70 px-2.5 py-1.5 rounded-lg border border-slate-100">
+              <div key={idx} className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: s.color }}
                   />
-                  <span className="truncate font-normal text-slate-600">{s.name}</span>
+                  <span className="truncate font-medium text-slate-600">{s.name}</span>
                 </div>
-                <span className="font-semibold text-slate-800 ml-1.5 text-xs">{s.value}</span>
+                <span className="font-bold text-slate-900 ml-1.5 text-xs">{s.value}</span>
               </div>
             ))}
           </div>
         </div>
 
+      </div>
+
+      {/* ── Active Projects Portfolio Section ── */}
+      <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Active Projects Portfolio</h3>
+            <p className="text-xs font-normal text-slate-400">Current active deliverables and automated progress calculation</p>
+          </div>
+          <Link
+            to="/projects"
+            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+          >
+            All Projects ({projectsList.length}) <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {projectsList && projectsList.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projectsList.slice(0, 3).map((p) => {
+              const progressVal = p.progress ?? 0;
+              return (
+                <div
+                  key={p._id}
+                  className="p-4 rounded-xl border border-slate-200/80 hover:border-indigo-300 hover:shadow-xs transition-all flex flex-col justify-between space-y-3 bg-slate-50/40"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="font-bold text-xs text-slate-900 truncate">{p.name}</h4>
+                      <span
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                          p.priority === 'Critical'
+                            ? 'bg-rose-50 text-rose-700 border-rose-200'
+                            : p.priority === 'High'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                        }`}
+                      >
+                        {p.priority}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed font-normal">
+                      {p.description || 'No description provided.'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                      <span>Progress</span>
+                      <span className="font-bold text-slate-900">{progressVal}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500"
+                        style={{ width: `${progressVal}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10px] text-slate-400">
+                    <span className="truncate">
+                      Manager: <strong className="text-slate-700">{p.manager?.fullName || 'Assigned'}</strong>
+                    </span>
+                    <span className="shrink-0 font-medium text-slate-600">
+                      {p.endDate ? `Due ${new Date(p.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : ''}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="py-8 text-center text-xs text-slate-400">
+            No projects in this workspace yet.
+          </div>
+        )}
       </div>
 
       {/* ── Bottom Split: Tabbed Tasks/Activity & Upcoming Deadlines ── */}
@@ -419,7 +509,7 @@ const Dashboard = () => {
                 </button>
               </div>
 
-              <Link to="/tasks" className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
+              <Link to="/tasks" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -429,8 +519,8 @@ const Dashboard = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-slate-100 text-slate-400 font-medium uppercase text-[10px] tracking-wider">
-                      <th className="pb-3 px-2">Task</th>
+                    <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                      <th className="pb-3 px-2">Task Title</th>
                       <th className="pb-3 px-2">Project</th>
                       <th className="pb-3 px-2">Assignee</th>
                       <th className="pb-3 px-2">Priority</th>
@@ -445,7 +535,7 @@ const Dashboard = () => {
                           : t.assignedTo;
                         return (
                           <tr key={t._id} className="hover:bg-slate-50/60 transition-colors">
-                            <td className="py-3 px-2 font-medium text-slate-900 max-w-[200px] truncate">
+                            <td className="py-3 px-2 font-semibold text-slate-900 max-w-[200px] truncate">
                               {t.title}
                             </td>
                             <td className="py-3 px-2 text-slate-500 truncate max-w-[140px] font-normal">
@@ -504,13 +594,13 @@ const Dashboard = () => {
                           {a.actor?.fullName?.charAt(0) || 'U'}
                         </div>
                         <div>
-                          <p className="font-medium text-slate-900">{a.description}</p>
+                          <p className="font-semibold text-slate-900">{a.description}</p>
                           <p className="text-[10px] text-slate-400 mt-0.5">
                             By {a.actor?.fullName || 'System'} • Action: <span className="font-semibold text-slate-600">{a.action}</span>
                           </p>
                         </div>
                       </div>
-                      <span className="text-[10px] text-slate-400 shrink-0">
+                      <span className="text-[10px] text-slate-400 shrink-0 font-medium">
                         {new Date(a.createdAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -531,8 +621,8 @@ const Dashboard = () => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 tracking-tight">Approaching Deadlines</h3>
-                <p className="text-xs font-normal text-slate-400">Due within the next 7 calendar days</p>
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">Approaching Deadlines</h3>
+                <p className="text-xs font-normal text-slate-400">Due within next 7 calendar days</p>
               </div>
               <Calendar className="w-4 h-4 text-slate-400" />
             </div>
@@ -545,10 +635,10 @@ const Dashboard = () => {
                     className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 flex items-center justify-between text-xs hover:border-slate-200 transition-colors"
                   >
                     <div className="truncate pr-2">
-                      <p className="font-medium text-slate-900 truncate">{t.title}</p>
+                      <p className="font-semibold text-slate-900 truncate">{t.title}</p>
                       <p className="text-[10px] font-normal text-slate-400 truncate">{t.project?.name || 'Project'}</p>
                     </div>
-                    <span className="text-[10px] font-semibold text-indigo-700 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-2xs shrink-0">
+                    <span className="text-[10px] font-bold text-indigo-700 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-2xs shrink-0">
                       {new Date(t.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </span>
                   </div>
@@ -564,7 +654,7 @@ const Dashboard = () => {
 
           <Link
             to="/kanban"
-            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium text-xs rounded-xl text-center shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl text-center shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
             <span>Open Kanban Workflow</span>
             <ArrowRight className="w-3.5 h-3.5" />

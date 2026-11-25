@@ -2,140 +2,117 @@
 import React from 'react';
 import logoImg from '../../assets/logo/logo.png';
 
-const LoadingScreen = () => {
+const LoadingScreen = ({
+  message = 'Preparing your workspace...',
+  submessage = 'Synchronizing real-time projects, tasks & permissions',
+}) => {
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center select-none"
-      style={{
-        background: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f0f4ff 100%)',
-      }}
-    >
-      {/* Decorative blurred blobs */}
+    <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#090D16] select-none overflow-hidden transition-all duration-300">
+      
+      {/* ── Ambient Background Lighting (Linear / Vercel style) ── */}
       <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] rounded-full pointer-events-none"
         style={{
-          position: 'absolute',
-          width: 480,
-          height: 480,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
-          top: '10%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 35%, transparent 70%)',
+          filter: 'blur(60px)',
         }}
       />
+      
       <div
+        className="absolute -top-32 -right-32 w-96 h-96 rounded-full pointer-events-none"
         style={{
-          position: 'absolute',
-          width: 300,
-          height: 300,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%)',
-          bottom: '15%',
-          right: '20%',
-          pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.10) 0%, transparent 70%)',
+          filter: 'blur(50px)',
         }}
       />
 
-      {/* Card */}
+      {/* Subtle grid pattern overlay */}
       <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
-          background: 'rgba(255,255,255,0.75)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(226,232,240,0.8)',
-          borderRadius: 24,
-          padding: '48px 56px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          boxShadow: '0 20px 60px rgba(79,70,229,0.08), 0 4px 16px rgba(0,0,0,0.04)',
-          minWidth: 320,
+          backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px)`,
+          backgroundSize: '24px 24px',
         }}
-      >
-        {/* Logo with pulse animation */}
-        <div
-          style={{
-            animation: 'ws-pulse 2s ease-in-out infinite',
-            marginBottom: 20,
-          }}
-        >
-          <img
-            src={logoImg}
-            alt="WorkSphere"
-            style={{ width: 64, height: 64, objectFit: 'contain', borderRadius: 16 }}
-            onError={(e) => {
-              e.target.style.display = 'none';
+      />
+
+      {/* ── Central Branded Card ── */}
+      <div className="relative z-10 flex flex-col items-center max-w-sm px-6 text-center animate-in fade-in zoom-in-95 duration-500">
+        
+        {/* Animated Brand Mark Container */}
+        <div className="relative mb-8 flex items-center justify-center">
+          {/* Subtle spinning glow ring */}
+          <div
+            className="absolute -inset-3 rounded-3xl opacity-60 animate-spin-slow pointer-events-none"
+            style={{
+              background: 'conic-gradient(from 0deg, transparent 0 300deg, rgba(99, 102, 241, 0.8) 360deg)',
+              filter: 'blur(4px)',
             }}
           />
+
+          {/* Logo Badge */}
+          <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-b from-white/10 to-white/[0.03] p-3.5 border border-white/15 shadow-2xl backdrop-blur-xl flex items-center justify-center">
+            <img
+              src={logoImg}
+              alt="WorkSphere"
+              className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          </div>
         </div>
 
-        {/* Brand name */}
-        <div style={{ marginBottom: 6, textAlign: 'center' }}>
-          <span
-            style={{
-              fontSize: 22,
-              fontWeight: 700,
-              letterSpacing: '-0.5px',
-              background: 'linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
+        {/* Brand Name */}
+        <div className="flex items-center gap-1.5 mb-2">
+          <span className="text-xl font-bold tracking-tight text-white font-sans">
             WorkSphere
           </span>
+          <span className="text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            SaaS
+          </span>
         </div>
-        <p
-          style={{
-            fontSize: 12,
-            color: '#94A3B8',
-            fontWeight: 400,
-            letterSpacing: '0.02em',
-            marginBottom: 32,
-            textAlign: 'center',
-          }}
-        >
-          Manage projects. Lead teams. Deliver results.
+
+        {/* Dynamic Loading Message */}
+        <h2 className="text-sm font-medium text-slate-200 tracking-tight mt-1 mb-1">
+          {message}
+        </h2>
+        <p className="text-xs text-slate-400 font-normal leading-relaxed max-w-[280px] mb-8">
+          {submessage}
         </p>
 
-        {/* Progress bar track */}
-        <div
-          style={{
-            width: 200,
-            height: 3,
-            background: '#E2E8F0',
-            borderRadius: 999,
-            overflow: 'hidden',
-            marginBottom: 16,
-          }}
-        >
+        {/* High-End Linear Gradient Progress Indicator */}
+        <div className="w-56 h-1.5 bg-white/10 rounded-full overflow-hidden relative p-[1px] border border-white/5">
           <div
+            className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 animate-ws-shimmer"
             style={{
-              height: '100%',
-              borderRadius: 999,
-              background: 'linear-gradient(90deg, #2563EB, #4F46E5)',
-              animation: 'ws-progress 1.6s ease-in-out infinite',
-              transformOrigin: 'left',
+              width: '100%',
+              backgroundSize: '200% 100%',
             }}
           />
         </div>
 
-        <span style={{ fontSize: 11, color: '#CBD5E1', fontWeight: 500, letterSpacing: '0.08em' }}>
-          LOADING WORKSPACE…
-        </span>
+        {/* Micro Security Footnote */}
+        <div className="mt-8 flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span>Encrypted Session • JWT Verified</span>
+        </div>
       </div>
 
-      {/* Keyframe styles injected inline */}
+      {/* Embedded Animations */}
       <style>{`
-        @keyframes ws-pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.06); opacity: 0.85; }
+        @keyframes ws-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
         }
-        @keyframes ws-progress {
-          0%   { width: 0%; opacity: 1; }
-          60%  { width: 100%; opacity: 1; }
-          100% { width: 100%; opacity: 0; }
+        .animate-ws-shimmer {
+          animation: ws-shimmer 2s ease-in-out infinite;
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 3s linear infinite;
         }
       `}</style>
     </div>

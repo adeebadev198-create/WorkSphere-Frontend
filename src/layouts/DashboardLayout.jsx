@@ -22,7 +22,10 @@ import {
   Search,
   Building2,
   Calendar,
-  Layers
+  Layers,
+  Sparkles,
+  Shield,
+  ExternalLink,
 } from 'lucide-react';
 
 const navItems = [
@@ -30,19 +33,19 @@ const navItems = [
   { name: 'Projects', path: '/projects', icon: FolderKanban },
   { name: 'Kanban Board', path: '/kanban', icon: Kanban },
   { name: 'Task Review', path: '/tasks', icon: CheckSquare },
-  { name: 'Members', path: '/team', icon: Users },
-  { name: 'Reports', path: '/reports', icon: BarChart3 },
+  { name: 'Team Members', path: '/team', icon: Users },
+  { name: 'Reports & Export', path: '/reports', icon: BarChart3 },
 ];
 
 const pageTitles = {
-  '/dashboard': 'Dashboard',
+  '/dashboard': 'Dashboard Overview',
   '/projects': 'Projects Directory',
-  '/kanban': 'Tasks Board',
-  '/tasks': 'Task Review',
-  '/team': 'Team Members',
-  '/reports': 'Analytics & Reports',
-  '/settings': 'Settings',
-  '/notifications': 'Notifications',
+  '/kanban': 'Interactive Kanban',
+  '/tasks': 'Task Review & Approvals',
+  '/team': 'Workspace Members & Roles',
+  '/reports': 'Analytics & Executive Reports',
+  '/settings': 'Workspace Settings',
+  '/notifications': 'Notification Center',
   '/workspaces': 'Workspaces Directory',
 };
 
@@ -125,27 +128,38 @@ const DashboardLayout = () => {
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
-  // ── Sidebar Component (Clean, minimal, professional with official logo) ──
+  const getRoleBadgeStyle = (role) => {
+    switch (role) {
+      case 'Owner':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case 'Manager':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
+  // ── Sidebar Component (Linear & ClickUp inspired) ──
   const Sidebar = ({ onClose }) => (
-    <div className="flex flex-col h-full bg-[#FAFAFC] w-64 shrink-0 border-r border-slate-200/70 select-none">
+    <div className="flex flex-col h-full bg-[#FAFAFC] w-64 shrink-0 border-r border-slate-200/80 select-none">
       
-      {/* Official Brand Logo Header */}
-      <div className="flex items-center justify-between px-5 h-20 border-b border-slate-100">
+      {/* Brand Header */}
+      <div className="flex items-center justify-between px-5 h-20 border-b border-slate-200/70 bg-white">
         <Link
           to="/dashboard"
-          className="flex items-center group transition-opacity hover:opacity-95"
+          className="flex items-center gap-2 group transition-opacity hover:opacity-95"
           onClick={onClose}
         >
           <img
             src={logoImg}
             alt="WorkSphere - Plan • Collaborate • Achieve"
-            className="h-12 w-auto max-w-[185px] object-contain"
+            className="h-10 w-auto max-w-[170px] object-contain"
           />
         </Link>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 lg:hidden rounded-lg hover:bg-slate-100"
+            className="text-slate-400 hover:text-slate-600 p-1.5 lg:hidden rounded-lg hover:bg-slate-100 transition-colors"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
@@ -153,26 +167,28 @@ const DashboardLayout = () => {
         )}
       </div>
 
-      {/* Workspace Switcher Pill */}
-      <div className="px-4 py-4" ref={workspaceDropdownRef}>
-        <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider px-2 mb-1.5">
-          Workspace
+      {/* Workspace Switcher */}
+      <div className="px-4 py-3.5 border-b border-slate-200/60" ref={workspaceDropdownRef}>
+        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-1 mb-1.5 flex items-center justify-between">
+          <span>Active Workspace</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
         </div>
+        
         <button
           onClick={() => setWorkspaceDropdownOpen((v) => !v)}
-          className="w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 transition-all text-left group"
+          className="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:border-indigo-400 hover:shadow-xs transition-all text-left cursor-pointer group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-50 to-indigo-50 text-indigo-600 font-semibold text-xs flex items-center justify-center shrink-0 border border-indigo-100">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-2xs">
               {activeWorkspace?.name?.charAt(0)?.toUpperCase() || 'W'}
             </div>
             <div className="truncate">
-              <p className="text-xs font-medium text-slate-800 truncate leading-tight">
-                {activeWorkspace?.name || 'My Workspace'}
+              <p className="text-xs font-semibold text-slate-900 truncate leading-tight group-hover:text-indigo-600 transition-colors">
+                {activeWorkspace?.name || 'Workspace'}
               </p>
-              <p className="text-[11px] text-slate-400 truncate font-normal">
+              <span className={`inline-block text-[9px] font-bold px-1.5 py-0.2 rounded border ${getRoleBadgeStyle(activeWorkspace?.memberRole)} mt-0.5`}>
                 {activeWorkspace?.memberRole || 'Member'}
-              </p>
+              </span>
             </div>
           </div>
           <ChevronDown
@@ -182,6 +198,7 @@ const DashboardLayout = () => {
           />
         </button>
 
+        {/* Dropdown Menu */}
         {workspaceDropdownOpen && (
           <div className="mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
             <div className="py-1 max-h-48 overflow-y-auto">
@@ -197,13 +214,13 @@ const DashboardLayout = () => {
                         switchWorkspace(ws);
                         setWorkspaceDropdownOpen(false);
                       }}
-                      className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs transition-colors ${
+                      className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs transition-colors cursor-pointer ${
                         isCur
-                          ? 'bg-indigo-50/80 text-indigo-700 font-medium'
+                          ? 'bg-indigo-50/90 text-indigo-700 font-semibold'
                           : 'text-slate-700 hover:bg-slate-50 font-normal'
                       }`}
                     >
-                      <span className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center text-[10px] font-medium text-slate-600">
+                      <span className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center text-[10px] font-semibold text-slate-600">
                         {ws.name?.charAt(0)}
                       </span>
                       <span className="truncate">{ws.name}</span>
@@ -219,20 +236,21 @@ const DashboardLayout = () => {
                   setWorkspaceDropdownOpen(false);
                   setShowWorkspaceModal(true);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-indigo-600 font-medium hover:bg-indigo-50 rounded-lg transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-indigo-600 font-semibold hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" /> New Workspace
+                <Plus className="w-3.5 h-3.5" /> Create Workspace
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Main Navigation Section */}
-      <nav className="flex-1 px-3 space-y-1 overflow-y-auto pt-1">
-        <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider px-3 mb-2">
-          Main Menu
+      {/* Main Navigation */}
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto py-3">
+        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+          Platform Modules
         </div>
+        
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -241,49 +259,75 @@ const DashboardLayout = () => {
               key={item.path}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
                 active
-                  ? 'bg-gradient-to-r from-blue-50/90 to-indigo-50/90 text-indigo-700 font-medium shadow-xs border-l-2 border-indigo-600'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-normal'
+                  ? 'bg-indigo-50/90 text-indigo-700 font-semibold shadow-2xs border border-indigo-100'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-indigo-600' : 'text-slate-400'}`} />
-              <span>{item.name}</span>
+              <div className="flex items-center gap-2.5">
+                <Icon className={`w-4 h-4 shrink-0 transition-colors ${active ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                <span>{item.name}</span>
+              </div>
+              {active && (
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+              )}
             </Link>
           );
         })}
 
-        <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider px-3 pt-6 mb-2">
-          General
+        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 pt-5 mb-2">
+          System & Settings
         </div>
+        
+        <Link
+          to="/notifications"
+          onClick={onClose}
+          className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
+            isActive('/notifications')
+              ? 'bg-indigo-50/90 text-indigo-700 font-semibold shadow-2xs border border-indigo-100'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <Bell className={`w-4 h-4 shrink-0 ${isActive('/notifications') ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
+            <span>Notifications</span>
+          </div>
+          {unreadCount > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-600 text-white">
+              {unreadCount}
+            </span>
+          )}
+        </Link>
+
         <Link
           to="/settings"
           onClick={onClose}
-          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
+          className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
             isActive('/settings')
-              ? 'bg-gradient-to-r from-blue-50/90 to-indigo-50/90 text-indigo-700 font-medium shadow-xs border-l-2 border-indigo-600'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-normal'
+              ? 'bg-indigo-50/90 text-indigo-700 font-semibold shadow-2xs border border-indigo-100'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
           }`}
         >
-          <SettingsIcon className={`w-4 h-4 shrink-0 ${isActive('/settings') ? 'text-indigo-600' : 'text-slate-400'}`} />
+          <SettingsIcon className={`w-4 h-4 shrink-0 ${isActive('/settings') ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
           <span>Settings</span>
         </Link>
       </nav>
 
       {/* User Card at bottom of sidebar */}
-      <div className="p-3 border-t border-slate-100">
-        <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-medium text-xs flex items-center justify-center shrink-0 shadow-xs">
+      <div className="p-3 border-t border-slate-200/80 bg-white">
+        <div className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-200/70 shadow-2xs">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-indigo-700 text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs">
             {userInitial}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-slate-800 truncate">{user?.fullName || 'User'}</p>
+            <p className="text-xs font-semibold text-slate-900 truncate">{user?.fullName || 'User'}</p>
             <p className="text-[10px] text-slate-400 truncate font-normal">{user?.email}</p>
           </div>
           <button
             onClick={handleLogout}
             title="Sign out"
-            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"
+            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
             aria-label="Sign out"
           >
             <LogOut className="w-4 h-4" />
@@ -294,7 +338,7 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F4F5F9] flex font-sans text-slate-800">
+    <div className="min-h-screen bg-[#F8FAFC] flex font-sans text-slate-800">
       
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex flex-col h-screen sticky top-0 z-30">
@@ -305,10 +349,10 @@ const DashboardLayout = () => {
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-xs"
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative z-10 flex flex-col h-full shadow-2xl">
+          <div className="relative z-10 flex flex-col h-full shadow-2xl animate-in slide-in-from-left duration-200">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>
         </div>
@@ -318,23 +362,27 @@ const DashboardLayout = () => {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         
         {/* Top Navbar */}
-        <header className="h-18 px-6 lg:px-8 bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-20 flex items-center justify-between">
+        <header className="h-16 px-6 lg:px-8 bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-20 flex items-center justify-between">
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100"
+              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 cursor-pointer"
               aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-base font-semibold text-slate-900 tracking-tight">
-                {pageTitle}
-              </h1>
-              <p className="text-xs text-slate-400 hidden sm:block font-normal">
-                Workspace: <span className="font-medium text-slate-700">{activeWorkspace?.name || 'Default'}</span>
-              </p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-bold text-slate-900 tracking-tight">
+                  {pageTitle}
+                </h1>
+                <span className="hidden sm:inline-block text-slate-300">•</span>
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                  <span className="text-slate-400">Workspace:</span>
+                  <strong className="text-slate-800 font-semibold">{activeWorkspace?.name || 'Default'}</strong>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -342,11 +390,11 @@ const DashboardLayout = () => {
           <div className="flex items-center gap-3">
             
             {/* Search Pill */}
-            <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60 text-xs text-slate-400 w-56 focus-within:border-indigo-400 focus-within:bg-white transition-all">
+            <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200/70 text-xs text-slate-400 w-60 focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all">
               <Search className="w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search anything..."
+                placeholder="Search projects, tasks, members..."
                 className="bg-transparent border-none outline-none text-slate-800 placeholder-slate-400 text-xs w-full font-normal"
               />
             </div>
@@ -354,12 +402,12 @@ const DashboardLayout = () => {
             {/* Notifications Bell */}
             <Link
               to="/notifications"
-              className="relative p-2.5 rounded-full bg-slate-100/80 hover:bg-slate-200/80 text-slate-600 hover:text-slate-900 transition-colors"
+              className="relative p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white animate-pulse" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white animate-pulse" />
               )}
             </Link>
 
@@ -367,30 +415,33 @@ const DashboardLayout = () => {
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setUserMenuOpen((v) => !v)}
-                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-medium text-xs flex items-center justify-center shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-semibold text-xs flex items-center justify-center shadow-xs">
                   {userInitial}
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-4 py-2.5 border-b border-slate-100">
-                    <p className="text-xs font-medium text-slate-900 truncate">{user?.fullName || 'User'}</p>
+                    <p className="text-xs font-semibold text-slate-900 truncate">{user?.fullName || 'User'}</p>
                     <p className="text-[10px] text-slate-400 truncate font-normal">{user?.email}</p>
+                    <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded border ${getRoleBadgeStyle(activeWorkspace?.memberRole)} mt-1.5`}>
+                      {activeWorkspace?.memberRole || 'Member'} Role
+                    </span>
                   </div>
                   <Link
                     to="/settings"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-normal text-slate-700 hover:bg-slate-50 hover:text-indigo-600"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors"
                   >
-                    <User className="w-3.5 h-3.5" /> My Profile
+                    <User className="w-3.5 h-3.5" /> Account Settings
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-normal text-rose-600 hover:bg-rose-50"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" /> Sign out
                   </button>
@@ -402,23 +453,23 @@ const DashboardLayout = () => {
         </header>
 
         {/* Dynamic Page Outlet */}
-        <main className="flex-1 p-5 sm:p-7 lg:p-8 max-w-[1500px] w-full mx-auto">
+        <main className="flex-1 p-5 sm:p-7 lg:p-8 max-w-[1550px] w-full mx-auto">
           <Outlet />
         </main>
       </div>
 
       {/* Modal: Create Workspace */}
       {showWorkspaceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
-            <h2 className="text-base font-semibold text-slate-900 mb-1">Create New Workspace</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 animate-in zoom-in-95 duration-150">
+            <h2 className="text-base font-bold text-slate-900 mb-1">Create New Workspace</h2>
             <p className="text-xs text-slate-500 mb-4 font-normal">
               Organize projects and teammates in isolated environments.
             </p>
 
             <form onSubmit={handleCreateWorkspace} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Workspace Name *
                 </label>
                 <input
@@ -432,7 +483,7 @@ const DashboardLayout = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Description
                 </label>
                 <textarea
@@ -448,14 +499,14 @@ const DashboardLayout = () => {
                 <button
                   type="button"
                   onClick={() => setShowWorkspaceModal(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingWorkspace || !newWorkspaceName.trim()}
-                  className="px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-sm transition-all disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-xs shadow-indigo-500/20 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmittingWorkspace ? 'Creating...' : 'Create Workspace'}
                 </button>

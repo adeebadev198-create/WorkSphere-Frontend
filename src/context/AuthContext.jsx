@@ -16,6 +16,23 @@ export const AuthProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : null;
   });
   const [loading, setLoading] = useState(true);
+  const [authTransition, setAuthTransition] = useState({
+    active: false,
+    message: 'Preparing your workspace...',
+    submessage: 'Synchronizing real-time projects, tasks & permissions',
+  });
+
+  const startAuthTransition = (message, submessage) => {
+    setAuthTransition({
+      active: true,
+      message: message || 'Preparing your workspace...',
+      submessage: submessage || 'Synchronizing real-time projects, tasks & permissions',
+    });
+  };
+
+  const endAuthTransition = () => {
+    setAuthTransition((prev) => ({ ...prev, active: false }));
+  };
 
   // Initialize or fetch current user & workspaces on load
   useEffect(() => {
@@ -157,6 +174,9 @@ export const AuthProvider = ({ children }) => {
         workspaces,
         activeWorkspace,
         loading,
+        authTransition,
+        startAuthTransition,
+        endAuthTransition,
         login,
         googleLogin,
         register,
