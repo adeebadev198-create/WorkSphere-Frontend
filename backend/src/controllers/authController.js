@@ -15,7 +15,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // @access  Public
 const register = async (req, res, next) => {
   try {
-    const { fullName, email, password, confirmPassword } = req.body;
+    const { fullName, email, password, confirmPassword } = req.body || {};
 
     if (!fullName || !email || !password) {
       return errorResponse(res, 400, 'Please provide all required fields');
@@ -81,7 +81,7 @@ const register = async (req, res, next) => {
 // @access  Public
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (!email || !password) {
       return errorResponse(res, 400, 'Please provide email and password');
@@ -139,7 +139,7 @@ const login = async (req, res, next) => {
 // @access  Public
 const googleLogin = async (req, res, next) => {
   try {
-    const { credential } = req.body;
+    const { credential } = req.body || {};
 
     if (!credential) {
       return errorResponse(res, 400, 'Google credential token is required');
@@ -247,7 +247,7 @@ const getMe = async (req, res, next) => {
 // @access  Public
 const forgotPassword = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const { email } = req.body || {};
     if (!email) {
       return errorResponse(res, 400, 'Please provide registered email');
     }
@@ -275,7 +275,7 @@ const forgotPassword = async (req, res, next) => {
 // @access  Public
 const resetPassword = async (req, res, next) => {
   try {
-    const { resetToken, newPassword } = req.body;
+    const { resetToken, newPassword } = req.body || {};
     if (!resetToken || !newPassword) {
       return errorResponse(res, 400, 'Please provide token and new password');
     }
