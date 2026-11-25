@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import logoImg from '../assets/logo/logo.png';
+import LoadingScreen from '../components/common/LoadingScreen';
 import {
   ChevronDown,
   Bell,
@@ -26,6 +27,7 @@ import {
   Sparkles,
   Shield,
   ExternalLink,
+  AlertCircle,
 } from 'lucide-react';
 
 const navItems = [
@@ -62,6 +64,22 @@ const DashboardLayout = () => {
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
   const [newWorkspaceDesc, setNewWorkspaceDesc] = useState('');
   const [isSubmittingWorkspace, setIsSubmittingWorkspace] = useState(false);
+  const [workspaceError, setWorkspaceError] = useState('');
+
+  // Page Transition Loading Screen
+  const [isPageLoading, setIsPageLoading] = useState(false);
+  const lastPathnameRef = useRef(location.pathname);
+
+  useEffect(() => {
+    if (lastPathnameRef.current !== location.pathname) {
+      lastPathnameRef.current = location.pathname;
+      setIsPageLoading(true);
+      const timer = setTimeout(() => {
+        setIsPageLoading(false);
+      }, 550);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname]);
 
   const workspaceDropdownRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -98,6 +116,7 @@ const DashboardLayout = () => {
     if (!newWorkspaceName.trim()) return;
     try {
       setIsSubmittingWorkspace(true);
+      setWorkspaceError('');
       const res = await api.post('/workspaces', {
         name: newWorkspaceName.trim(),
         description: newWorkspaceDesc.trim(),
@@ -109,7 +128,7 @@ const DashboardLayout = () => {
         switchWorkspace(res.data);
       }
     } catch (err) {
-      alert(err.message || 'Failed to create workspace');
+      setWorkspaceError(err.message || 'Failed to create workspace');
     } finally {
       setIsSubmittingWorkspace(false);
     }
@@ -456,7 +475,13 @@ const DashboardLayout = () => {
 
         {/* Dynamic Page Outlet */}
         <main className="flex-1 p-5 sm:p-7 lg:p-8 max-w-[1550px] w-full mx-auto">
-          <Outlet />
+          {isPageLoading ? (
+            <div className="min-h-[500px] flex items-center justify-center">
+              <LoadingScreen minDuration={550} show={true} />
+            </div>
+          ) : (
+            <Outlet />
+          )}
         </main>
       </div>
 
@@ -468,6 +493,13 @@ const DashboardLayout = () => {
             <p className="text-xs text-slate-500 mb-4 font-normal">
               Organize projects and teammates in isolated environments.
             </p>
+
+            {workspaceError && (
+              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                <span>{workspaceError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleCreateWorkspace} className="space-y-4">
               <div>

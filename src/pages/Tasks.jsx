@@ -16,7 +16,8 @@ import {
   Trash2,
   Pencil,
   X,
-  ArrowUpDown
+  ArrowUpDown,
+  MessageSquare
 } from 'lucide-react';
 
 const Tasks = () => {
@@ -29,6 +30,13 @@ const Tasks = () => {
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [sortBy, setSortBy] = useState('dueDate');
+  const [taskNotice, setTaskNotice] = useState(null); // { type: 'success' | 'error', text: '' }
+
+  // Comments Modal State
+  const [commentTask, setCommentTask] = useState(null);
+  const [newComment, setNewComment] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   // Delete Task Modal State
   const [taskToDelete, setTaskToDelete] = useState(null);
@@ -72,8 +80,54 @@ const Tasks = () => {
       setTasks((prev) =>
         prev.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
       );
+      setTaskNotice({ type: 'success', text: `Task status updated to ${newStatus}.` });
+      setTimeout(() => setTaskNotice(null), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to update status');
+      setTaskNotice({ type: 'error', text: err.message || 'Failed to update status' });
+      setTimeout(() => setTaskNotice(null), 4000);
+    }
+  };
+
+  const handleOpenComments = async (task) => {
+    try {
+      setCommentError('');
+      setNewComment('');
+      // Fetch fresh task data including populated comments
+      const res = await api.get(`/tasks/${task._id}`);
+      setCommentTask(res?.data || task);
+    } catch (e) {
+      setCommentTask(task);
+    }
+  };
+
+  const handlePostComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim() || !commentTask) return;
+    setCommentError('');
+
+    try {
+      setSubmittingComment(true);
+      const res = await api.post(`/tasks/${commentTask._id}/comments`, {
+        content: newComment.trim(),
+      });
+      if (res?.data) {
+        setCommentTask((prev) => ({
+          ...prev,
+          comments: [...(prev.comments || []), res.data],
+        }));
+        setTasks((prev) =>
+          prev.map((t) =>
+            t._id === commentTask._id
+              ? { ...t, comments: [...(t.comments || []), res.data] }
+              : t
+          )
+        );
+        setNewComment('');
+      }
+    } catch (err) {
+      setCommentError(err.message || 'Failed to post comment');
+    } finally {
+      setSubmittingComment(false);
     }
   };
 
@@ -181,6 +235,24 @@ const Tasks = () => {
         </div>
       </div>
 
+      {/* Task Feedback Notice */}
+      {taskNotice && (
+        <div
+          className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
+            taskNotice.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          {taskNotice.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
+          <span>{taskNotice.text}</span>
+        </div>
+      )}
+
       {/* Tabs & Search */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1">
@@ -242,6 +314,7 @@ const Tasks = () => {
                   <th className="py-3 px-6">Priority</th>
                   <th className="py-3 px-6">Due Date</th>
                   <th className="py-3 px-6">Assignee</th>
+                  <th className="py-3 px-6">Discussion</th>
                   <th className="py-3 px-6">Status</th>
                   {canManage && <th className="py-3 px-6 text-right">Actions</th>}
                 </tr>
@@ -294,6 +367,17 @@ const Tasks = () => {
                         ) : (
                           <span className="text-slate-400 italic">Unassigned</span>
                         )}
+                      </td>
+
+                      <td className="py-3.5 px-6">
+                        <button
+                          onClick={() => handleOpenComments(t)}
+                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-colors text-xs font-medium cursor-pointer"
+                          title="View comments & discussion"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{t.comments?.length || 0}</span>
+                        </button>
                       </td>
 
                       <td className="py-3.5 px-6">
@@ -461,6 +545,74 @@ const Tasks = () => {
         type="danger"
         loading={deleteLoading}
       />
+
+      {/* Task Comments & Discussion Modal */}
+      {commentTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-lg w-full p-6 max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+            <div className="flex items-start justify-between pb-3 border-b border-slate-100 mb-4">
+              <div>
+                <span className="text-[10px] font-medium uppercase text-indigo-600 bg-indigo-50 border border-indigo-100/80 px-2 py-0.5 rounded-full">
+                  {commentTask.project?.name || 'Project'}
+                </span>
+                <h3 className="text-base font-semibold text-slate-900 mt-1">{commentTask.title}</h3>
+                <p className="text-xs text-slate-400 font-normal mt-0.5">Task Discussion &amp; Comments</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCommentTask(null)}
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {commentError && (
+              <div className="mb-3 p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                <span>{commentError}</span>
+              </div>
+            )}
+
+            {/* Comments List */}
+            <div className="flex-1 overflow-y-auto space-y-2.5 mb-4 pr-1 max-h-64">
+              {commentTask.comments && commentTask.comments.length > 0 ? (
+                commentTask.comments.map((c, idx) => (
+                  <div key={c._id || idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                      <span className="font-semibold text-slate-800">{c.user?.fullName || 'Team Member'}</span>
+                      <span>{c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
+                    </div>
+                    <p className="text-slate-700 font-normal">{c.content}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-xs text-slate-400 italic">
+                  No comments on this task yet. Start the discussion below.
+                </div>
+              )}
+            </div>
+
+            {/* Post comment input */}
+            <form onSubmit={handlePostComment} className="flex items-center gap-2 pt-3 border-t border-slate-100">
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+              />
+              <button
+                type="submit"
+                disabled={submittingComment || !newComment.trim()}
+                className="px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {submittingComment ? 'Posting...' : 'Post'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -24,6 +24,7 @@ const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [activeReportTab, setActiveReportTab] = useState('projects');
   const [exporting, setExporting] = useState(false);
+  const [exportNotice, setExportNotice] = useState(null); // { type: 'success' | 'error', text: '' }
 
   const fetchReports = async () => {
     try {
@@ -79,8 +80,17 @@ const Reports = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       a.remove();
+      setExportNotice({
+        type: 'success',
+        text: `Exported ${type.toUpperCase()} report successfully as CSV.`,
+      });
+      setTimeout(() => setExportNotice(null), 3000);
     } catch (err) {
-      alert(err.message || 'Export error');
+      setExportNotice({
+        type: 'error',
+        text: err.message || 'Export error',
+      });
+      setTimeout(() => setExportNotice(null), 4000);
     } finally {
       setExporting(false);
     }
@@ -88,6 +98,24 @@ const Reports = () => {
 
   return (
     <div className="space-y-6">
+      
+      {/* Export Notice */}
+      {exportNotice && (
+        <div
+          className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
+            exportNotice.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          {exportNotice.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
+          <span>{exportNotice.text}</span>
+        </div>
+      )}
       
       {/* Top Banner & Export Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">

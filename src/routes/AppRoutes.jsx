@@ -1,6 +1,6 @@
 // src/routes/AppRoutes.jsx
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoadingScreen from '../components/common/LoadingScreen';
 
@@ -24,8 +24,16 @@ import Workspaces from '../pages/Workspaces';
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading, authTransition } = useAuth();
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  if (loading || authTransition?.active) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinDelayPassed(true);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !minDelayPassed || authTransition?.active) {
     return (
       <LoadingScreen
         message={authTransition?.message || 'Preparing your workspace...'}
@@ -44,8 +52,16 @@ const ProtectedRoute = ({ children }) => {
 // Public Route Guard (redirect to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading, authTransition } = useAuth();
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  if (loading || authTransition?.active) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinDelayPassed(true);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !minDelayPassed || authTransition?.active) {
     return (
       <LoadingScreen
         message={authTransition?.message || 'Authenticating session...'}

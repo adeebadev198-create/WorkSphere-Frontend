@@ -222,10 +222,12 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
   const [assignedTo, setAssignedTo]       = useState('');
   const [submitting, setSubmitting]       = useState(false);
   const [filterStatus, setFilterStatus]   = useState('All');
+  const [createError, setCreateError]     = useState('');
 
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!title || !dueDate) return;
+    setCreateError('');
     try {
       setSubmitting(true);
       await api.post('/tasks', {
@@ -240,7 +242,7 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
       setTitle(''); setDescription(''); setDueDate(''); setAssignedTo('');
       onTaskCreated();
     } catch (err) {
-      alert(err.message || 'Failed to create task');
+      setCreateError(err.message || 'Failed to create task');
     } finally {
       setSubmitting(false);
     }
@@ -357,6 +359,12 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-md w-full p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-1">Add Task</h2>
             <p className="text-xs text-gray-500 mb-5">{project.name}</p>
+
+            {createError && (
+              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
+                {createError}
+              </div>
+            )}
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>

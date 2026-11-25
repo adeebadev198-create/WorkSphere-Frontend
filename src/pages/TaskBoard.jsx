@@ -48,8 +48,10 @@ const TaskBoard = () => {
   const [taskDetailsLoading, setTaskDetailsLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState('');
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [boardNotice, setBoardNotice] = useState(null); // { type: 'success' | 'error', text: '' }
 
   // Create Task Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -126,7 +128,11 @@ const TaskBoard = () => {
       (u) => (u._id || u.id || u) === (user?._id || user?.id)
     );
     if (!canAssignTasks && !isAssigned) {
-      alert('Permission denied: Members can only update the status of tasks assigned to them.');
+      setBoardNotice({
+        type: 'error',
+        text: 'Permission denied: Members can only update the status of tasks assigned to them.',
+      });
+      setTimeout(() => setBoardNotice(null), 4000);
       setDraggedTaskId(null);
       return;
     }
@@ -140,8 +146,17 @@ const TaskBoard = () => {
     try {
       setIsUpdatingStatus(true);
       await api.patch(`/tasks/${taskId}/status`, { status: targetStatus });
+      setBoardNotice({
+        type: 'success',
+        text: `Task "${currentTask.title}" moved to ${targetStatus}.`,
+      });
+      setTimeout(() => setBoardNotice(null), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to move task. Check permissions or dependencies.');
+      setBoardNotice({
+        type: 'error',
+        text: err.message || 'Failed to move task. Check permissions or dependencies.',
+      });
+      setTimeout(() => setBoardNotice(null), 4000);
       setTasks(previousTasks);
     } finally {
       setIsUpdatingStatus(false);
@@ -154,12 +169,17 @@ const TaskBoard = () => {
     try {
       setTaskDetailsLoading(true);
       setShowCreateModal(false);
+      setCommentError('');
       const res = await api.get(`/tasks/${taskId}`);
       if (res?.data) {
         setSelectedTask(res.data);
       }
     } catch (err) {
-      alert(err.message || 'Failed to fetch task details');
+      setBoardNotice({
+        type: 'error',
+        text: err.message || 'Failed to fetch task details',
+      });
+      setTimeout(() => setBoardNotice(null), 4000);
     } finally {
       setTaskDetailsLoading(false);
     }
@@ -169,6 +189,7 @@ const TaskBoard = () => {
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || !selectedTask) return;
+    setCommentError('');
 
     try {
       setSubmittingComment(true);
@@ -180,10 +201,18 @@ const TaskBoard = () => {
           ...prev,
           comments: [...(prev.comments || []), res.data],
         }));
+        // Also update task in tasks list so comment counter updates immediately
+        setTasks((prev) =>
+          prev.map((t) =>
+            t._id === selectedTask._id
+              ? { ...t, comments: [...(t.comments || []), res.data] }
+              : t
+          )
+        );
         setNewComment('');
       }
     } catch (err) {
-      alert(err.message || 'Failed to post comment');
+      setCommentError(err.message || 'Failed to post comment');
     } finally {
       setSubmittingComment(false);
     }
@@ -197,8 +226,17 @@ const TaskBoard = () => {
       setTasks((prev) => prev.filter((t) => t._id !== taskToDelete._id));
       setSelectedTask(null);
       setTaskToDelete(null);
+      setBoardNotice({
+        type: 'success',
+        text: 'Task archived successfully.',
+      });
+      setTimeout(() => setBoardNotice(null), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to delete task');
+      setBoardNotice({
+        type: 'error',
+        text: err.message || 'Failed to delete task',
+      });
+      setTimeout(() => setBoardNotice(null), 4000);
     } finally {
       setDeleteLoading(false);
     }
@@ -283,6 +321,24 @@ const TaskBoard = () => {
           </div>
         )}
       </div>
+
+      {/* Feedback Banner */}
+      {boardNotice && (
+        <div
+          className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
+            boardNotice.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          {boardNotice.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
+          <span>{boardNotice.text}</span>
+        </div>
+      )}
 
       {/* Filter and View Bar */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -428,6 +484,13 @@ const TaskBoard = () => {
 
                             {/* Due date & Comments info */}
                             <div className="flex items-center gap-2 text-[10px] text-slate-500 font-normal">
+                              <span
+                                className="flex items-center gap-1 font-medium text-slate-500 group-hover:text-indigo-600 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100 transition-colors"
+                                title="Task comments"
+                              >
+                                <MessageSquare className="w-3 h-3 text-slate-400 group-hover:text-indigo-500" />
+                                {task.comments?.length || 0}
+                              </span>
                               {task.dueDate && (
                                 <span className="flex items-center gap-1 font-normal">
                                   <Clock className="w-3 h-3 text-slate-400" />
@@ -495,6 +558,13 @@ const TaskBoard = () => {
                 <h5 className="text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5 text-indigo-600" /> Comments ({selectedTask.comments?.length || 0})
                 </h5>
+
+                {commentError && (
+                  <div className="mb-3 p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                    <span>{commentError}</span>
+                  </div>
+                )}
 
                 <div className="space-y-2.5 mb-3 max-h-48 overflow-y-auto">
                   {selectedTask.comments && selectedTask.comments.length > 0 ? (
