@@ -420,8 +420,77 @@ const Login = () => {
                 </button>
               </form>
 
+              {/* Quick Demo Logins for Testing & Viva Presentation */}
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #F1F5F9' }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, textAlign: 'center' }}>
+                  Quick Demo Access
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('admin@worksphere.com');
+                      setPassword('Password123');
+                    }}
+                    style={{
+                      padding: '6px 4px',
+                      fontSize: 10,
+                      fontWeight: 600,
+                      color: '#4338CA',
+                      background: '#EEF2FF',
+                      border: '1px solid #C7D2FE',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    👑 Owner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('manager@worksphere.com');
+                      setPassword('Password123');
+                    }}
+                    style={{
+                      padding: '6px 4px',
+                      fontSize: 10,
+                      fontWeight: 600,
+                      color: '#1D4ED8',
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    📋 Manager
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('member@worksphere.com');
+                      setPassword('Password123');
+                    }}
+                    style={{
+                      padding: '6px 4px',
+                      fontSize: 10,
+                      fontWeight: 600,
+                      color: '#475569',
+                      background: '#F1F5F9',
+                      border: '1px solid #CBD5E1',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    👤 Member
+                  </button>
+                </div>
+              </div>
+
               {/* Register link */}
-              <p style={{ marginTop: 24, textAlign: 'center', fontSize: 13, color: '#64748B' }}>
+              <p style={{ marginTop: 18, textAlign: 'center', fontSize: 13, color: '#64748B' }}>
                 Don't have an account?{' '}
                 <Link
                   to="/register"

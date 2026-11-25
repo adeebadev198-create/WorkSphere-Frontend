@@ -1,4 +1,3 @@
-// backend/src/utils/token.js
 const jwt = require('jsonwebtoken');
 
 const generateToken = (id) => {

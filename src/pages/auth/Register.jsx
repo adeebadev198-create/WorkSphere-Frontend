@@ -171,7 +171,7 @@ const Register = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-xl font-semibold shadow-lg shadow-purple-500/30 bg-[#7C3AED] hover:bg-purple-700 text-white flex items-center justify-center gap-2 py-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full rounded-xl font-semibold shadow-md shadow-indigo-500/25 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white flex items-center justify-center gap-2 py-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer active:scale-[0.99]"
                   >
                     {loading ? (
                       <><Loader2 className="w-4 h-4 animate-spin" /> Creating account...</>
@@ -185,7 +185,7 @@ const Register = () => {
               {/* Footer Link */}
               <p className="mt-8 text-xs text-center text-slate-500">
                 Already have an account?{' '}
-                <Link to="/login" className="text-[#7C3AED] font-bold hover:underline">
+                <Link to="/login" className="text-indigo-600 font-semibold hover:text-indigo-800 hover:underline">
                   Sign In
                 </Link>
               </p>
