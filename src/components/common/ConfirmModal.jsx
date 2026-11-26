@@ -68,7 +68,7 @@ const ConfirmModal = ({
             className={`px-4 py-2 text-xs font-medium text-white rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-[0.99] ${
               type === 'danger'
                 ? 'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 shadow-rose-500/20'
-                : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-indigo-500/20'
+                : 'bg-gradient-to-r from-[#5B21B6] to-[#7C3AED] hover:from-[#4C1D95] hover:to-[#6D28D9] shadow-purple-500/20'
             }`}
           >
             {loading ? 'Processing...' : confirmText}

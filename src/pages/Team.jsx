@@ -377,7 +377,7 @@ const Team = () => {
         onClose={() => setMemberToRemove(null)}
         onConfirm={handleConfirmRemoveMember}
         title="Remove Member from Workspace"
-        message={`Are you sure you want to remove ${memberToRemove?.name} from this workspace? Historical task logs, comments, and activities will be retained, and any uncompleted tasks will be flagged for reassignment.`}
+        message={`Are you sure you want to remove ${memberToRemove?.name} from this workspace?`}
         confirmText="Remove Member"
         cancelText="Cancel"
         type="danger"

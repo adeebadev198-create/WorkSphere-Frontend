@@ -162,8 +162,8 @@ const DashboardLayout = () => {
   const Sidebar = ({ onClose }) => (
     <div className="flex flex-col h-full bg-[#FCFAFF] w-64 shrink-0 border-r border-purple-100/90 select-none">
       
-      {/* Brand Header — Exact h-16 alignment matching top navbar */}
-      <div className="flex items-center justify-between px-5 h-16 border-b border-purple-100/80 bg-white shrink-0">
+      {/* Brand Header */}
+      <div className="flex items-center justify-between px-5 h-20 border-b border-purple-100/80 bg-white shrink-0">
         <Link
           to="/dashboard"
           className="flex items-center group transition-opacity hover:opacity-95"
@@ -172,7 +172,7 @@ const DashboardLayout = () => {
           <img
             src={logoImg}
             alt="WorkSphere - Plan • Collaborate • Achieve"
-            className="h-8 sm:h-9 w-auto max-w-[170px] object-contain"
+            className="h-14 sm:h-16 w-auto max-w-[215px] object-contain"
           />
         </Link>
         {onClose && (

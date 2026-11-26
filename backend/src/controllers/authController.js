@@ -1,4 +1,3 @@
-// backend/src/controllers/authController.js
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');

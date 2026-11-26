@@ -539,7 +539,7 @@ const Tasks = () => {
         onClose={() => setTaskToDelete(null)}
         onConfirm={handleConfirmDeleteTask}
         title="Archive Task"
-        message={`Are you sure you want to archive task "${taskToDelete?.title}"?`}
+        message={`Are you sure you want to delete "${taskToDelete?.title}"?`}
         confirmText="Archive Task"
         cancelText="Cancel"
         type="danger"

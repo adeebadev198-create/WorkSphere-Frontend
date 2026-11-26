@@ -635,7 +635,7 @@ const Projects = () => {
         onClose={() => setProjectToDelete(null)}
         onConfirm={handleConfirmDeleteProject}
         title="Archive Project"
-        message={`Are you sure you want to archive "${projectToDelete?.name}"? Archived projects and their tasks will be kept for historical reference and reports.`}
+        message={`Are you sure you want to archive "${projectToDelete?.name}"?`}
         confirmText="Archive Project"
         cancelText="Cancel"
         type="danger"
