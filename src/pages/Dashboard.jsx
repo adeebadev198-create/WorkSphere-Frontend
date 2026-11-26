@@ -125,18 +125,18 @@ const Dashboard = () => {
       value: kpis.activeProjects ?? 0,
       sub: `${kpis.totalProjects ?? 0} registered total`,
       icon: FolderKanban,
-      iconBg: 'bg-indigo-50 text-indigo-600 border border-indigo-100',
+      iconBg: 'bg-purple-50 text-purple-600 border border-purple-100',
       badge: 'Portfolio Health',
-      badgeColor: 'text-indigo-700 bg-indigo-50 border-indigo-200',
+      badgeColor: 'text-purple-700 bg-purple-50 border-purple-200',
     },
     {
       label: 'Team Velocity',
       value: `${kpis.inProgressTasks ?? 0}`,
       sub: `${kpis.inReviewTasks ?? 0} tasks awaiting review`,
       icon: Zap,
-      iconBg: 'bg-blue-50 text-blue-600 border border-blue-100',
+      iconBg: 'bg-violet-50 text-violet-600 border border-violet-100',
       badge: 'Active Workload',
-      badgeColor: 'text-blue-700 bg-blue-50 border-blue-200',
+      badgeColor: 'text-violet-700 bg-violet-50 border-violet-200',
     },
     {
       label: 'Overdue Warnings',
@@ -161,7 +161,7 @@ const Dashboard = () => {
   // Status Breakdown data
   const stageDefinitions = [
     { name: 'To Do', color: '#94A3B8' },
-    { name: 'In Progress', color: '#2563EB' },
+    { name: 'In Progress', color: '#7C3AED' },
     { name: 'In Review', color: '#F59E0B' },
     { name: 'Completed', color: '#10B981' },
   ];
@@ -190,21 +190,21 @@ const Dashboard = () => {
     <div className="space-y-7 animate-in fade-in duration-300">
       
       {/* ── Executive Header Banner ── */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-purple-100/90">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Workspace Overview & Telemetry
+              Workspace Overview
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live MongoDB Atlas Sync
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse" />
+              Live Workspace
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
             <span>Welcome, <strong className="text-slate-900 font-semibold">{user?.fullName || 'User'}</strong></span>
             <span>•</span>
-            <span className="inline-flex items-center gap-1 font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+            <span className="inline-flex items-center gap-1 font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
               <Shield className="w-3 h-3" />
               {activeWorkspace?.memberRole || 'Member'} Role
             </span>
@@ -218,9 +218,9 @@ const Dashboard = () => {
           {canManage && (
             <Link
               to="/projects"
-              className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-800 font-semibold text-xs rounded-xl border border-purple-100 shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
-              <FolderKanban className="w-3.5 h-3.5 text-indigo-600" />
+              <FolderKanban className="w-3.5 h-3.5 text-purple-600" />
               Projects
             </Link>
           )}
@@ -228,7 +228,7 @@ const Dashboard = () => {
           {canManage && (
             <Link
               to="/tasks"
-              className="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl shadow-xs shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.99]"
+              className="px-3.5 py-2 bg-gradient-to-r from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] hover:from-[#4C1D95] hover:to-[#6D28D9] text-white font-semibold text-xs rounded-xl shadow-xs shadow-purple-500/25 transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.99]"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               New Task
@@ -238,10 +238,10 @@ const Dashboard = () => {
           {canManage && (
             <Link
               to="/reports"
-              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors flex items-center gap-1.5"
+              className="px-3 py-2 bg-purple-50/70 hover:bg-purple-100/80 text-purple-800 font-semibold text-xs rounded-xl border border-purple-100 transition-colors flex items-center gap-1.5"
               title="Export CSV Reports"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <FileSpreadsheet className="w-3.5 h-3.5 text-purple-600" />
               Export CSV
             </Link>
           )}
@@ -255,7 +255,7 @@ const Dashboard = () => {
           return (
             <div
               key={i}
-              className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between transition-all hover:border-slate-300 hover:shadow-sm"
+              className="p-5 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between transition-all hover:border-purple-200 hover:shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500">{m.label}</span>
@@ -284,13 +284,13 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Monthly Progress Area Chart (8 cols) */}
-        <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">Monthly Completion Velocity</h3>
               <p className="text-xs font-normal text-slate-400">Aggregated task completions and reviews per calendar month</p>
             </div>
-            <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
+            <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-100">
               Annual Cadence
             </span>
           </div>
@@ -300,19 +300,19 @@ const Dashboard = () => {
               <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="velocityGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.28} />
+                    <stop offset="95%" stopColor="#7C3AED" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3E8FF" />
                 <XAxis dataKey="month" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#FFFFFF',
                     borderRadius: '12px',
-                    border: '1px solid #E2E8F0',
-                    boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
+                    border: '1px solid #E9D5FF',
+                    boxShadow: '0 8px 20px rgba(91,33,182,0.08)',
                     fontSize: '12px',
                     fontWeight: 600,
                   }}
@@ -321,7 +321,7 @@ const Dashboard = () => {
                 <Area
                   type="monotone"
                   dataKey="completed"
-                  stroke="#4F46E5"
+                  stroke="#7C3AED"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#velocityGrad)"
@@ -339,7 +339,7 @@ const Dashboard = () => {
         </div>
 
         {/* Productivity Trends Donut (4 cols) */}
-        <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">Workflow Stage Breakdown</h3>
             <p className="text-xs font-normal text-slate-400">Task volume distributed by Kanban status</p>
@@ -404,7 +404,7 @@ const Dashboard = () => {
       </div>
 
       {/* ── Active Projects Portfolio Section ── */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+      <div className="p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">Active Projects Portfolio</h3>
@@ -412,7 +412,7 @@ const Dashboard = () => {
           </div>
           <Link
             to="/projects"
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+            className="text-xs font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 transition-colors"
           >
             All Projects ({projectsList.length}) <ChevronRight className="w-3.5 h-3.5" />
           </Link>
@@ -425,7 +425,7 @@ const Dashboard = () => {
               return (
                 <div
                   key={p._id}
-                  className="p-4 rounded-xl border border-slate-200/80 hover:border-indigo-300 hover:shadow-xs transition-all flex flex-col justify-between space-y-3 bg-slate-50/40"
+                  className="p-4 rounded-xl border border-purple-100/80 hover:border-purple-300 hover:shadow-xs transition-all flex flex-col justify-between space-y-3 bg-purple-50/20"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
@@ -436,7 +436,7 @@ const Dashboard = () => {
                             ? 'bg-rose-50 text-rose-700 border-rose-200'
                             : p.priority === 'High'
                               ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                              : 'bg-purple-50 text-purple-700 border-purple-200'
                         }`}
                       >
                         {p.priority}
@@ -452,9 +452,9 @@ const Dashboard = () => {
                       <span>Progress</span>
                       <span className="font-bold text-slate-900">{progressVal}%</span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-purple-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-[#5B21B6] to-[#7C3AED] rounded-full transition-all duration-500"
                         style={{ width: `${progressVal}%` }}
                       />
                     </div>
@@ -483,17 +483,17 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Left Section (8 cols) — Tabs: Recent Tasks vs Activity Log */}
-        <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between mb-4 border-b border-purple-100/70 pb-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveBottomTab('tasks')}
                   className={`text-xs font-semibold px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
                     activeBottomTab === 'tasks'
-                      ? 'bg-indigo-50 text-indigo-700 border border-indigo-100'
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-purple-50 text-purple-700 border border-purple-200/80'
+                      : 'text-slate-500 hover:text-purple-700'
                   }`}
                 >
                   Recent Tasks ({recentTasks.length})
@@ -503,15 +503,15 @@ const Dashboard = () => {
                   onClick={() => setActiveBottomTab('activity')}
                   className={`text-xs font-semibold px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
                     activeBottomTab === 'activity'
-                      ? 'bg-indigo-50 text-indigo-700 border border-indigo-100'
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-purple-50 text-purple-700 border border-purple-200/80'
+                      : 'text-slate-500 hover:text-purple-700'
                   }`}
                 >
                   Live Audit Activity ({recentActivities.length})
                 </button>
               </div>
 
-              <Link to="/tasks" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
+              <Link to="/tasks" className="text-xs font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 transition-colors">
                 View all <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -560,7 +560,7 @@ const Dashboard = () => {
                               </span>
                             </td>
                             <td className="py-3 px-2">
-                              <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                              <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-100">
                                 {t.status}
                               </span>
                             </td>
@@ -592,7 +592,7 @@ const Dashboard = () => {
                       className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 flex items-start justify-between text-xs"
                     >
                       <div className="flex items-start gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
                           {a.actor?.fullName?.charAt(0) || 'U'}
                         </div>
                         <div>
@@ -619,14 +619,14 @@ const Dashboard = () => {
         </div>
 
         {/* Upcoming Deadlines (4 cols) */}
-        <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 tracking-tight">Approaching Deadlines</h3>
                 <p className="text-xs font-normal text-slate-400">Due within next 7 calendar days</p>
               </div>
-              <Calendar className="w-4 h-4 text-slate-400" />
+              <Calendar className="w-4 h-4 text-purple-400" />
             </div>
 
             <div className="space-y-2.5">
@@ -640,7 +640,7 @@ const Dashboard = () => {
                       <p className="font-semibold text-slate-900 truncate">{t.title}</p>
                       <p className="text-[10px] font-normal text-slate-400 truncate">{t.project?.name || 'Project'}</p>
                     </div>
-                    <span className="text-[10px] font-bold text-indigo-700 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-2xs shrink-0">
+                    <span className="text-[10px] font-bold text-purple-700 bg-white px-2 py-1 rounded-lg border border-purple-100 shadow-2xs shrink-0">
                       {new Date(t.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </span>
                   </div>
@@ -656,7 +656,7 @@ const Dashboard = () => {
 
           <Link
             to="/kanban"
-            className="w-full mt-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl text-center shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+            className="w-full mt-4 py-2.5 bg-gradient-to-r from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] hover:from-[#4C1D95] hover:to-[#6D28D9] text-white font-semibold text-xs rounded-xl text-center shadow-sm shadow-purple-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
           >
             <span>Open Kanban Workflow</span>
             <ArrowRight className="w-3.5 h-3.5" />
