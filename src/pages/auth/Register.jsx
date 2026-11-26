@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import AuthShowcase from '../../components/auth/AuthShowcase';
 import {
   AlertCircle,
   Eye,
@@ -11,16 +12,13 @@ import {
   Lock,
   User,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  Sparkles,
-  Zap,
 } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 import logoImg from '../../assets/logo/logo.png';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register, startAuthTransition, endAuthTransition } = useAuth();
+  const { register, googleLogin, startAuthTransition, endAuthTransition } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,7 +30,7 @@ const Register = () => {
 
   // Dynamic Password Strength Meter
   const getPasswordStrength = (pwd) => {
-    if (!pwd) return { label: 'Empty', score: 0, color: 'bg-slate-200' };
+    if (!pwd) return { label: 'Empty', score: 0, color: 'bg-slate-200', width: '0%' };
     let score = 0;
     if (pwd.length >= 6) score += 1;
     if (pwd.length >= 10) score += 1;
@@ -64,13 +62,11 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // 1. Complete existing registration API request
-      await register(fullName, email, password, confirmPassword);
+      await register(fullName.trim(), email.trim(), password, confirmPassword);
 
-      // 2. Display full-screen WorkSphere loading screen smoothly
       startAuthTransition(
-        'Provisioning your enterprise workspace...',
-        'Creating isolated database schema & generating administrative credentials...'
+        'Setting up your account...',
+        'Preparing your collaborative workspace...'
       );
 
       setTimeout(() => {
@@ -85,208 +81,162 @@ const Register = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError('');
+    setLoading(true);
+    try {
+      await googleLogin(credentialResponse.credential);
+      startAuthTransition(
+        'Creating your account...',
+        'Preparing your collaborative workspace...'
+      );
+      setTimeout(() => {
+        navigate('/dashboard');
+        setTimeout(() => {
+          endAuthTransition();
+        }, 400);
+      }, 700);
+    } catch (err) {
+      setError(err.message || 'Google sign-up failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google sign-up was cancelled or could not be completed.');
+  };
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 font-sans selection:bg-indigo-600 selection:text-white relative overflow-hidden">
-      
-      {/* Ambient Logo Theme Orbs */}
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#FAF8FF] p-4 sm:p-6 lg:p-8 font-sans selection:bg-purple-600 selection:text-white relative overflow-hidden">
+      {/* Subtle Purple & White Ambient Glow */}
       <div
-        className="fixed -top-40 -left-40 w-96 h-96 rounded-full pointer-events-none"
+        className="fixed -top-44 -left-44 w-[28rem] h-[28rem] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%)',
-          filter: 'blur(60px)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%)',
+          filter: 'blur(70px)',
         }}
       />
       <div
-        className="fixed -bottom-40 -right-40 w-96 h-96 rounded-full pointer-events-none"
+        className="fixed -bottom-44 -right-44 w-[28rem] h-[28rem] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.10) 0%, transparent 70%)',
-          filter: 'blur(60px)',
+          background: 'radial-gradient(circle, rgba(109, 40, 217, 0.10) 0%, transparent 70%)',
+          filter: 'blur(70px)',
         }}
       />
 
-      {/* ── Outer Shell Container ── */}
-      <div className="w-full max-w-6xl min-h-[700px] rounded-3xl bg-white border border-slate-200/90 shadow-xl overflow-hidden flex flex-col lg:flex-row relative z-10">
-        
-        {/* ══════════════════════════════════════════════════
-            LEFT PANEL: BRAND VISUAL & ABSTRACT WORKSPACE
-        ══════════════════════════════════════════════════ */}
-        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-10 xl:p-12 relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E1B4B] to-[#0F172A] border-r border-slate-200/40 text-white">
-          
-          {/* Ambient Lighting Orbs */}
-          <div
-            className="absolute -top-24 -left-24 w-80 h-80 rounded-full pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
-              filter: 'blur(50px)',
-            }}
-          />
-          <div
-            className="absolute -bottom-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle, rgba(139, 92, 246, 0.20) 0%, transparent 70%)',
-              filter: 'blur(50px)',
-            }}
-          />
+      {/* Main Split Card */}
+      <div className="w-full max-w-6xl min-h-[680px] rounded-3xl bg-white border border-purple-100/90 shadow-[0_24px_70px_-15px_rgba(91,33,182,0.12)] overflow-hidden flex flex-col lg:flex-row relative z-10">
+        {/* Left Purple & White Brand Showcase */}
+        <AuthShowcase mode="register" />
 
-          {/* Top Brand Tag */}
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="h-10 px-3 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-lg">
-              <img src={logoImg} alt="WorkSphere" className="h-6 w-auto object-contain brightness-0 invert" />
-            </div>
-            <div>
-              <span className="text-base font-bold text-white tracking-tight">WorkSphere</span>
-              <p className="text-[10px] text-indigo-300 font-medium">Enterprise Workspace Provisioning</p>
-            </div>
-          </div>
-
-          {/* Centerpiece: Interactive Features Matrix Card */}
-          <div className="relative z-10 my-auto py-6">
-            <div className="p-6 rounded-2xl bg-white/[0.05] border border-white/10 shadow-2xl backdrop-blur-xl space-y-4">
-              
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse" />
-                  <span className="text-xs font-semibold text-white">Included With Your Account</span>
-                </div>
-                <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                  Full Suite
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                {[
-                  { title: 'Isolated Workspaces', desc: 'Separate environments for departments and teams.' },
-                  { title: 'Interactive Kanban', desc: 'Fluid drag & drop task progression with cycle checks.' },
-                  { title: 'Permission Matrix', desc: 'Strict Owner, Manager & Member security enforcement.' },
-                  { title: 'CSV & PDF Export', desc: 'Instant audit and velocity export for leadership.' },
-                ].map((feat, i) => (
-                  <div key={i} className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
-                    <p className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                      <span>{feat.title}</span>
-                    </p>
-                    <p className="text-[10px] text-slate-400 leading-normal">{feat.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Inspiring Headline */}
-            <div className="mt-8 space-y-2">
-              <h2 className="text-2xl font-bold text-white tracking-tight leading-snug">
-                Join thousands of teams building<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
-                  the future of modern software.
-                </span>
-              </h2>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-                Get started in seconds with an isolated workspace, automatic sprint tracking, and real-time MongoDB data persistence.
-              </p>
-            </div>
-          </div>
-
-          {/* Bottom Security / Trust Badges */}
-          <div className="relative z-10 flex items-center gap-6 pt-4 border-t border-white/10 text-xs text-slate-400">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Multi-tenant Isolation</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-indigo-400" />
-              <span>Zero Dummy Data</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-violet-400" />
-              <span>Free Starter Tier</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════
-            RIGHT PANEL: CLEAN, ELEGANT REGISTRATION FORM
-        ══════════════════════════════════════════════════ */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 xl:p-12 bg-white">
-          
-          <div className="max-w-md w-full mx-auto my-auto space-y-5">
-            
-            {/* Header with Centered Official Logo on Mobile */}
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left mb-5">
-              <div className="lg:hidden mb-4">
+        {/* Right Pure White Form Panel */}
+        <div className="w-full lg:w-[52%] flex flex-col justify-between p-7 sm:p-10 xl:p-14 bg-white">
+          <div className="max-w-[400px] w-full mx-auto my-auto space-y-5">
+            {/* Header */}
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+              <div className="lg:hidden mb-5 inline-flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-purple-50/70 border border-purple-100">
                 <img
                   src={logoImg}
-                  alt="WorkSphere - Plan • Collaborate • Achieve"
-                  className="h-10 sm:h-12 w-auto max-w-[220px] object-contain"
+                  alt="WorkSphere"
+                  className="h-8 w-auto object-contain"
                 />
+                <span className="text-base font-bold text-slate-900 tracking-tight">
+                  WorkSphere
+                </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <span className="hidden lg:inline-flex items-center px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-100 text-[11px] font-semibold tracking-wide mb-3">
+                Get Started
+              </span>
+              <h1 className="text-2xl sm:text-[28px] font-bold text-slate-900 tracking-tight">
                 Create your account
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 font-normal">
-                Start managing projects with role-based access control.
+              <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-normal">
+                Join your team and start collaborating in seconds.
               </p>
+            </div>
+
+            {/* Google Sign-Up */}
+            <div className="flex justify-center w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                shape="pill"
+                theme="outline"
+                size="large"
+                text="signup_with"
+                width="380"
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-slate-200/80" />
+              <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
+                or register with email
+              </span>
+              <div className="flex-1 h-px bg-slate-200/80" />
             </div>
 
             {/* Error Banner */}
             {error && (
-              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-700 text-xs flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
-                <span className="font-medium">{error}</span>
+                <span className="font-medium leading-relaxed">{error}</span>
               </div>
             )}
 
             {/* Registration Form */}
             <form onSubmit={handleRegister} className="space-y-3.5">
-              
-              {/* Full Name */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Full Name *
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Full Name
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Alex Morgan"
+                    autoComplete="name"
+                    placeholder="Alex Morgan"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-[13px] bg-slate-50/60 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 text-slate-900 placeholder-slate-400 transition-all"
                   />
                 </div>
               </div>
 
-              {/* Email Address */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Work Email Address *
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Work Email
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     required
-                    placeholder="alex@company.com"
+                    autoComplete="email"
+                    placeholder="name@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-[13px] bg-slate-50/60 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 text-slate-900 placeholder-slate-400 transition-all"
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Password *
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Password
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
+                    autoComplete="new-password"
                     placeholder="Minimum 6 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                    className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-[13px] bg-slate-50/60 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 text-slate-900 placeholder-slate-400 transition-all"
                   />
                   <button
                     type="button"
@@ -298,11 +248,10 @@ const Register = () => {
                   </button>
                 </div>
 
-                {/* Password Strength Indicator */}
                 {password.length > 0 && (
                   <div className="mt-1.5 space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-slate-500">
-                      <span>Password Strength:</span>
+                      <span>Password strength</span>
                       <span className="font-semibold text-slate-700">{strength.label}</span>
                     </div>
                     <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
@@ -315,68 +264,63 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Confirm Password */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Confirm Password *
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Confirm Password
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
+                    autoComplete="new-password"
                     placeholder="Re-enter your password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 text-slate-900 placeholder-slate-400 transition-all font-normal"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-[13px] bg-slate-50/60 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 text-slate-900 placeholder-slate-400 transition-all"
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold text-xs rounded-xl shadow-md shadow-indigo-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                className="w-full py-3 px-4 bg-gradient-to-r from-[#6D28D9] via-[#7C3AED] to-[#5B21B6] hover:from-[#5B21B6] hover:to-[#4C1D95] text-white font-semibold text-xs sm:text-[13px] rounded-xl shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed mt-1"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Creating workspace...</span>
+                    <span>Creating account...</span>
                   </>
                 ) : (
                   <>
-                    <span>Create Enterprise Account</span>
+                    <span>Create Account</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
 
-            {/* Navigation to Login */}
-            <div className="text-center pt-2">
-              <p className="text-xs text-slate-500 font-normal">
-                Already have an enterprise account?{' '}
+            {/* Login Link */}
+            <div className="text-center pt-1">
+              <p className="text-xs text-slate-500">
+                Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="text-indigo-600 font-bold hover:text-indigo-800 hover:underline transition-colors"
+                  className="text-purple-700 font-semibold hover:text-purple-900 hover:underline transition-colors"
                 >
                   Sign in
                 </Link>
               </p>
             </div>
-
           </div>
 
           {/* Footer */}
           <div className="text-center text-[11px] text-slate-400 pt-6">
-            &copy; {new Date().getFullYear()} WorkSphere. By creating an account you agree to our Terms of Service.
+            &copy; {new Date().getFullYear()} WorkSphere Inc. By creating an account you agree to our Terms &amp; Privacy Policy.
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 };
