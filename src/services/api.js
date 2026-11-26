@@ -13,6 +13,10 @@ const api = axios.create({
 // Request interceptor to automatically attach JWT token and active workspace ID
 api.interceptors.request.use(
   (config) => {
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     const token = localStorage.getItem('worksphere_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

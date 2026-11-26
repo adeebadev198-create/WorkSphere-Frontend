@@ -267,8 +267,8 @@ const DashboardLayout = () => {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-3 space-y-1 overflow-y-auto py-3">
-        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto py-2.5">
+        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-1.5">
           Platform Modules
         </div>
         
@@ -280,7 +280,7 @@ const DashboardLayout = () => {
               key={item.path}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
+              className={`flex items-center justify-between px-3.5 py-2 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
                 active
                   ? 'bg-purple-50/90 text-purple-700 font-semibold shadow-2xs border border-purple-200/70'
                   : 'text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 font-medium'
@@ -297,14 +297,14 @@ const DashboardLayout = () => {
           );
         })}
 
-        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 pt-5 mb-2">
+        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 pt-3 mb-1.5">
           System & Settings
         </div>
         
         <Link
           to="/notifications"
           onClick={onClose}
-          className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
+          className={`flex items-center justify-between px-3.5 py-2 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
             isActive('/notifications')
               ? 'bg-purple-50/90 text-purple-700 font-semibold shadow-2xs border border-purple-200/70'
               : 'text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 font-medium'
@@ -324,7 +324,7 @@ const DashboardLayout = () => {
         <Link
           to="/settings"
           onClick={onClose}
-          className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
+          className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all duration-150 group cursor-pointer ${
             isActive('/settings')
               ? 'bg-purple-50/90 text-purple-700 font-semibold shadow-2xs border border-purple-200/70'
               : 'text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 font-medium'
@@ -338,8 +338,12 @@ const DashboardLayout = () => {
       {/* User Card at bottom of sidebar */}
       <div className="p-3 border-t border-purple-100/80 bg-white">
         <div className="flex items-center gap-2.5 p-2 rounded-xl bg-purple-50/40 border border-purple-100/80 shadow-2xs">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs">
-            {userInitial}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+            {user?.profilePicture ? (
+              <img src={user.profilePicture} alt={user?.fullName || 'User'} className="w-full h-full object-cover" />
+            ) : (
+              userInitial
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold text-slate-900 truncate">{user?.fullName || 'User'}</p>
@@ -382,8 +386,8 @@ const DashboardLayout = () => {
       {/* Main Workspace Frame */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         
-        {/* Top Navbar */}
-        <header className="h-16 px-4 sm:px-6 lg:px-8 bg-white/95 backdrop-blur-md border-b border-purple-100/80 sticky top-0 z-20 flex items-center justify-between">
+        {/* Top Navbar — Exact h-20 alignment matching sidebar brand header */}
+        <header className="h-20 px-4 sm:px-6 lg:px-8 bg-white/95 backdrop-blur-md border-b border-purple-100/80 sticky top-0 z-20 flex items-center justify-between">
           
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -438,8 +442,12 @@ const DashboardLayout = () => {
                 onClick={() => setUserMenuOpen((v) => !v)}
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-purple-50 transition-colors cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] text-white font-semibold text-xs flex items-center justify-center shadow-xs">
-                  {userInitial}
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] text-white font-semibold text-xs flex items-center justify-center shadow-xs overflow-hidden">
+                  {user?.profilePicture ? (
+                    <img src={user.profilePicture} alt={user?.fullName || 'User'} className="w-full h-full object-cover" />
+                  ) : (
+                    userInitial
+                  )}
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
               </button>

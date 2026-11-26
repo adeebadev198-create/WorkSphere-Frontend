@@ -164,6 +164,7 @@ export const AuthProvider = ({ children }) => {
       const res = await api.get('/auth/me');
       if (res?.data) {
         setUser(res.data.user);
+        localStorage.setItem('worksphere_user', JSON.stringify(res.data.user));
         setWorkspaces(res.data.workspaces || []);
       }
     } catch (e) {

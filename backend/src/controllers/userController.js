@@ -1,5 +1,6 @@
 // backend/src/controllers/userController.js
 const User = require('../models/User');
+const { cloudinary, isCloudinaryConfigured } = require('../config/cloudinary');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
 
 // @desc    Get user profile
@@ -65,9 +66,65 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+// @desc    Upload profile picture to Cloudinary and save URL in MongoDB
+// @route   POST /api/v1/users/profile/avatar
+// @access  Private
+const uploadProfileAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return errorResponse(res, 400, 'Please select an image file to upload');
+    }
+
+    if (!isCloudinaryConfigured()) {
+      return errorResponse(
+        res,
+        500,
+        'Cloudinary is not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to backend/.env'
+      );
+    }
+
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'worksphere/avatars',
+          public_id: `user_${req.user._id}`,
+          overwrite: true,
+          resource_type: 'image',
+          transformation: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+            { quality: 'auto', fetch_format: 'auto' },
+          ],
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+
+      stream.end(req.file.buffer);
+    });
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return errorResponse(res, 404, 'User not found');
+    }
+
+    user.profilePicture = uploadResult.secure_url;
+    await user.save();
+
+    return successResponse(res, 200, 'Profile picture uploaded successfully', {
+      profilePicture: user.profilePicture,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   changePassword,
+  uploadProfileAvatar,
 };
 
