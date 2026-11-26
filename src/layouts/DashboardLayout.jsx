@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import logoImg from '../assets/logo/logo.png';
 import LoadingScreen from '../components/common/LoadingScreen';
+import ConfirmModal from '../components/common/ConfirmModal';
 import {
   ChevronDown,
   Bell,
@@ -12,6 +13,7 @@ import {
   LogOut,
   User,
   Plus,
+  Trash2,
   LayoutDashboard,
   FolderKanban,
   Kanban,
@@ -54,7 +56,7 @@ const pageTitles = {
 const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, workspaces, activeWorkspace, switchWorkspace, logout } = useAuth();
+  const { user, workspaces, activeWorkspace, switchWorkspace, refreshUserData, logout } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [workspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
@@ -65,6 +67,8 @@ const DashboardLayout = () => {
   const [newWorkspaceDesc, setNewWorkspaceDesc] = useState('');
   const [isSubmittingWorkspace, setIsSubmittingWorkspace] = useState(false);
   const [workspaceError, setWorkspaceError] = useState('');
+  const [wsToDelete, setWsToDelete] = useState(null);
+  const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
 
   // Page Transition Loading Screen
   const [isPageLoading, setIsPageLoading] = useState(false);
@@ -137,6 +141,35 @@ const DashboardLayout = () => {
       setWorkspaceError(err.message || 'Failed to create workspace');
     } finally {
       setIsSubmittingWorkspace(false);
+    }
+  };
+
+  const handleConfirmDeleteWorkspace = async () => {
+    if (!wsToDelete) return;
+    const wsId = wsToDelete._id || wsToDelete.id;
+    try {
+      setIsDeletingWorkspace(true);
+      await api.delete(`/workspaces/${wsId}`, {
+        headers: { 'x-workspace-id': wsId },
+      });
+      const remaining = (workspaces || []).filter((w) => (w._id || w.id) !== wsId);
+      const activeId = activeWorkspace?._id || activeWorkspace?.id;
+      if (wsId === activeId) {
+        if (remaining.length > 0) {
+          localStorage.setItem('worksphere_active_workspace', JSON.stringify(remaining[0]));
+        } else {
+          localStorage.removeItem('worksphere_active_workspace');
+        }
+      }
+      setWsToDelete(null);
+      setWorkspaceDropdownOpen(false);
+      await refreshUserData();
+      window.location.reload();
+    } catch (err) {
+      console.error('Delete workspace error:', err);
+      setWsToDelete(null);
+    } finally {
+      setIsDeletingWorkspace(false);
     }
   };
 
@@ -237,24 +270,43 @@ const DashboardLayout = () => {
                   const activeId = activeWorkspace?._id || activeWorkspace?.id;
                   const isCur = wsId === activeId;
                   return (
-                    <button
+                    <div
                       key={wsId}
-                      onClick={() => {
-                        switchWorkspace(ws);
-                        setWorkspaceDropdownOpen(false);
-                      }}
-                      className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-xs transition-colors cursor-pointer ${
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors ${
                         isCur
                           ? 'bg-purple-50 text-purple-700 font-semibold'
                           : 'text-slate-700 hover:bg-purple-50/50 font-normal'
                       }`}
                     >
-                      <span className="w-5 h-5 rounded-md bg-purple-50 flex items-center justify-center text-[10px] font-semibold text-purple-700">
-                        {ws.name?.charAt(0)}
-                      </span>
-                      <span className="truncate">{ws.name}</span>
-                      {isCur && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-600" />}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          switchWorkspace(ws);
+                          setWorkspaceDropdownOpen(false);
+                        }}
+                        className="flex items-center gap-2.5 flex-1 min-w-0 text-left cursor-pointer"
+                      >
+                        <span className="w-5 h-5 rounded-md bg-purple-50 flex items-center justify-center text-[10px] font-semibold text-purple-700 shrink-0">
+                          {ws.name?.charAt(0)}
+                        </span>
+                        <span className="truncate">{ws.name}</span>
+                        {isCur && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0" />}
+                      </button>
+                      {ws.memberRole === 'Owner' && workspaces.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setWsToDelete(ws);
+                          }}
+                          title={`Delete ${ws.name}`}
+                          className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+                          aria-label={`Delete ${ws.name}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   );
                 })
               ) : null}
@@ -567,6 +619,18 @@ const DashboardLayout = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Workspace Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!wsToDelete}
+        onClose={() => setWsToDelete(null)}
+        onConfirm={handleConfirmDeleteWorkspace}
+        title="Delete Workspace"
+        message={`Are you sure you want to delete "${wsToDelete?.name}"?`}
+        confirmText="Delete"
+        type="danger"
+        loading={isDeletingWorkspace}
+      />
 
     </div>
   );
