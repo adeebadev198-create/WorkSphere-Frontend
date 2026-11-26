@@ -13,7 +13,8 @@ import {
   Users, 
   Loader2,
   Calendar,
-  Layers
+  Layers,
+  AlertCircle
 } from 'lucide-react';
 
 const Reports = () => {

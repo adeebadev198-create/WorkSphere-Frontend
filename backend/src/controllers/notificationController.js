@@ -61,6 +61,29 @@ const markAsRead = async (req, res, next) => {
   }
 };
 
+// @desc    Mark notification as unread
+// @route   PATCH /api/v1/notifications/:id/unread
+// @access  Private
+const markAsUnread = async (req, res, next) => {
+  try {
+    const notification = await Notification.findById(req.params.id);
+    if (!notification) {
+      return errorResponse(res, 404, 'Notification not found');
+    }
+
+    if (notification.recipient.toString() !== req.user._id.toString()) {
+      return errorResponse(res, 403, 'Permission denied: Cannot modify another user\'s notification');
+    }
+
+    notification.isRead = false;
+    await notification.save();
+
+    return successResponse(res, 200, 'Notification marked as unread', notification);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Mark all notifications as read
 // @route   PATCH /api/v1/notifications/read-all
 // @access  Private
@@ -85,6 +108,7 @@ module.exports = {
   getNotifications,
   getUnreadCount,
   markAsRead,
+  markAsUnread,
   markAllAsRead,
 };
 

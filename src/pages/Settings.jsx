@@ -11,7 +11,9 @@ import {
   Loader2,
   Save,
   Camera,
-  Upload
+  Upload,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const Settings = () => {
@@ -33,6 +35,9 @@ const Settings = () => {
   // Password Form State
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showCurrentPwd, setShowCurrentPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -112,6 +117,10 @@ const Settings = () => {
       setPasswordError('New password must be at least 6 characters long');
       return;
     }
+    if (confirmNewPassword && newPassword !== confirmNewPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
 
     try {
       setPasswordSaving(true);
@@ -122,6 +131,7 @@ const Settings = () => {
       setPasswordSuccess('Password changed successfully!');
       setCurrentPassword('');
       setNewPassword('');
+      setConfirmNewPassword('');
     } catch (err) {
       setPasswordError(err.message || 'Failed to change password');
     } finally {
@@ -355,25 +365,55 @@ const Settings = () => {
           <form onSubmit={handleChangePassword} className="space-y-4 max-w-lg">
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Current Password *</label>
-              <input
-                type="password"
-                required
-                placeholder="Enter current password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
-              />
+              <div className="relative">
+                <input
+                  type={showCurrentPwd ? 'text' : 'password'}
+                  required
+                  placeholder="Enter current password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full px-3.5 pr-10 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPwd((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  {showCurrentPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">New Password *</label>
+              <div className="relative">
+                <input
+                  type={showNewPwd ? 'text' : 'password'}
+                  required
+                  placeholder="Minimum 6 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3.5 pr-10 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPwd((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  {showNewPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Confirm New Password *</label>
               <input
-                type="password"
+                type={showNewPwd ? 'text' : 'password'}
                 required
-                placeholder="Minimum 6 characters"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                placeholder="Re-enter new password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20"
               />
             </div>
 
