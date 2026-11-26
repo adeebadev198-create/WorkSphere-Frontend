@@ -17,49 +17,13 @@ export const Spinner = ({ size = 'md', className = '' }) => {
 
 export const PageLoader = ({ text = 'Loading...' }) => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[360px] w-full p-8 rounded-2xl select-none animate-in fade-in duration-200">
-      {/* Official Brand Logo */}
-      <div className="mb-5 animate-ws-logo-in flex items-center justify-center">
-        <img
-          src={logoImg}
-          alt="WorkSphere"
-          className="h-16 sm:h-20 w-auto max-w-[260px] object-contain drop-shadow-xs"
-          onError={(e) => {
-            e.target.style.display = 'none';
-          }}
-        />
-      </div>
-
-      {/* Elegant Indigo/Violet Animated Progress Bar */}
-      <div className="w-52 h-1.5 bg-slate-200/80 rounded-full overflow-hidden relative shadow-inner">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 animate-ws-bar"
-          style={{ width: '45%' }}
-        />
-      </div>
-
-      {/* Clean Loading Label */}
-      <p className="text-xs font-semibold text-slate-400 tracking-widest mt-3.5 uppercase">
-        {text}
-      </p>
-
-      <style>{`
-        @keyframes ws-bar {
-          0%   { transform: translateX(-100%); }
-          50%  { transform: translateX(110%); }
-          100% { transform: translateX(250%); }
-        }
-        .animate-ws-bar {
-          animation: ws-bar 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        @keyframes ws-logo-in {
-          0%   { opacity: 0; transform: translateY(8px) scale(0.97); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .animate-ws-logo-in {
-          animation: ws-logo-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-      `}</style>
+    <div className="flex flex-col items-center justify-center min-h-[260px] w-full p-6 select-none animate-in fade-in duration-150">
+      <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
+      {text && (
+        <p className="text-xs font-medium text-slate-400 mt-3 tracking-wide">
+          {text}
+        </p>
+      )}
     </div>
   );
 };
