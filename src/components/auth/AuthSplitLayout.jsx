@@ -82,11 +82,18 @@ const AuthSplitLayout = ({ title, subtitle, children }) => {
           <span className="absolute bottom-16 left-16 w-3 h-3 rounded-full border-2 border-white/35 pointer-events-none" />
 
           {/* Top Brand Badge */}
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="h-10 px-3 rounded-xl bg-white shadow-md shadow-purple-950/20 flex items-center justify-center">
-              <img src={logoImg} alt="WorkSphere" className="h-6 w-auto object-contain" />
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="h-16 px-4 rounded-2xl bg-white shadow-lg shadow-purple-950/25 flex items-center justify-center">
+              <img src={logoImg} alt="WorkSphere" className="h-11 w-auto object-contain" />
             </div>
-            <span className="text-base font-bold tracking-tight text-white">WorkSphere</span>
+            <div>
+              <span className="text-xl font-bold tracking-tight text-white block leading-tight">
+                WorkSphere
+              </span>
+              <span className="text-xs text-purple-100/90 font-medium tracking-wide">
+                Plan &bull; Collaborate &bull; Achieve
+              </span>
+            </div>
           </div>
 
           {/* Center Minimal Greeting */}
@@ -110,10 +117,17 @@ const AuthSplitLayout = ({ title, subtitle, children }) => {
         ══════════════════════════════════════════════════ */}
         <div className="w-full lg:w-[48%] flex flex-col justify-center p-7 sm:p-10 xl:p-12 bg-white">
           {/* Mobile Logo Header */}
-          <div className="lg:hidden flex items-center justify-center gap-2.5 mb-6">
-            <div className="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-100 flex items-center gap-2">
-              <img src={logoImg} alt="WorkSphere" className="h-7 w-auto object-contain" />
-              <span className="text-base font-bold text-slate-900 tracking-tight">WorkSphere</span>
+          <div className="lg:hidden flex items-center justify-center mb-6">
+            <div className="px-4 py-2.5 rounded-2xl bg-purple-50 border border-purple-100 flex items-center gap-3">
+              <img src={logoImg} alt="WorkSphere" className="h-10 w-auto object-contain" />
+              <div className="text-left">
+                <span className="text-base font-bold text-slate-900 tracking-tight block leading-tight">
+                  WorkSphere
+                </span>
+                <span className="text-[11px] font-medium text-purple-700">
+                  Plan &bull; Collaborate &bull; Achieve
+                </span>
+              </div>
             </div>
           </div>
 
