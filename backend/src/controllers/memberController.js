@@ -13,10 +13,12 @@ const { logActivity, createNotification } = require('../utils/activityLogger');
 const getMembers = async (req, res, next) => {
   try {
     const { search, role, status } = req.query;
-    const filter = { workspace: req.workspace._id };
+    const filter = {
+      workspace: req.workspace._id,
+      status: status && status !== 'All' ? status : 'Active',
+    };
 
     if (role) filter.role = role;
-    if (status) filter.status = status;
 
     const members = await WorkspaceMember.find(filter)
       .populate('user', 'fullName email profilePicture phone title')
@@ -96,7 +98,7 @@ const inviteMember = async (req, res, next) => {
         workspace: req.workspace._id,
         type: 'WorkspaceInvitation',
         title: 'Added to Workspace',
-        message: `You were added to workspace "${req.workspace.name}" as ${role}.`,
+        message: `${req.user.fullName} (Owner) invited and added you to "${req.workspace.name}" as ${role}.`,
         relatedEntity: {
           entityType: 'Workspace',
           entityId: req.workspace._id,
@@ -199,6 +201,32 @@ const acceptInvitation = async (req, res, next) => {
       description: `${req.user.fullName} accepted the workspace invitation`,
     });
 
+    await createNotification({
+      recipient: req.user._id,
+      workspace: invitation.workspace,
+      type: 'WorkspaceInvitation',
+      title: 'Workspace Joined',
+      message: `You joined the workspace as ${invitation.role}.`,
+      relatedEntity: {
+        entityType: 'Workspace',
+        entityId: invitation.workspace,
+      },
+    });
+
+    if (invitation.invitedBy) {
+      await createNotification({
+        recipient: invitation.invitedBy,
+        workspace: invitation.workspace,
+        type: 'WorkspaceInvitation',
+        title: 'Invitation Accepted',
+        message: `${req.user.fullName} accepted your invitation and joined as ${invitation.role}.`,
+        relatedEntity: {
+          entityType: 'Workspace',
+          entityId: invitation.workspace,
+        },
+      });
+    }
+
     return successResponse(res, 200, 'Invitation accepted successfully', member);
   } catch (error) {
     next(error);
@@ -258,6 +286,18 @@ const updateMemberRole = async (req, res, next) => {
       description: `${req.user.fullName} changed member role from ${oldRole} to ${role}`,
       oldValue: oldRole,
       newValue: role,
+    });
+
+    await createNotification({
+      recipient: userId,
+      workspace: req.workspace._id,
+      type: 'WorkspaceInvitation',
+      title: 'Workspace Role Updated',
+      message: `${req.user.fullName} (Owner) updated your role in "${req.workspace.name}" from ${oldRole} to ${role}.`,
+      relatedEntity: {
+        entityType: 'Workspace',
+        entityId: req.workspace._id,
+      },
     });
 
     return successResponse(res, 200, 'Member role updated successfully', member);

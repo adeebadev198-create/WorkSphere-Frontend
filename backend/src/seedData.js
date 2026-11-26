@@ -49,7 +49,7 @@ const seed = async () => {
     const owner = await User.create({
       fullName: 'Alex Morgan',
       email: 'admin@worksphere.com',
-      password: 'Password123',
+      password: 'password123',
       title: 'Head of Engineering & Owner',
       profilePicture: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Morgan',
     });
@@ -57,7 +57,7 @@ const seed = async () => {
     const manager = await User.create({
       fullName: 'Sarah Jenkins',
       email: 'manager@worksphere.com',
-      password: 'Password123',
+      password: 'password123',
       title: 'Senior Project Manager',
       profilePicture: 'https://api.dicebear.com/7.x/initials/svg?seed=Sarah%20Jenkins',
     });
@@ -65,7 +65,7 @@ const seed = async () => {
     const member = await User.create({
       fullName: 'Fatima Noor',
       email: 'member@worksphere.com',
-      password: 'Password123',
+      password: 'password123',
       title: 'Quality Assurance Lead',
       profilePicture: 'https://api.dicebear.com/7.x/initials/svg?seed=Fatima%20Noor',
     });
@@ -321,9 +321,9 @@ const seed = async () => {
     console.log('🎉 SEED COMPLETED SUCCESSFULLY! REAL DATA IS IN MONGODB');
     console.log('═══════════════════════════════════════════════════════');
     console.log('Demo Credentials for presentation:');
-    console.log('  👑 Owner   : admin@worksphere.com   / Password123');
-    console.log('  📋 Manager : manager@worksphere.com / Password123');
-    console.log('  👤 Member  : member@worksphere.com  / Password123');
+    console.log('  👑 Owner   : admin@worksphere.com   / password123');
+    console.log('  📋 Manager : manager@worksphere.com / password123');
+    console.log('  👤 Member  : member@worksphere.com  / password123');
     console.log('═══════════════════════════════════════════════════════\n');
   } catch (error) {
     console.error('❌ Seed error:', error);

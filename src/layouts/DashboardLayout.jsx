@@ -198,8 +198,12 @@ const DashboardLayout = () => {
           className="w-full flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl bg-white border border-purple-100 shadow-2xs hover:border-purple-400 hover:shadow-xs transition-all text-left cursor-pointer group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#5B21B6] to-[#7C3AED] text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-              {activeWorkspace?.name?.charAt(0)?.toUpperCase() || 'W'}
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#5B21B6] to-[#7C3AED] text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
+              {user?.profilePicture ? (
+                <img src={user.profilePicture} alt={user?.fullName || 'User'} className="w-full h-full object-cover" />
+              ) : (
+                activeWorkspace?.name?.charAt(0)?.toUpperCase() || 'W'
+              )}
             </div>
             <div className="truncate">
               <p className="text-xs font-semibold text-slate-900 truncate leading-tight group-hover:text-purple-700 transition-colors">

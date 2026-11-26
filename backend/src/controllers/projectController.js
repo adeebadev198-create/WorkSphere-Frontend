@@ -174,19 +174,68 @@ const createProject = async (req, res, next) => {
       description: `${req.user.fullName} created project "${project.name}"`,
     });
 
-    // Notify assigned manager
-    if (managerId.toString() !== req.user._id.toString()) {
+    // Notify Workspace Owners when a Manager (or another Owner) creates a project
+    const ownerMembers = await WorkspaceMember.find({
+      workspace: req.workspace._id,
+      role: 'Owner',
+      status: 'Active',
+    }).select('user');
+
+    const notifiedIds = new Set([req.user._id.toString()]);
+
+    for (const om of ownerMembers) {
+      const ownerId = om.user.toString();
+      if (!notifiedIds.has(ownerId)) {
+        notifiedIds.add(ownerId);
+        await createNotification({
+          recipient: ownerId,
+          workspace: req.workspace._id,
+          type: 'ProjectAdded',
+          title: 'New Project Created',
+          message: `${req.user.fullName} (${req.memberRole}) created a new project "${project.name}".`,
+          relatedEntity: {
+            entityType: 'Project',
+            entityId: project._id,
+          },
+        });
+      }
+    }
+
+    // Notify assigned manager (if different from creator)
+    if (!notifiedIds.has(managerId.toString())) {
+      notifiedIds.add(managerId.toString());
       await createNotification({
         recipient: managerId,
         workspace: req.workspace._id,
         type: 'ProjectAdded',
         title: 'New Project Assigned',
-        message: `You were assigned as manager for project "${project.name}".`,
+        message: `${req.user.fullName} assigned you as manager for project "${project.name}".`,
         relatedEntity: {
           entityType: 'Project',
           entityId: project._id,
         },
       });
+    }
+
+    // Notify assigned project members
+    if (Array.isArray(members)) {
+      for (const mId of members) {
+        const memberIdStr = mId.toString();
+        if (!notifiedIds.has(memberIdStr)) {
+          notifiedIds.add(memberIdStr);
+          await createNotification({
+            recipient: memberIdStr,
+            workspace: req.workspace._id,
+            type: 'ProjectAdded',
+            title: 'Added to Project',
+            message: `${req.user.fullName} added you to the new project "${project.name}".`,
+            relatedEntity: {
+              entityType: 'Project',
+              entityId: project._id,
+            },
+          });
+        }
+      }
     }
 
     return successResponse(res, 201, 'Project created successfully', project);

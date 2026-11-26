@@ -7,6 +7,7 @@ const WorkspaceMember = require('../models/WorkspaceMember');
 const WorkspaceInvitation = require('../models/WorkspaceInvitation');
 const { generateToken } = require('../utils/token');
 const { successResponse, errorResponse } = require('../utils/responseHandler');
+const { createNotification } = require('../utils/activityLogger');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -47,16 +48,19 @@ const register = async (req, res, next) => {
       email: email.toLowerCase(),
       status: 'Pending',
       expiresAt: { $gt: Date.now() },
-    }).populate('workspace');
+    })
+      .populate('workspace')
+      .populate('invitedBy', 'fullName');
 
     let assignedWorkspace = null;
 
     if (pendingInvitation && pendingInvitation.workspace && !pendingInvitation.workspace.isArchived) {
       // User was invited: assign invited role (default: Member)
+      const invitedRole = pendingInvitation.role || 'Member';
       await WorkspaceMember.create({
         workspace: pendingInvitation.workspace._id,
         user: user._id,
-        role: pendingInvitation.role || 'Member',
+        role: invitedRole,
         status: 'Active',
       });
 
@@ -64,9 +68,22 @@ const register = async (req, res, next) => {
       pendingInvitation.acceptedAt = Date.now();
       await pendingInvitation.save();
 
+      const inviterName = pendingInvitation.invitedBy?.fullName || 'Workspace Owner';
+      await createNotification({
+        recipient: user._id,
+        workspace: pendingInvitation.workspace._id,
+        type: 'WorkspaceInvitation',
+        title: 'Workspace Invitation',
+        message: `${inviterName} (Owner) invited and added you to "${pendingInvitation.workspace.name}" as ${invitedRole}.`,
+        relatedEntity: {
+          entityType: 'Workspace',
+          entityId: pendingInvitation.workspace._id,
+        },
+      });
+
       assignedWorkspace = {
         ...pendingInvitation.workspace.toObject(),
-        memberRole: pendingInvitation.role || 'Member',
+        memberRole: invitedRole,
       };
     } else {
       // Rule 1: Every newly registered user must automatically receive the Member role.
@@ -237,18 +254,34 @@ const googleLogin = async (req, res, next) => {
         email: email.toLowerCase(),
         status: 'Pending',
         expiresAt: { $gt: Date.now() },
-      }).populate('workspace');
+      })
+        .populate('workspace')
+        .populate('invitedBy', 'fullName');
 
       if (pendingInvitation && pendingInvitation.workspace && !pendingInvitation.workspace.isArchived) {
+        const invitedRole = pendingInvitation.role || 'Member';
         await WorkspaceMember.create({
           workspace: pendingInvitation.workspace._id,
           user: user._id,
-          role: pendingInvitation.role || 'Member',
+          role: invitedRole,
           status: 'Active',
         });
         pendingInvitation.status = 'Accepted';
         pendingInvitation.acceptedAt = Date.now();
         await pendingInvitation.save();
+
+        const inviterName = pendingInvitation.invitedBy?.fullName || 'Workspace Owner';
+        await createNotification({
+          recipient: user._id,
+          workspace: pendingInvitation.workspace._id,
+          type: 'WorkspaceInvitation',
+          title: 'Workspace Invitation',
+          message: `${inviterName} (Owner) invited and added you to "${pendingInvitation.workspace.name}" as ${invitedRole}.`,
+          relatedEntity: {
+            entityType: 'Workspace',
+            entityId: pendingInvitation.workspace._id,
+          },
+        });
       } else {
         // Rule 1: Every newly registered user receives Member role in the primary workspace
         let primaryWorkspace = await Workspace.findOne({

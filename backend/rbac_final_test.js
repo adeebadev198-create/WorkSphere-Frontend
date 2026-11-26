@@ -178,7 +178,7 @@ async function main() {
   assert('[Member] Create project    POST /projects', r5e.status, 403);
 
   // Need a real project for the next tests
-  const ownLogin = await apiCall('POST', '/auth/login', { email: 'admin@worksphere.com', password: 'Password123' });
+  const ownLogin = await apiCall('POST', '/auth/login', { email: 'admin@worksphere.com', password: 'password123' });
   const ownerToken = ownLogin.body?.data?.token;
   const projList = await apiCall('GET', '/projects', null, ownerToken, wsId);
   const realProj = (projList.body?.data || []).find((p) => !p.isArchived);

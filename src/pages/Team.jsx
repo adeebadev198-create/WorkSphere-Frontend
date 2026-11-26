@@ -236,8 +236,12 @@ const Team = () => {
                     <tr key={m._id} className="hover:bg-gray-50/60 transition-colors">
                       <td className="py-3.5 px-6">
                         <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                            {u.fullName?.charAt(0) || 'U'}
+                          <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#5B21B6] to-[#7C3AED] text-white font-bold text-xs flex items-center justify-center shadow-xs overflow-hidden shrink-0">
+                            {u.profilePicture ? (
+                              <img src={u.profilePicture} alt={u.fullName || 'User'} className="w-full h-full object-cover" />
+                            ) : (
+                              u.fullName?.charAt(0) || 'U'
+                            )}
                           </span>
                           <div>
                             <p className="font-bold text-gray-900">{u.fullName || 'User'}</p>
@@ -255,7 +259,7 @@ const Team = () => {
                       </td>
 
                       <td className="py-3.5 px-6">
-                        {isOwner && u._id !== user?.id ? (
+                        {isOwner && u._id !== (user?._id || user?.id) ? (
                           <select
                             value={m.role}
                             onChange={(e) => handleRoleChange(u._id, e.target.value)}
@@ -278,7 +282,7 @@ const Team = () => {
 
                       {isOwner && (
                         <td className="py-3.5 px-6 text-right">
-                          {u._id !== user?.id && (
+                          {u._id !== (user?._id || user?.id) && (
                             <button
                               onClick={() => setMemberToRemove({ id: u._id, name: u.fullName || 'this member' })}
                               className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
