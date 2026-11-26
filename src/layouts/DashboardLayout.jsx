@@ -300,7 +300,7 @@ const DashboardLayout = () => {
                             setWsToDelete(ws);
                           }}
                           title={`Delete ${ws.name}`}
-                          className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+                          className="p-1.5 rounded-md text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
                           aria-label={`Delete ${ws.name}`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
