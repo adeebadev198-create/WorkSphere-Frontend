@@ -112,10 +112,6 @@ const Tasks = () => {
         content: newComment.trim(),
       });
       if (res?.data) {
-        setCommentTask((prev) => ({
-          ...prev,
-          comments: [...(prev.comments || []), res.data],
-        }));
         setTasks((prev) =>
           prev.map((t) =>
             t._id === commentTask._id
@@ -124,11 +120,36 @@ const Tasks = () => {
           )
         );
         setNewComment('');
+        setCommentTask(null); // Close modal on post
+        setTaskNotice({ type: 'success', text: 'Comment added successfully.' });
+        setTimeout(() => setTaskNotice(null), 3000);
       }
     } catch (err) {
       setCommentError(err.message || 'Failed to post comment');
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!commentId || !commentTask) return;
+    try {
+      await api.delete(`/comments/${commentId}`);
+      setCommentTask((prev) => ({
+        ...prev,
+        comments: (prev.comments || []).filter((c) => (c._id || c.id) !== commentId),
+      }));
+      setTasks((prev) =>
+        prev.map((t) =>
+          t._id === commentTask._id
+            ? { ...t, comments: (t.comments || []).filter((c) => (c._id || c.id) !== commentId) }
+            : t
+        )
+      );
+      setTaskNotice({ type: 'success', text: 'Comment deleted successfully.' });
+      setTimeout(() => setTaskNotice(null), 3000);
+    } catch (err) {
+      setCommentError(err.message || 'Failed to delete comment');
     }
   };
 
@@ -577,15 +598,35 @@ const Tasks = () => {
             {/* Comments List */}
             <div className="flex-1 overflow-y-auto space-y-2.5 mb-4 pr-1 max-h-64">
               {commentTask.comments && commentTask.comments.length > 0 ? (
-                commentTask.comments.map((c, idx) => (
-                  <div key={c._id || idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
-                      <span className="font-semibold text-slate-800">{c.user?.fullName || 'Team Member'}</span>
-                      <span>{c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
+                commentTask.comments.map((c, idx) => {
+                  const canDelete =
+                    canManage ||
+                    c.user?._id === user?._id ||
+                    c.user?._id === user?.id ||
+                    c.user?.id === user?.id;
+
+                  return (
+                    <div key={c._id || idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs group">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                        <span className="font-semibold text-slate-800">{c.user?.fullName || 'Team Member'}</span>
+                        <div className="flex items-center gap-2">
+                          <span>{c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
+                          {canDelete && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteComment(c._id)}
+                              className="text-slate-400 hover:text-rose-600 p-0.5 rounded transition-colors cursor-pointer"
+                              title="Delete comment"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-slate-700 font-normal">{c.content}</p>
                     </div>
-                    <p className="text-slate-700 font-normal">{c.content}</p>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="text-center py-8 text-xs text-slate-400 italic">
                   No comments on this task yet. Start the discussion below.

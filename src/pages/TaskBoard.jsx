@@ -198,10 +198,6 @@ const TaskBoard = () => {
         content: newComment.trim(),
       });
       if (res?.data) {
-        setSelectedTask((prev) => ({
-          ...prev,
-          comments: [...(prev.comments || []), res.data],
-        }));
         // Also update task in tasks list so comment counter updates immediately
         setTasks((prev) =>
           prev.map((t) =>
@@ -211,11 +207,43 @@ const TaskBoard = () => {
           )
         );
         setNewComment('');
+        setSelectedTask(null); // Close modal on comment post as requested
+        setBoardNotice({
+          type: 'success',
+          text: 'Comment added successfully.',
+        });
+        setTimeout(() => setBoardNotice(null), 3000);
       }
     } catch (err) {
       setCommentError(err.message || 'Failed to post comment');
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  // Delete Comment
+  const handleDeleteComment = async (commentId) => {
+    if (!commentId || !selectedTask) return;
+    try {
+      await api.delete(`/comments/${commentId}`);
+      setSelectedTask((prev) => ({
+        ...prev,
+        comments: (prev.comments || []).filter((c) => (c._id || c.id) !== commentId),
+      }));
+      setTasks((prev) =>
+        prev.map((t) =>
+          t._id === selectedTask._id
+            ? { ...t, comments: (t.comments || []).filter((c) => (c._id || c.id) !== commentId) }
+            : t
+        )
+      );
+      setBoardNotice({
+        type: 'success',
+        text: 'Comment deleted successfully.',
+      });
+      setTimeout(() => setBoardNotice(null), 3000);
+    } catch (err) {
+      setCommentError(err.message || 'Failed to delete comment');
     }
   };
 
@@ -568,15 +596,36 @@ const TaskBoard = () => {
 
                 <div className="space-y-2.5 mb-3 max-h-48 overflow-y-auto">
                   {selectedTask.comments && selectedTask.comments.length > 0 ? (
-                    selectedTask.comments.map((c) => (
-                      <div key={c._id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                        <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
-                          <span className="font-medium text-slate-800">{c.user?.fullName || 'Member'}</span>
-                          <span>{new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    selectedTask.comments.map((c) => {
+                      const canDelete =
+                        isOwner ||
+                        isManager ||
+                        c.user?._id === user?._id ||
+                        c.user?._id === user?.id ||
+                        c.user?.id === user?.id;
+
+                      return (
+                        <div key={c._id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs group">
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                            <span className="font-medium text-slate-800">{c.user?.fullName || 'Member'}</span>
+                            <div className="flex items-center gap-2">
+                              <span>{new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              {canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteComment(c._id)}
+                                  className="text-slate-400 hover:text-rose-600 p-0.5 rounded transition-colors cursor-pointer"
+                                  title="Delete comment"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-slate-700 font-normal">{c.content}</p>
                         </div>
-                        <p className="text-slate-700 font-normal">{c.content}</p>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="text-xs text-slate-400 italic">No comments on this task yet.</p>
                   )}

@@ -70,21 +70,6 @@ const DashboardLayout = () => {
   const [wsToDelete, setWsToDelete] = useState(null);
   const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
 
-  // Page Transition Loading Screen
-  const [isPageLoading, setIsPageLoading] = useState(false);
-  const lastPathnameRef = useRef(location.pathname);
-
-  useEffect(() => {
-    if (lastPathnameRef.current !== location.pathname) {
-      lastPathnameRef.current = location.pathname;
-      setIsPageLoading(true);
-      const timer = setTimeout(() => {
-        setIsPageLoading(false);
-      }, 550);
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname]);
-
   const workspaceDropdownRef = useRef(null);
   const userMenuRef = useRef(null);
 
@@ -545,13 +530,7 @@ const DashboardLayout = () => {
 
         {/* Dynamic Page Outlet */}
         <main className="flex-1 p-5 sm:p-7 lg:p-8 max-w-[1550px] w-full mx-auto">
-          {isPageLoading ? (
-            <div className="min-h-[500px] flex items-center justify-center">
-              <LoadingScreen minDuration={550} show={true} />
-            </div>
-          ) : (
-            <Outlet />
-          )}
+          <Outlet />
         </main>
       </div>
 

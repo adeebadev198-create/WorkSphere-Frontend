@@ -24,16 +24,8 @@ import Workspaces from '../pages/Workspaces';
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading, authTransition } = useAuth();
-  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setMinDelayPassed(true);
-    }, 700);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading || !minDelayPassed || authTransition?.active) {
+  if (loading || authTransition?.active) {
     return (
       <LoadingScreen
         message={authTransition?.message || 'Preparing your workspace...'}
@@ -52,16 +44,8 @@ const ProtectedRoute = ({ children }) => {
 // Public Route Guard (redirect to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading, authTransition } = useAuth();
-  const [minDelayPassed, setMinDelayPassed] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setMinDelayPassed(true);
-    }, 700);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading || !minDelayPassed || authTransition?.active) {
+  if (loading || authTransition?.active) {
     return (
       <LoadingScreen
         message={authTransition?.message || 'Authenticating session...'}
