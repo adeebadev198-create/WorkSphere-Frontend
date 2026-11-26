@@ -277,7 +277,7 @@ const Projects = () => {
       {/* Projects Grid */}
       {loading ? (
         <div className="p-12 flex items-center justify-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
-          <PageLoader text="Loading projects from MongoDB..." />
+          <PageLoader text="Loading projects..." />
         </div>
       ) : filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

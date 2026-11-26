@@ -38,12 +38,12 @@ const seed = async () => {
     // ── PAKISTANI TEAM USERS ──────────────────────────────────
     console.log('👤 Creating Pakistani team accounts...');
     const owner = await User.create({
-      fullName: 'Adeeba Tariq',
+      fullName: 'Tariq Mahmood',
       email: 'admin@worksphere.com',
       password: 'password123',
       title: 'Founder & Workspace Owner',
       phone: '+92 300 4128901',
-      profilePicture: 'https://api.dicebear.com/9.x/avataaars/svg?seed=AdeebaTariq&backgroundColor=ede9fe',
+      profilePicture: 'https://api.dicebear.com/9.x/initials/svg?seed=Tariq%20Mahmood&backgroundColor=5b21b6&textColor=ffffff',
     });
 
     const manager = await User.create({
@@ -52,7 +52,7 @@ const seed = async () => {
       password: 'password123',
       title: 'Senior Project Manager',
       phone: '+92 321 5543210',
-      profilePicture: 'https://api.dicebear.com/9.x/avataaars/svg?seed=HamzaSiddiqui&backgroundColor=ddd6fe',
+      profilePicture: 'https://api.dicebear.com/9.x/initials/svg?seed=Hamza%20Siddiqui&backgroundColor=6d28d9&textColor=ffffff',
     });
 
     const member1 = await User.create({
@@ -61,7 +61,7 @@ const seed = async () => {
       password: 'password123',
       title: 'Full-Stack Software Engineer',
       phone: '+92 333 9876543',
-      profilePicture: 'https://api.dicebear.com/9.x/avataaars/svg?seed=AyeshaKhan&backgroundColor=fce7f3',
+      profilePicture: 'https://api.dicebear.com/9.x/initials/svg?seed=Ayesha%20Khan&backgroundColor=7c3aed&textColor=ffffff',
     });
 
     const member2 = await User.create({
@@ -70,7 +70,7 @@ const seed = async () => {
       password: 'password123',
       title: 'Frontend & UI/UX Engineer',
       phone: '+92 345 7712345',
-      profilePicture: 'https://api.dicebear.com/9.x/avataaars/svg?seed=BilalAhmed&backgroundColor=dbeafe',
+      profilePicture: 'https://api.dicebear.com/9.x/initials/svg?seed=Bilal%20Ahmed&backgroundColor=4f46e5&textColor=ffffff',
     });
 
     const member3 = await User.create({
@@ -79,7 +79,7 @@ const seed = async () => {
       password: 'password123',
       title: 'Quality Assurance Lead',
       phone: '+92 312 6654321',
-      profilePicture: 'https://api.dicebear.com/9.x/avataaars/svg?seed=ZainabRaza&backgroundColor=dcfce7',
+      profilePicture: 'https://api.dicebear.com/9.x/initials/svg?seed=Zainab%20Raza&backgroundColor=9333ea&textColor=ffffff',
     });
 
     const member4 = await User.create({
@@ -88,7 +88,7 @@ const seed = async () => {
       password: 'password123',
       title: 'Backend & DevOps Engineer',
       phone: '+92 301 8845123',
-      profilePicture: 'https://api.dicebear.com/9.x/avataaars/svg?seed=UsmanFarooq&backgroundColor=fef3c7',
+      profilePicture: 'https://api.dicebear.com/9.x/initials/svg?seed=Usman%20Farooq&backgroundColor=6366f1&textColor=ffffff',
     });
 
     console.log('✅ 6 Pakistani team accounts created\n');
@@ -469,7 +469,7 @@ const seed = async () => {
     console.log('══════════════════════════════════════════════════════');
     console.log('🎉 WorkSphere Pakistani Real Seed Data Ready!');
     console.log('══════════════════════════════════════════════════════');
-    console.log('  👑 Owner   : admin@worksphere.com        / password123 (Adeeba Tariq)');
+    console.log('  👑 Owner   : admin@worksphere.com        / password123 (Tariq Mahmood)');
     console.log('  📋 Manager : manager@worksphere.com      / password123 (Hamza Siddiqui)');
     console.log('  👤 Member  : member@worksphere.com       / password123 (Ayesha Khan)');
     console.log('  👤 Member  : bilal.ahmed@worksphere.com  / password123 (Bilal Ahmed)');

@@ -50,6 +50,7 @@ const Notifications = () => {
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
       );
+      window.dispatchEvent(new Event('notifications-updated'));
     } catch (err) {
       console.error('Failed to mark read:', err);
     }
@@ -61,6 +62,7 @@ const Notifications = () => {
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: false } : n))
       );
+      window.dispatchEvent(new Event('notifications-updated'));
     } catch (err) {
       console.error('Failed to mark unread:', err);
     }
@@ -71,6 +73,7 @@ const Notifications = () => {
       setMarkingAll(true);
       await api.patch('/notifications/read-all');
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      window.dispatchEvent(new Event('notifications-updated'));
     } catch (err) {
       console.error('Failed to mark all as read:', err);
     } finally {

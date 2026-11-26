@@ -233,7 +233,7 @@ const Settings = () => {
 
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-slate-900">Profile Picture</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">JPG, PNG, WEBP or GIF (max 5MB). Uploaded via Cloudinary.</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">JPG, PNG, WEBP or GIF (max 5MB).</p>
               <div className="mt-2.5 flex items-center gap-2">
                 <input
                   ref={fileInputRef}

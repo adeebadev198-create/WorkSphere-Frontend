@@ -304,7 +304,7 @@ const TaskBoard = () => {
             Tasks <span className="text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100/80 px-2 py-0.5 rounded-full">{tasks.length}</span>
           </h1>
           <p className="text-xs text-slate-500 font-normal mt-0.5">
-            Interactive drag &amp; drop Kanban workflow with real-time MongoDB database sync.
+            Interactive drag &amp; drop Kanban workflow with real-time workspace sync.
           </p>
         </div>
 
@@ -388,7 +388,7 @@ const TaskBoard = () => {
       {/* ── 4-Column Soft Pastel Kanban Board ── */}
       {loading ? (
         <div className="p-12 flex items-center justify-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
-          <PageLoader text="Loading board from MongoDB..." />
+          <PageLoader text="Loading board..." />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">

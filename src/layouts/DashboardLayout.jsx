@@ -98,7 +98,7 @@ const DashboardLayout = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch unread notification count
+  // Fetch unread notification count & sync on read/unread updates
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
@@ -109,6 +109,12 @@ const DashboardLayout = () => {
       }
     };
     if (activeWorkspace) fetchUnreadCount();
+
+    const handleNotificationsUpdated = () => {
+      if (activeWorkspace) fetchUnreadCount();
+    };
+    window.addEventListener('notifications-updated', handleNotificationsUpdated);
+    return () => window.removeEventListener('notifications-updated', handleNotificationsUpdated);
   }, [activeWorkspace]);
 
   const handleCreateWorkspace = async (e) => {
