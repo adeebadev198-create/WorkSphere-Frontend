@@ -284,20 +284,20 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Monthly Progress Area Chart (8 cols) */}
-        <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:col-span-8 p-4 sm:p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">Monthly Completion Velocity</h3>
               <p className="text-xs font-normal text-slate-400">Aggregated task completions and reviews per calendar month</p>
             </div>
-            <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-100">
+            <span className="self-start sm:self-auto text-[11px] font-semibold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-100 shrink-0">
               Annual Cadence
             </span>
           </div>
 
           <div className="h-64 w-full relative">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={monthlyData} margin={{ top: 15, right: 10, left: -10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="velocityGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.28} />
@@ -330,9 +330,9 @@ const Dashboard = () => {
             </ResponsiveContainer>
 
             {totalMonthlyCompleted === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-white/40 backdrop-blur-[0.5px]">
-                <TrendingUp className="w-6 h-6 text-slate-300 mb-1" />
-                <span className="text-xs font-normal text-slate-400">Ready to record completed tasks as work progresses</span>
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50/90 border border-purple-100 text-[11px] text-purple-700 pointer-events-none whitespace-nowrap shadow-2xs">
+                <TrendingUp className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                <span>Ready to record completed tasks as work progresses</span>
               </div>
             )}
           </div>

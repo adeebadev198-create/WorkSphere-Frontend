@@ -7,7 +7,7 @@ import logoImg from '../../assets/logo/logo.png';
  */
 const AuthSplitLayout = ({ title, subtitle, children }) => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#EDE9FE] via-[#DDD6FE] to-[#C4B5FD] p-4 sm:p-6 lg:p-10 font-sans selection:bg-purple-600 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#EDE9FE] via-[#DDD6FE] to-[#C4B5FD] p-3 sm:p-6 lg:p-10 font-sans selection:bg-purple-600 selection:text-white relative overflow-hidden">
       {/* Soft decorative background rings */}
       <div className="fixed -top-32 -left-32 w-[30rem] h-[30rem] rounded-full border-[36px] border-white/25 pointer-events-none" />
       <div className="fixed -bottom-40 -right-32 w-[34rem] h-[34rem] rounded-full border-[42px] border-purple-500/15 pointer-events-none" />
@@ -108,7 +108,7 @@ const AuthSplitLayout = ({ title, subtitle, children }) => {
         {/* ══════════════════════════════════════════════════
             RIGHT PANEL: CRISP PURE WHITE FORM
         ══════════════════════════════════════════════════ */}
-        <div className="w-full lg:w-[48%] flex flex-col justify-center p-7 sm:p-10 xl:p-12 bg-white">
+        <div className="w-full lg:w-[48%] flex flex-col justify-center p-5 sm:p-10 xl:p-12 bg-white">
           {/* Mobile Logo Header */}
           <div className="lg:hidden flex items-center justify-center gap-2.5 mb-6">
             <div className="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-100 flex items-center gap-2">

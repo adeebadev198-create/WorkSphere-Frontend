@@ -103,7 +103,7 @@ const Login = () => {
         </div>
 
         {/* Google Sign-In */}
-        <div className="flex justify-center w-full">
+        <div className="w-full flex justify-center max-w-full overflow-hidden [&_iframe]:!max-w-full [&>div]:!max-w-full">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={handleGoogleError}
@@ -111,7 +111,7 @@ const Login = () => {
             theme="outline"
             size="large"
             text="signin_with"
-            width="340"
+            width="280"
           />
         </div>
 
