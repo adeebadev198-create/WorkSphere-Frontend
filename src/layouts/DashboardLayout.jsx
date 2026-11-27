@@ -87,17 +87,44 @@ const DashboardLayout = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Live Notifications & Unread Polling
+  const [liveToast, setLiveToast] = useState(null);
+  const prevUnreadRef = useRef(null);
+
   // Fetch unread notification count & sync on read/unread updates
   useEffect(() => {
+    // Request browser push notification permission
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+
     const fetchUnreadCount = async () => {
       try {
         const res = await api.get('/notifications/unread-count');
-        if (res?.data) setUnreadCount(res.data.unreadCount || 0);
+        if (res?.data) {
+          const count = res.data.unreadCount || 0;
+          if (prevUnreadRef.current !== null && count > prevUnreadRef.current) {
+            setLiveToast('You have received a new notification.');
+            setTimeout(() => setLiveToast(null), 5000);
+
+            if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+              new Notification('WorkSphere Alert', {
+                body: 'You have a new role or workspace notification.',
+              });
+            }
+          }
+          prevUnreadRef.current = count;
+          setUnreadCount(count);
+        }
       } catch {
         // silent
       }
     };
-    if (activeWorkspace) fetchUnreadCount();
+    if (activeWorkspace) {
+      fetchUnreadCount();
+      const poll = setInterval(fetchUnreadCount, 8000);
+      return () => clearInterval(poll);
+    }
 
     const handleNotificationsUpdated = () => {
       if (activeWorkspace) fetchUnreadCount();
@@ -610,6 +637,25 @@ const DashboardLayout = () => {
         type="danger"
         loading={isDeletingWorkspace}
       />
+
+      {/* Real-time Notification Toast Banner */}
+      {liveToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
+          <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+            <Bell className="w-4 h-4 animate-bounce" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-100">WorkSphere Notification</p>
+            <p className="text-[11px] text-slate-300 font-normal">{liveToast}</p>
+          </div>
+          <button
+            onClick={() => setLiveToast(null)}
+            className="text-slate-400 hover:text-white p-1 rounded-lg ml-2 cursor-pointer transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
     </div>
   );
