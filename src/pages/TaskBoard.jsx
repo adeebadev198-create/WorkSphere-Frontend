@@ -85,7 +85,6 @@ const TaskBoard = () => {
       }
       if (membersRes?.data) setMembers(membersRes.data);
     } catch (err) {
-      console.error('Failed to load board data:', err);
     } finally {
       setLoading(false);
     }

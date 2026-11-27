@@ -37,7 +37,6 @@ const Reports = () => {
       if (projRes?.data) setProjectReports(projRes.data);
       if (teamRes?.data) setTeamReports(teamRes.data);
     } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }

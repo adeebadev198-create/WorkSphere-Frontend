@@ -41,7 +41,6 @@ const Team = () => {
         setMembers(res.data);
       }
     } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }

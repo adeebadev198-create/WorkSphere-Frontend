@@ -31,7 +31,6 @@ const Notifications = () => {
         setNotifications(res.data);
       }
     } catch (err) {
-      console.error('Failed to load notifications:', err);
     } finally {
       setLoading(false);
     }
@@ -51,7 +50,6 @@ const Notifications = () => {
       );
       window.dispatchEvent(new Event('notifications-updated'));
     } catch (err) {
-      console.error('Failed to mark read:', err);
     }
   };
 
@@ -63,7 +61,6 @@ const Notifications = () => {
       );
       window.dispatchEvent(new Event('notifications-updated'));
     } catch (err) {
-      console.error('Failed to mark unread:', err);
     }
   };
 
@@ -74,7 +71,6 @@ const Notifications = () => {
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       window.dispatchEvent(new Event('notifications-updated'));
     } catch (err) {
-      console.error('Failed to mark all as read:', err);
     } finally {
       setMarkingAll(false);
     }

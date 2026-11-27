@@ -172,7 +172,6 @@ const DashboardLayout = () => {
       await refreshUserData();
       window.location.reload();
     } catch (err) {
-      console.error('Delete workspace error:', err);
       setWsToDelete(null);
     } finally {
       setIsDeletingWorkspace(false);

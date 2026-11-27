@@ -62,7 +62,6 @@ export const AuthProvider = ({ children }) => {
             }
           }
         } catch (err) {
-          console.error('Failed to load profile:', err.message);
           if (err.message.includes('authorized') || err.message.includes('expired')) {
             logout();
           }
@@ -162,7 +161,6 @@ export const AuthProvider = ({ children }) => {
         setWorkspaces(res.data.workspaces || []);
       }
     } catch (e) {
-      console.error(e);
     }
   };
 
