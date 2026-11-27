@@ -1,9 +1,7 @@
-// src/pages/Team.jsx
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
-import { PageLoader } from '../components/common/Loader';
 import { 
   Users, 
   UserPlus, 
@@ -27,9 +25,8 @@ const Team = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState(null);
   const [removeLoading, setRemoveLoading] = useState(false);
-  const [feedbackNotice, setFeedbackNotice] = useState(null); // { type: 'success' | 'error', text: '' }
+  const [feedbackNotice, setFeedbackNotice] = useState(null);
 
-  // Invite state
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('Member');
   const [submittingInvite, setSubmittingInvite] = useState(false);
@@ -85,36 +82,44 @@ const Team = () => {
   };
 
   const handleRoleChange = async (memberUserId, newRole) => {
+    setMembers((prev) =>
+      prev.map((m) =>
+        (m.user?._id === memberUserId || m.user?.id === memberUserId)
+          ? { ...m, role: newRole }
+          : m
+      )
+    );
+    setFeedbackNotice({ type: 'success', text: `Member role updated to ${newRole}.` });
+    setTimeout(() => setFeedbackNotice(null), 3000);
+
     try {
       await api.patch(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${memberUserId}/role`, {
         role: newRole,
       });
-      setFeedbackNotice({ type: 'success', text: 'Member role updated successfully.' });
-      setTimeout(() => setFeedbackNotice(null), 3000);
-      fetchMembers();
     } catch (err) {
       setFeedbackNotice({ type: 'error', text: err.message || 'Failed to change role' });
       setTimeout(() => setFeedbackNotice(null), 4000);
+      fetchMembers();
     }
   };
 
   const handleConfirmRemoveMember = async () => {
     if (!memberToRemove) return;
+    const removedId = memberToRemove.id;
+    const removedName = memberToRemove.name;
+
+    setMembers((prev) => prev.filter((m) => m.user?._id !== removedId && m.user?.id !== removedId));
+    setFeedbackNotice({ type: 'success', text: `${removedName} has been removed from the workspace.` });
+    setTimeout(() => setFeedbackNotice(null), 4000);
+    setMemberToRemove(null);
 
     try {
       setRemoveLoading(true);
-      const res = await api.delete(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${memberToRemove.id}`);
-      let note = `${memberToRemove.name} has been removed from the workspace.`;
-      if (res?.data?.uncompletedTasksNeedingReassignment > 0) {
-        note += ` (${res.data.uncompletedTasksNeedingReassignment} uncompleted tasks are now flagged for reassignment)`;
-      }
-      setFeedbackNotice({ type: 'success', text: note });
-      setTimeout(() => setFeedbackNotice(null), 5000);
-      setMemberToRemove(null);
-      fetchMembers();
+      await api.delete(`/workspaces/${activeWorkspace?._id || activeWorkspace?.id}/members/${removedId}`);
     } catch (err) {
       setFeedbackNotice({ type: 'error', text: err.message || 'Failed to remove member' });
       setTimeout(() => setFeedbackNotice(null), 4000);
+      fetchMembers();
     } finally {
       setRemoveLoading(false);
     }
@@ -140,8 +145,7 @@ const Team = () => {
 
   return (
     <div className="space-y-6">
-      
-      {/* Top Header */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
@@ -162,7 +166,6 @@ const Team = () => {
         )}
       </div>
 
-      {/* Feedback Banner */}
       {feedbackNotice && (
         <div
           className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
@@ -180,7 +183,6 @@ const Team = () => {
         </div>
       )}
 
-      {/* Filter Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-1.5">
           {['All', 'Owner', 'Manager', 'Member'].map((r) => (
@@ -210,11 +212,10 @@ const Team = () => {
         </div>
       </div>
 
-      {/* Members Table */}
       <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {loading ? (
           <div className="p-12 flex items-center justify-center">
-            <PageLoader text="Loading members..." />
+            <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -302,7 +303,6 @@ const Team = () => {
         )}
       </div>
 
-      {/* Invite Member Modal (FR-MEM-001) */}
       {showInviteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
@@ -375,7 +375,6 @@ const Team = () => {
         </div>
       )}
 
-      {/* Remove Member Confirmation Modal */}
       <ConfirmModal
         isOpen={!!memberToRemove}
         onClose={() => setMemberToRemove(null)}

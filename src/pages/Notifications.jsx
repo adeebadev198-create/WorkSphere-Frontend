@@ -1,5 +1,4 @@
-// src/pages/Notifications.jsx
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +20,7 @@ const Notifications = () => {
   const { activeWorkspace } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // 'all' | 'unread'
+  const [filter, setFilter] = useState('all');
   const [markingAll, setMarkingAll] = useState(false);
 
   const fetchNotifications = async () => {
@@ -108,7 +107,7 @@ const Notifications = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header */}
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-purple-100/90">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
@@ -137,7 +136,6 @@ const Notifications = () => {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex items-center gap-1.5">
         <button
           onClick={() => setFilter('all')}
@@ -161,7 +159,6 @@ const Notifications = () => {
         </button>
       </div>
 
-      {/* Notifications List */}
       <div className="bg-white rounded-2xl shadow-xs border border-purple-100/90 overflow-hidden">
         {loading ? (
           <div className="p-12 flex flex-col items-center justify-center">

@@ -1,5 +1,4 @@
-// src/pages/auth/Register.jsx
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthSplitLayout from '../../components/auth/AuthSplitLayout';
@@ -113,7 +112,6 @@ const Register = () => {
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create Account</h1>
         </div>
 
-        {/* Google Sign-Up */}
         <div className="w-full flex justify-center max-w-full overflow-hidden [&_iframe]:!max-w-full [&>div]:!max-w-full">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
@@ -126,7 +124,6 @@ const Register = () => {
           />
         </div>
 
-        {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-slate-200" />
           <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
@@ -135,7 +132,6 @@ const Register = () => {
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 
-        {/* Error Banner */}
         {error && (
           <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
@@ -143,7 +139,6 @@ const Register = () => {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleRegister} className="space-y-3">
           <div className="relative">
             <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -238,7 +233,6 @@ const Register = () => {
           </button>
         </form>
 
-        {/* Bottom Switch */}
         <p className="text-center text-xs text-slate-500 pt-1">
           Already have an account?{' '}
           <Link

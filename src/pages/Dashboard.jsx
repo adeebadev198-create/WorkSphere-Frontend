@@ -1,5 +1,4 @@
-// src/pages/Dashboard.jsx
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   XAxis,
   YAxis,
@@ -36,7 +35,6 @@ import {
   User,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PageLoader } from '../components/common/Loader';
 
 const Dashboard = () => {
   const { activeWorkspace, user } = useAuth();
@@ -44,7 +42,7 @@ const Dashboard = () => {
   const [projectsList, setProjectsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeBottomTab, setActiveBottomTab] = useState('tasks'); // 'tasks' | 'activity'
+  const [activeBottomTab, setActiveBottomTab] = useState('tasks');
 
   const fetchDashboardData = async () => {
     try {
@@ -79,7 +77,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-[480px] flex items-center justify-center">
-        <PageLoader text="Aggregating workspace intelligence..." />
+        <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
       </div>
     );
   }
@@ -109,7 +107,6 @@ const Dashboard = () => {
   const isManager = activeWorkspace?.memberRole === 'Manager';
   const canManage = isOwner || isManager;
 
-  // Top metric cards with Linear / ClickUp design
   const topMetrics = [
     {
       label: 'Task Completion Rate',
@@ -149,7 +146,6 @@ const Dashboard = () => {
     },
   ];
 
-  // Monthly Progress data
   const rawMonthly = charts?.monthlyCompletion || [];
   const monthlyData = rawMonthly.map((m) => ({
     month: m.month || m.name || '',
@@ -158,7 +154,6 @@ const Dashboard = () => {
   }));
   const totalMonthlyCompleted = monthlyData.reduce((acc, curr) => acc + curr.completed, 0);
 
-  // Status Breakdown data
   const stageDefinitions = [
     { name: 'To Do', color: '#94A3B8' },
     { name: 'In Progress', color: '#7C3AED' },
@@ -188,8 +183,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-7 animate-in fade-in duration-300">
-      
-      {/* ── Executive Header Banner ── */}
+
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-purple-100/90">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
@@ -213,7 +207,6 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Quick Action buttons */}
         <div className="flex items-center gap-2 self-stretch sm:self-auto flex-wrap">
           {canManage && (
             <Link
@@ -248,7 +241,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ── Top Metric Cards Row ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {topMetrics.map((m, i) => {
           const Icon = m.icon;
@@ -280,10 +272,8 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* ── Visual Charts Row: Monthly Completion Velocity & Status Breakdown ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        
-        {/* Monthly Progress Area Chart (8 cols) */}
+
         <div className="lg:col-span-8 p-4 sm:p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div>
@@ -338,7 +328,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Productivity Trends Donut (4 cols) */}
         <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">Workflow Stage Breakdown</h3>
@@ -384,7 +373,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Status Breakdown Legend Grid */}
           <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100">
             {statusData.map((s, idx) => (
               <div key={idx} className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
@@ -403,7 +391,6 @@ const Dashboard = () => {
 
       </div>
 
-      {/* ── Active Projects Portfolio Section ── */}
       <div className="p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -479,10 +466,8 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* ── Bottom Split: Tabbed Tasks/Activity & Upcoming Deadlines ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        
-        {/* Left Section (8 cols) — Tabs: Recent Tasks vs Activity Log */}
+
         <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4 border-b border-purple-100/70 pb-3">
@@ -516,7 +501,6 @@ const Dashboard = () => {
               </Link>
             </div>
 
-            {/* TAB 1: RECENT TASKS */}
             {activeBottomTab === 'tasks' && (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
@@ -582,7 +566,6 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* TAB 2: AUDIT ACTIVITY LOG */}
             {activeBottomTab === 'activity' && (
               <div className="space-y-3 py-1">
                 {recentActivities && recentActivities.length > 0 ? (
@@ -618,7 +601,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Upcoming Deadlines (4 cols) */}
         <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-purple-100/80 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">

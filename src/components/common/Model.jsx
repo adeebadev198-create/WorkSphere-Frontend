@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 const Modal = ({ isOpen, onClose, title, description, children, maxWidth = 'max-w-lg' }) => {

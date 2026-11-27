@@ -1,5 +1,4 @@
-// src/routes/AppRoutes.jsx
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoadingScreen from '../components/common/LoadingScreen';
@@ -21,7 +20,6 @@ import Settings from '../pages/Settings';
 import Notifications from '../pages/Notifications';
 import Workspaces from '../pages/Workspaces';
 
-// Protected Route Guard
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading, authTransition } = useAuth();
 
@@ -41,7 +39,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Public Route Guard (redirect to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading, authTransition } = useAuth();
 
@@ -64,7 +61,7 @@ const PublicRoute = ({ children }) => {
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public Auth Routes */}
+      
       <Route
         path="/login"
         element={
@@ -98,7 +95,6 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Protected App Routes */}
       <Route
         element={
           <ProtectedRoute>
@@ -118,7 +114,6 @@ const AppRoutes = () => {
         <Route path="/workspaces" element={<Workspaces />} />
       </Route>
 
-      {/* Redirects */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

@@ -1,10 +1,5 @@
-// src/components/common/LoadingScreen.jsx
-import React from 'react';
+﻿import React from 'react';
 
-/**
- * WorkSphere Professional Minimal Loading Indicator
- * Clean, lightweight, and unobtrusive.
- */
 const LoadingScreen = ({ message = 'Loading...', submessage = '' }) => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-xs select-none animate-in fade-in duration-150">

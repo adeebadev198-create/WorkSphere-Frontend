@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import logoImg from '../assets/logo/logo.png';
 import { Kanban, ShieldCheck, Users, BarChart3, CheckCircle2 } from 'lucide-react';
@@ -6,10 +6,10 @@ import { Kanban, ShieldCheck, Users, BarChart3, CheckCircle2 } from 'lucide-reac
 const AuthLayout = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">
-      {/* Left Pane - Form Area */}
+      
       <div className="flex flex-col justify-between w-full px-6 py-8 md:w-1/2 lg:w-5/12 sm:px-10 lg:px-14 xl:px-16 bg-white border-r border-slate-200/80 z-10 shadow-xs">
         <div>
-          {/* WorkSphere Logo Header */}
+          
           <Link to="/" className="inline-flex items-center gap-2.5 mb-8 group">
             <img
               src={logoImg}
@@ -18,21 +18,18 @@ const AuthLayout = ({ children }) => {
             />
           </Link>
 
-          {/* Form Content */}
           <div className="w-full max-w-sm mx-auto">
             {children}
           </div>
         </div>
 
-        {/* Professional Footer */}
         <div className="pt-8 text-center text-[11px] text-slate-400">
           © {new Date().getFullYear()} WorkSphere Inc. All rights reserved. Secure enterprise session.
         </div>
       </div>
 
-      {/* Right Pane - WorkSphere Commercial Showcase */}
       <div className="hidden md:flex md:w-1/2 lg:w-7/12 bg-slate-900 p-12 lg:p-16 relative flex-col justify-between overflow-hidden">
-        {/* Subtle grid pattern background */}
+        
         <div
           className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
@@ -42,11 +39,9 @@ const AuthLayout = ({ children }) => {
           }}
         />
 
-        {/* Ambient brand glow */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#7C3AED]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Top Tagline */}
         <div className="relative z-10">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-purple-200 border border-white/10 backdrop-blur-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -54,7 +49,6 @@ const AuthLayout = ({ children }) => {
           </span>
         </div>
 
-        {/* Central Visual / Showcase */}
         <div className="relative z-10 my-auto max-w-lg">
           <h2 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
             Coordinate projects, teams & deliverables from one central hub.
@@ -63,7 +57,6 @@ const AuthLayout = ({ children }) => {
             WorkSphere centralizes multi-workspace management, drag-and-drop Kanban execution, activity audits, and workload intelligence.
           </p>
 
-          {/* Feature Highlights Grid */}
           <div className="grid grid-cols-2 gap-3.5 pt-2">
             <div className="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-xs">
               <Kanban className="w-4 h-4 text-purple-400 mb-2" />
@@ -91,7 +84,6 @@ const AuthLayout = ({ children }) => {
           </div>
         </div>
 
-        {/* Bottom Guarantee */}
         <div className="relative z-10 flex items-center gap-6 text-xs text-slate-400 pt-4 border-t border-white/10">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />

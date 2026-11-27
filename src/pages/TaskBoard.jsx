@@ -1,9 +1,7 @@
-// src/pages/TaskBoard.jsx
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
-import { PageLoader } from '../components/common/Loader';
 import {
   Plus,
   Search,
@@ -44,7 +42,6 @@ const TaskBoard = () => {
   const [draggedTaskId, setDraggedTaskId] = useState(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
-  // Active Task Modal State (for task details & comments)
   const [selectedTask, setSelectedTask] = useState(null);
   const [taskDetailsLoading, setTaskDetailsLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -52,9 +49,8 @@ const TaskBoard = () => {
   const [commentError, setCommentError] = useState('');
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [boardNotice, setBoardNotice] = useState(null); // { type: 'success' | 'error', text: '' }
+  const [boardNotice, setBoardNotice] = useState(null);
 
-  // Create Task Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createColumnStatus, setCreateColumnStatus] = useState('To Do');
   const [newTitle, setNewTitle] = useState('');
@@ -101,7 +97,6 @@ const TaskBoard = () => {
     }
   }, [activeWorkspace]);
 
-  // Drag and drop handlers
   const handleDragStart = (e, taskId) => {
     setDraggedTaskId(taskId);
     e.dataTransfer.setData('text/plain', taskId);
@@ -124,7 +119,6 @@ const TaskBoard = () => {
       return;
     }
 
-    // SRS 4.4 Permission Matrix: Members can only update status of assigned tasks
     const isAssigned = (currentTask.assignedTo || []).some(
       (u) => (u._id || u.id || u) === (user?._id || user?.id)
     );
@@ -138,7 +132,6 @@ const TaskBoard = () => {
       return;
     }
 
-    // Optimistic UI update
     const previousTasks = [...tasks];
     setTasks((prev) =>
       prev.map((t) => (t._id === taskId ? { ...t, status: targetStatus } : t))
@@ -165,7 +158,6 @@ const TaskBoard = () => {
     }
   };
 
-  // Open Task Details Modal
   const openTaskModal = async (taskId) => {
     try {
       setTaskDetailsLoading(true);
@@ -186,7 +178,6 @@ const TaskBoard = () => {
     }
   };
 
-  // Add Comment
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || !selectedTask) return;
@@ -198,7 +189,6 @@ const TaskBoard = () => {
         content: newComment.trim(),
       });
       if (res?.data) {
-        // Also update task in tasks list so comment counter updates immediately
         setTasks((prev) =>
           prev.map((t) =>
             t._id === selectedTask._id
@@ -207,7 +197,7 @@ const TaskBoard = () => {
           )
         );
         setNewComment('');
-        setSelectedTask(null); // Close modal on comment post as requested
+        setSelectedTask(null);
         setBoardNotice({
           type: 'success',
           text: 'Comment added successfully.',
@@ -221,7 +211,6 @@ const TaskBoard = () => {
     }
   };
 
-  // Delete Comment
   const handleDeleteComment = async (commentId) => {
     if (!commentId || !selectedTask) return;
     try {
@@ -271,7 +260,6 @@ const TaskBoard = () => {
     }
   };
 
-  // Create Task
   const handleCreateTask = async (e) => {
     e.preventDefault();
     setModalError('');
@@ -312,7 +300,6 @@ const TaskBoard = () => {
     }
   };
 
-  // Filter tasks
   const filteredTasks = tasks.filter((t) => {
     const matchProj = selectedProject === 'All' ? true : t.project?._id === selectedProject;
     const matchPrio = selectedPriority === 'All' ? true : t.priority === selectedPriority;
@@ -324,8 +311,7 @@ const TaskBoard = () => {
 
   return (
     <div className="space-y-6">
-      
-      {/* Top Header & Action Controls */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
@@ -351,7 +337,6 @@ const TaskBoard = () => {
         )}
       </div>
 
-      {/* Feedback Banner */}
       {boardNotice && (
         <div
           className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
@@ -369,10 +354,8 @@ const TaskBoard = () => {
         </div>
       )}
 
-      {/* Filter and View Bar */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        
-        {/* Project selector dropdown */}
+
         <div className="flex items-center gap-3 w-full md:w-auto">
           <select
             value={selectedProject}
@@ -400,7 +383,6 @@ const TaskBoard = () => {
           </select>
         </div>
 
-        {/* Search */}
         <div className="relative w-full md:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -413,10 +395,9 @@ const TaskBoard = () => {
         </div>
       </div>
 
-      {/* ── 4-Column Soft Pastel Kanban Board ── */}
       {loading ? (
         <div className="p-12 flex items-center justify-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
-          <PageLoader text="Loading board..." />
+          <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
@@ -430,7 +411,7 @@ const TaskBoard = () => {
                 onDrop={(e) => handleDrop(e, col.key)}
                 className="flex flex-col rounded-2xl bg-slate-50/70 border border-slate-200/70 p-4 min-h-[550px] transition-colors"
               >
-                {/* Column Pill Header */}
+                
                 <div className={`flex items-center justify-between px-3.5 py-2 rounded-xl ${col.color} mb-3.5 font-medium text-xs`}>
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${col.dot}`} />
@@ -450,7 +431,6 @@ const TaskBoard = () => {
                   )}
                 </div>
 
-                {/* Column Cards Stream */}
                 <div className="space-y-3 flex-1 overflow-y-auto">
                   {colTasks.length > 0 ? (
                     colTasks.map((task) => {
@@ -476,7 +456,7 @@ const TaskBoard = () => {
                             canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
                           }`}
                         >
-                          {/* Label tag & Priority */}
+                          
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] uppercase font-medium text-indigo-600 tracking-wider truncate max-w-[140px]">
                               {task.labels && task.labels[0] ? task.labels[0] : (task.project?.name || 'Task')}
@@ -486,14 +466,12 @@ const TaskBoard = () => {
                             </span>
                           </div>
 
-                          {/* Task Title */}
                           <h4 className="text-xs font-medium text-slate-800 line-clamp-2 leading-snug mb-3 group-hover:text-indigo-600 transition-colors">
                             {task.title}
                           </h4>
 
-                          {/* Assignees & Meta Footer */}
                           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                            {/* Avatar Stack */}
+                            
                             <div className="flex -space-x-1.5 overflow-hidden">
                               {task.assignedTo && task.assignedTo.length > 0 ? (
                                 task.assignedTo.slice(0, 3).map((u, i) => (
@@ -510,7 +488,6 @@ const TaskBoard = () => {
                               )}
                             </div>
 
-                            {/* Due date & Comments info */}
                             <div className="flex items-center gap-2 text-[10px] text-slate-500 font-normal">
                               <span
                                 className="flex items-center gap-1 font-medium text-slate-500 group-hover:text-indigo-600 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100 transition-colors"
@@ -542,7 +519,6 @@ const TaskBoard = () => {
         </div>
       )}
 
-      {/* ── Task Details & Comments Modal ── */}
       {selectedTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-2xl w-full p-6 max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -581,7 +557,6 @@ const TaskBoard = () => {
                 </p>
               </div>
 
-              {/* Comments Section */}
               <div className="pt-2">
                 <h5 className="text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5 text-indigo-600" /> Comments ({selectedTask.comments?.length || 0})
@@ -597,12 +572,7 @@ const TaskBoard = () => {
                 <div className="space-y-2.5 mb-3 max-h-48 overflow-y-auto">
                   {selectedTask.comments && selectedTask.comments.length > 0 ? (
                     selectedTask.comments.map((c) => {
-                      const canDelete =
-                        isOwner ||
-                        isManager ||
-                        c.user?._id === user?._id ||
-                        c.user?._id === user?.id ||
-                        c.user?.id === user?.id;
+                      const canDelete = isOwner;
 
                       return (
                         <div key={c._id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs group">
@@ -653,7 +623,6 @@ const TaskBoard = () => {
         </div>
       )}
 
-      {/* ── Create Task Modal ── */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-200">
@@ -784,7 +753,6 @@ const TaskBoard = () => {
         </div>
       )}
 
-      {/* Delete/Archive Task Confirmation Modal */}
       <ConfirmModal
         isOpen={!!taskToDelete}
         onClose={() => setTaskToDelete(null)}

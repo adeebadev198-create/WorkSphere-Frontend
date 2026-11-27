@@ -1,5 +1,4 @@
-// src/layouts/DashboardLayout.jsx
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -73,7 +72,6 @@ const DashboardLayout = () => {
   const workspaceDropdownRef = useRef(null);
   const userMenuRef = useRef(null);
 
-  // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (workspaceDropdownRef.current && !workspaceDropdownRef.current.contains(e.target)) {
@@ -87,13 +85,10 @@ const DashboardLayout = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Live Notifications & Unread Polling
   const [liveToast, setLiveToast] = useState(null);
   const prevUnreadRef = useRef(null);
 
-  // Fetch unread notification count & sync on read/unread updates
   useEffect(() => {
-    // Request browser push notification permission
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission().catch(() => {});
     }
@@ -117,7 +112,6 @@ const DashboardLayout = () => {
           setUnreadCount(count);
         }
       } catch {
-        // silent
       }
     };
     if (activeWorkspace) {
@@ -209,11 +203,9 @@ const DashboardLayout = () => {
     }
   };
 
-  // ── Sidebar Component (Purple & White SaaS Theme) ──
   const Sidebar = ({ onClose }) => (
     <div className="flex flex-col h-full bg-[#FCFAFF] w-64 shrink-0 border-r border-purple-100/90 select-none">
-      
-      {/* Brand Header */}
+
       <div className="flex items-center justify-between px-5 h-20 border-b border-purple-100/80 bg-white shrink-0">
         <Link
           to="/dashboard"
@@ -237,7 +229,6 @@ const DashboardLayout = () => {
         )}
       </div>
 
-      {/* Workspace Switcher */}
       <div className="px-4 py-3.5 border-b border-purple-100/70" ref={workspaceDropdownRef}>
         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-1 mb-1.5 flex items-center justify-between">
           <span>Active Workspace</span>
@@ -272,7 +263,6 @@ const DashboardLayout = () => {
           />
         </button>
 
-        {/* Dropdown Menu */}
         {workspaceDropdownOpen && (
           <div className="mt-1.5 bg-white border border-purple-100 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
             <div className="py-1 max-h-48 overflow-y-auto">
@@ -340,7 +330,6 @@ const DashboardLayout = () => {
         )}
       </div>
 
-      {/* Main Navigation */}
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto py-2.5">
         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-1.5">
           Platform Modules
@@ -409,7 +398,6 @@ const DashboardLayout = () => {
         </Link>
       </nav>
 
-      {/* User Card at bottom of sidebar */}
       <div className="p-3 border-t border-purple-100/80 bg-white">
         <div className="flex items-center gap-2.5 p-2 rounded-xl bg-purple-50/40 border border-purple-100/80 shadow-2xs">
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
@@ -438,13 +426,11 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF8FF] flex font-sans text-slate-800">
-      
-      {/* Desktop Sidebar */}
+
       <div className="hidden lg:flex flex-col h-screen sticky top-0 z-30">
         <Sidebar onClose={null} />
       </div>
 
-      {/* Mobile Drawer */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
@@ -457,10 +443,8 @@ const DashboardLayout = () => {
         </div>
       )}
 
-      {/* Main Workspace Frame */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        
-        {/* Top Navbar — Exact h-20 alignment matching sidebar brand header */}
+
         <header className="h-20 px-4 sm:px-6 lg:px-8 bg-white/95 backdrop-blur-md border-b border-purple-100/80 sticky top-0 z-20 flex items-center justify-between">
           
           <div className="flex items-center gap-3 min-w-0">
@@ -485,10 +469,8 @@ const DashboardLayout = () => {
             </div>
           </div>
 
-          {/* Right Header Utilities */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-            
-            {/* Search Pill */}
+
             <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-50/60 border border-purple-100 text-xs text-slate-400 w-56 lg:w-64 focus-within:border-purple-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-purple-500/15 transition-all">
               <Search className="w-3.5 h-3.5 text-purple-400 shrink-0" />
               <input
@@ -498,7 +480,6 @@ const DashboardLayout = () => {
               />
             </div>
 
-            {/* Notifications Bell */}
             <Link
               to="/notifications"
               className="relative p-2 rounded-xl bg-purple-50/70 hover:bg-purple-100 text-purple-600 hover:text-purple-800 transition-colors shrink-0"
@@ -510,7 +491,6 @@ const DashboardLayout = () => {
               )}
             </Link>
 
-            {/* User Dropdown */}
             <div className="relative shrink-0" ref={userMenuRef}>
               <button
                 onClick={() => setUserMenuOpen((v) => !v)}
@@ -555,13 +535,11 @@ const DashboardLayout = () => {
           </div>
         </header>
 
-        {/* Dynamic Page Outlet */}
         <main className="flex-1 p-5 sm:p-7 lg:p-8 max-w-[1550px] w-full mx-auto">
           <Outlet />
         </main>
       </div>
 
-      {/* Modal: Create Workspace */}
       {showWorkspaceModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 animate-in zoom-in-95 duration-150">
@@ -626,7 +604,6 @@ const DashboardLayout = () => {
         </div>
       )}
 
-      {/* Delete Workspace Confirmation Modal */}
       <ConfirmModal
         isOpen={!!wsToDelete}
         onClose={() => setWsToDelete(null)}
@@ -638,7 +615,6 @@ const DashboardLayout = () => {
         loading={isDeletingWorkspace}
       />
 
-      {/* Real-time Notification Toast Banner */}
       {liveToast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
           <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">

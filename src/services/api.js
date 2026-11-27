@@ -1,5 +1,4 @@
-// src/services/api.js
-import axios from 'axios';
+﻿import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
@@ -10,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to automatically attach JWT token and active workspace ID
 api.interceptors.request.use(
   (config) => {
     if (config.data instanceof FormData) {
@@ -30,7 +28,6 @@ api.interceptors.request.use(
           config.headers['x-workspace-id'] = parsed._id || parsed.id;
         }
       } catch (err) {
-        // silent
       }
     }
 
@@ -39,7 +36,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle errors gracefully
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {

@@ -1,9 +1,7 @@
-// src/pages/ProjectDetails.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { PageLoader } from '../components/common/Loader';
 import {
   ArrowLeft,
   Calendar,
@@ -23,7 +21,6 @@ import {
   Info,
 } from 'lucide-react';
 
-/* ─── Helper: status colour map ────────────────────────────── */
 const STATUS_COLORS = {
   'To Do':       { bg: 'bg-gray-100',   text: 'text-gray-700'   },
   'In Progress': { bg: 'bg-blue-100',   text: 'text-blue-700'   },
@@ -45,7 +42,6 @@ const PROJECT_STATUS_COLORS = {
   'Cancelled':   'bg-red-100    text-red-700',
 };
 
-/* ─── Tab definitions ──────────────────────────────────────── */
 const TABS = [
   { id: 'overview',  label: 'Overview & Timeline', icon: Info         },
   { id: 'tasks',     label: 'Tasks',               icon: CheckSquare  },
@@ -53,15 +49,11 @@ const TABS = [
   { id: 'activity',  label: 'Activity History',    icon: Activity     },
 ];
 
-/* ════════════════════════════════════════════════════════════
-   TAB 1 — Overview & Timeline
-════════════════════════════════════════════════════════════ */
 const OverviewTab = ({ project }) => {
   const startDate = project.startDate ? new Date(project.startDate) : null;
   const endDate   = project.endDate   ? new Date(project.endDate)   : null;
   const now       = new Date();
 
-  // Timeline progress (days elapsed vs total duration)
   let timelineProgress = 0;
   if (startDate && endDate) {
     const total   = endDate - startDate;
@@ -79,9 +71,8 @@ const OverviewTab = ({ project }) => {
   return (
     <div className="space-y-6">
 
-      {/* Project info grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Completion */}
+        
         <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-indigo-100/80 rounded-2xl p-5">
           <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider mb-1">Completion</p>
           <p className="text-2xl font-semibold text-indigo-900">{project.progress || 0}%</p>
@@ -97,7 +88,6 @@ const OverviewTab = ({ project }) => {
           </div>
         </div>
 
-        {/* Total Tasks */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Total Tasks</p>
           <p className="text-2xl font-semibold text-slate-900">{project.totalTasks || 0}</p>
@@ -111,7 +101,6 @@ const OverviewTab = ({ project }) => {
           </div>
         </div>
 
-        {/* Deadline */}
         <div className={`bg-white border rounded-2xl p-5 shadow-xs ${daysLeft !== null && daysLeft < 0 ? 'border-rose-200' : 'border-slate-200/80'}`}>
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Deadline</p>
           <p className="text-xl font-semibold text-slate-900">
@@ -125,7 +114,6 @@ const OverviewTab = ({ project }) => {
         </div>
       </div>
 
-      {/* Timeline bar */}
       <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
         <h3 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-indigo-600" />
@@ -145,7 +133,7 @@ const OverviewTab = ({ project }) => {
               className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all"
               style={{ width: `${timelineProgress}%` }}
             />
-            {/* Today marker */}
+            
             {timelineProgress > 2 && timelineProgress < 98 && (
               <div
                 className="absolute top-0 bottom-0 w-0.5 bg-orange-400"
@@ -156,7 +144,6 @@ const OverviewTab = ({ project }) => {
           </div>
         </div>
 
-        {/* Phase milestones */}
         <div className="mt-5 grid grid-cols-3 gap-3">
           {[
             { phase: 'Planning',    icon: Flag,          done: ['In Progress', 'On Hold', 'Completed'].includes(project.status) },
@@ -173,7 +160,6 @@ const OverviewTab = ({ project }) => {
         </div>
       </div>
 
-      {/* Meta info */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
         <h3 className="text-sm font-bold text-gray-800 mb-4">Project Details</h3>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-xs">
@@ -211,9 +197,6 @@ const OverviewTab = ({ project }) => {
   );
 };
 
-/* ════════════════════════════════════════════════════════════
-   TAB 2 — Tasks
-════════════════════════════════════════════════════════════ */
 const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
   const [showModal, setShowModal]         = useState(false);
   const [title, setTitle]                 = useState('');
@@ -255,9 +238,9 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
+      
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Status filter tabs */}
+        
         <div className="flex gap-1 flex-wrap">
           {statuses.map(s => (
             <button
@@ -289,7 +272,6 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
         )}
       </div>
 
-      {/* Task table */}
       <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -354,7 +336,6 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
         </div>
       </div>
 
-      {/* Add Task Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-md w-full p-6">
@@ -406,7 +387,6 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
                 </div>
               </div>
 
-              {/* Assignee select from project members */}
               {project.members && project.members.length > 0 && (
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Assign To</label>
@@ -448,9 +428,6 @@ const TasksTab = ({ project, isOwnerOrManager, onTaskCreated }) => {
   );
 };
 
-/* ════════════════════════════════════════════════════════════
-   TAB 3 — Team Members
-════════════════════════════════════════════════════════════ */
 const TeamTab = ({ project }) => {
   const manager = project.manager;
   const members = project.members || [];
@@ -479,7 +456,7 @@ const TeamTab = ({ project }) => {
             member.isManager ? 'border-purple-200' : 'border-gray-100'
           }`}
         >
-          {/* Avatar */}
+          
           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-extrabold text-lg shrink-0 ${
             member.isManager ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
           }`}>
@@ -490,7 +467,6 @@ const TeamTab = ({ project }) => {
             )}
           </div>
 
-          {/* Info */}
           <div className="min-w-0 flex-1">
             <p className="font-bold text-gray-900 text-sm truncate">{member.fullName}</p>
             <p className="text-xs text-gray-400 truncate">{member.email}</p>
@@ -513,9 +489,6 @@ const TeamTab = ({ project }) => {
   );
 };
 
-/* ════════════════════════════════════════════════════════════
-   TAB 4 — Activity History
-════════════════════════════════════════════════════════════ */
 const ActivityTab = ({ projectId }) => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading]       = useState(true);
@@ -589,7 +562,7 @@ const ActivityTab = ({ projectId }) => {
           const relTime = new Date(act.createdAt).toLocaleString();
           return (
             <div key={act._id || i} className="flex items-start gap-3 px-5 py-4 hover:bg-gray-50/60 transition-colors">
-              {/* Actor avatar */}
+              
               <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shrink-0">
                 {actor?.fullName?.charAt(0).toUpperCase() || '?'}
               </div>
@@ -616,9 +589,6 @@ const ActivityTab = ({ projectId }) => {
   );
 };
 
-/* ════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-════════════════════════════════════════════════════════════ */
 const ProjectDetails = () => {
   const { id }                            = useParams();
   const { activeWorkspace }               = useAuth();
@@ -646,16 +616,14 @@ const ProjectDetails = () => {
 
   useEffect(() => { fetchProject(); }, [fetchProject]);
 
-  /* ── Loading state ── */
   if (loading) {
     return (
       <div className="min-h-[420px] flex items-center justify-center">
-        <PageLoader text="Loading project details..." />
+        <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
       </div>
     );
   }
 
-  /* ── Error / not found ── */
   if (error || !project) {
     return (
       <div className="p-6 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm">
@@ -673,7 +641,6 @@ const ProjectDetails = () => {
   return (
     <div className="space-y-6">
 
-      {/* Back link */}
       <Link
         to="/projects"
         className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-indigo-600 transition-colors"
@@ -681,7 +648,6 @@ const ProjectDetails = () => {
         <ArrowLeft className="w-4 h-4" /> Back to Projects Directory
       </Link>
 
-      {/* Project header card */}
       <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-xs border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -718,7 +684,6 @@ const ProjectDetails = () => {
           </div>
         </div>
 
-        {/* Progress KPI */}
         <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-indigo-100/80 rounded-2xl p-5 min-w-[220px]">
           <div className="flex justify-between items-center mb-2 text-xs font-medium">
             <span className="text-slate-600">Completion</span>
@@ -737,7 +702,6 @@ const ProjectDetails = () => {
         </div>
       </div>
 
-      {/* ── Tab Navigation ── */}
       <div className="flex gap-1.5 flex-wrap bg-white border border-slate-200/80 rounded-2xl p-1.5 shadow-xs w-fit">
         {TABS.map(tab => {
           const Icon = tab.icon;
@@ -758,7 +722,6 @@ const ProjectDetails = () => {
         })}
       </div>
 
-      {/* ── Tab Content ── */}
       {activeTab === 'overview' && (
         <OverviewTab project={project} />
       )}

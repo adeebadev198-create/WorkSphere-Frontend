@@ -1,5 +1,4 @@
-// src/pages/Workspaces.jsx
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import {
@@ -49,7 +48,7 @@ const Workspaces = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header */}
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
@@ -68,7 +67,6 @@ const Workspaces = () => {
         </button>
       </div>
 
-      {/* Grid of Workspaces */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {workspaces && workspaces.length > 0 ? (
           workspaces.map((ws) => {
@@ -134,7 +132,6 @@ const Workspaces = () => {
         )}
       </div>
 
-      {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">

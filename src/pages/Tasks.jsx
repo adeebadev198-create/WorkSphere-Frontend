@@ -1,9 +1,7 @@
-// src/pages/Tasks.jsx
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
-import { PageLoader } from '../components/common/Loader';
 import { 
   CheckSquare, 
   Search, 
@@ -23,7 +21,8 @@ import {
 
 const Tasks = () => {
   const { activeWorkspace, user } = useAuth();
-  const canManage = activeWorkspace?.memberRole === 'Owner' || activeWorkspace?.memberRole === 'Manager';
+  const isOwner = activeWorkspace?.memberRole === 'Owner';
+  const canManage = isOwner || activeWorkspace?.memberRole === 'Manager';
 
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,19 +30,16 @@ const Tasks = () => {
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [sortBy, setSortBy] = useState('dueDate');
-  const [taskNotice, setTaskNotice] = useState(null); // { type: 'success' | 'error', text: '' }
+  const [taskNotice, setTaskNotice] = useState(null);
 
-  // Comments Modal State
   const [commentTask, setCommentTask] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState('');
 
-  // Delete Task Modal State
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Edit Task Modal State
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
@@ -93,7 +89,6 @@ const Tasks = () => {
     try {
       setCommentError('');
       setNewComment('');
-      // Fetch fresh task data including populated comments
       const res = await api.get(`/tasks/${task._id}`);
       setCommentTask(res?.data || task);
     } catch (e) {
@@ -120,7 +115,7 @@ const Tasks = () => {
           )
         );
         setNewComment('');
-        setCommentTask(null); // Close modal on post
+        setCommentTask(null);
         setTaskNotice({ type: 'success', text: 'Comment added successfully.' });
         setTimeout(() => setTaskNotice(null), 3000);
       }
@@ -230,8 +225,7 @@ const Tasks = () => {
 
   return (
     <div className="space-y-6">
-      
-      {/* Header */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
@@ -257,7 +251,6 @@ const Tasks = () => {
         </div>
       </div>
 
-      {/* Task Feedback Notice */}
       {taskNotice && (
         <div
           className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
@@ -275,7 +268,6 @@ const Tasks = () => {
         </div>
       )}
 
-      {/* Tabs & Search */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1">
           {tabs.map((tab) => (
@@ -319,11 +311,10 @@ const Tasks = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {loading ? (
           <div className="p-12 flex items-center justify-center">
-            <PageLoader text="Loading tasks..." />
+            <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
           </div>
         ) : filteredTasks.length > 0 ? (
           <div className="overflow-x-auto">
@@ -460,7 +451,6 @@ const Tasks = () => {
         )}
       </div>
 
-      {/* Edit Task Modal */}
       {taskToEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 max-w-lg w-full p-6 animate-in zoom-in-95 duration-150">
@@ -554,7 +544,6 @@ const Tasks = () => {
         </div>
       )}
 
-      {/* Delete/Archive Task Confirmation Modal */}
       <ConfirmModal
         isOpen={!!taskToDelete}
         onClose={() => setTaskToDelete(null)}
@@ -567,7 +556,6 @@ const Tasks = () => {
         loading={deleteLoading}
       />
 
-      {/* Task Comments & Discussion Modal */}
       {commentTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-lg w-full p-6 max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
@@ -595,15 +583,10 @@ const Tasks = () => {
               </div>
             )}
 
-            {/* Comments List */}
             <div className="flex-1 overflow-y-auto space-y-2.5 mb-4 pr-1 max-h-64">
               {commentTask.comments && commentTask.comments.length > 0 ? (
                 commentTask.comments.map((c, idx) => {
-                  const canDelete =
-                    canManage ||
-                    c.user?._id === user?._id ||
-                    c.user?._id === user?.id ||
-                    c.user?.id === user?.id;
+                  const canDelete = isOwner;
 
                   return (
                     <div key={c._id || idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs group">
@@ -634,7 +617,6 @@ const Tasks = () => {
               )}
             </div>
 
-            {/* Post comment input */}
             <form onSubmit={handlePostComment} className="flex items-center gap-2 pt-3 border-t border-slate-100">
               <input
                 type="text"

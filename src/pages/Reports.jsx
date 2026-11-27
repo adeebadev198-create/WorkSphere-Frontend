@@ -1,8 +1,6 @@
-// src/pages/Reports.jsx
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { PageLoader } from '../components/common/Loader';
 import { 
   BarChart3, 
   Download, 
@@ -26,7 +24,7 @@ const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [activeReportTab, setActiveReportTab] = useState('projects');
   const [exporting, setExporting] = useState(false);
-  const [exportNotice, setExportNotice] = useState(null); // { type: 'success' | 'error', text: '' }
+  const [exportNotice, setExportNotice] = useState(null);
 
   const fetchReports = async () => {
     try {
@@ -51,7 +49,6 @@ const Reports = () => {
     }
   }, [activeWorkspace]);
 
-  // Handle actual CSV file download (FR-15.4 / Scenario 08)
   const handleExportCSV = async (type = 'tasks') => {
     try {
       setExporting(true);
@@ -100,8 +97,7 @@ const Reports = () => {
 
   return (
     <div className="space-y-6">
-      
-      {/* Export Notice */}
+
       {exportNotice && (
         <div
           className={`p-3.5 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in duration-200 ${
@@ -118,8 +114,7 @@ const Reports = () => {
           <span>{exportNotice.text}</span>
         </div>
       )}
-      
-      {/* Top Banner & Export Actions */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
@@ -150,7 +145,6 @@ const Reports = () => {
         )}
       </div>
 
-      {/* Tabs */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => setActiveReportTab('projects')}
@@ -174,11 +168,10 @@ const Reports = () => {
         </button>
       </div>
 
-      {/* Report Table View */}
       <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {loading ? (
           <div className="p-12 flex items-center justify-center">
-            <PageLoader text="Generating report statistics..." />
+            <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
           </div>
         ) : activeReportTab === 'projects' ? (
           <div className="overflow-x-auto">

@@ -1,5 +1,4 @@
-// src/components/common/ConfirmModal.jsx
-import React from 'react';
+﻿import React from 'react';
 import { AlertTriangle, Trash2, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const ConfirmModal = ({
@@ -10,7 +9,7 @@ const ConfirmModal = ({
   message = 'Are you sure you want to proceed?',
   confirmText = 'Delete',
   cancelText = 'Cancel',
-  type = 'danger', // 'danger' | 'warning' | 'info'
+  type = 'danger',
   loading = false,
 }) => {
   if (!isOpen) return null;

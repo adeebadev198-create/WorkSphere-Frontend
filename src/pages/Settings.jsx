@@ -1,5 +1,4 @@
-// src/pages/Settings.jsx
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -21,7 +20,6 @@ const Settings = () => {
 
   const [activeTab, setActiveTab] = useState('profile');
 
-  // Profile Form State
   const [fullName, setFullName] = useState(user?.fullName || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [title, setTitle] = useState(user?.title || '');
@@ -32,7 +30,6 @@ const Settings = () => {
   const [profileSuccess, setProfileSuccess] = useState('');
   const [profileError, setProfileError] = useState('');
 
-  // Password Form State
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -42,7 +39,6 @@ const Settings = () => {
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  // Workspace Settings State
   const [workspaceName, setWorkspaceName] = useState(activeWorkspace?.name || '');
   const [workspaceDesc, setWorkspaceDesc] = useState(activeWorkspace?.description || '');
   const [workspaceSaving, setWorkspaceSaving] = useState(false);
@@ -67,7 +63,6 @@ const Settings = () => {
     setProfileError('');
     setProfileSuccess('');
 
-    // Show immediate local preview
     const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
 
@@ -161,14 +156,12 @@ const Settings = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      
-      {/* Header */}
+
       <div className="bg-white p-6 rounded-2xl shadow-xs border border-purple-100/90">
         <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Account & Workspace Settings</h1>
         <p className="text-xs text-slate-500 font-normal mt-0.5">Manage your profile credentials and workspace configurations</p>
       </div>
 
-      {/* Settings Navigation Tabs */}
       <div className="flex items-center gap-1.5 border-b border-purple-100 pb-2">
         <button
           onClick={() => setActiveTab('profile')}
@@ -206,13 +199,11 @@ const Settings = () => {
         )}
       </div>
 
-      {/* Tab 1: Profile */}
       {activeTab === 'profile' && (
         <div className="bg-white p-6 rounded-2xl shadow-xs border border-purple-100/90">
           <h2 className="text-base font-semibold text-slate-900 mb-1">Personal Details</h2>
           <p className="text-xs text-slate-500 mb-6 font-normal">Update your profile photo and public user information</p>
 
-          {/* Profile Photo Upload Section */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 mb-6 rounded-2xl bg-purple-50/40 border border-purple-100/80 max-w-lg">
             <div className="relative w-16 h-16 rounded-full bg-gradient-to-tr from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] text-white font-bold text-xl flex items-center justify-center shrink-0 shadow-sm overflow-hidden ring-2 ring-white">
               {avatarPreview || user?.profilePicture ? (
@@ -342,7 +333,6 @@ const Settings = () => {
         </div>
       )}
 
-      {/* Tab 2: Security */}
       {activeTab === 'security' && (
         <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
           <h2 className="text-base font-semibold text-slate-900 mb-1">Update Password</h2>
@@ -438,7 +428,6 @@ const Settings = () => {
         </div>
       )}
 
-      {/* Tab 3: Workspace Management (Owner Only) */}
       {activeTab === 'workspace' && isWorkspaceOwner && (
         <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
           <h2 className="text-base font-semibold text-slate-900 mb-1">Workspace Configuration</h2>

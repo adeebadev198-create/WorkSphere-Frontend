@@ -1,5 +1,4 @@
-// src/context/AuthContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext();
@@ -34,7 +33,6 @@ export const AuthProvider = ({ children }) => {
     setAuthTransition((prev) => ({ ...prev, active: false }));
   };
 
-  // Initialize or fetch current user & workspaces on load
   useEffect(() => {
     const initAuth = async () => {
       if (token) {
@@ -48,7 +46,6 @@ export const AuthProvider = ({ children }) => {
             setWorkspaces(wList);
 
             if (wList.length > 0) {
-              // Always verify and match against wList to guarantee memberRole matches the logged-in user
               const currentActive = localStorage.getItem('worksphere_active_workspace');
               const parsedCurrent = currentActive ? JSON.parse(currentActive) : null;
               const matched = parsedCurrent
@@ -66,7 +63,6 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (err) {
           console.error('Failed to load profile:', err.message);
-          // Token might be invalid or expired
           if (err.message.includes('authorized') || err.message.includes('expired')) {
             logout();
           }
@@ -97,7 +93,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google OAuth login — uses shared api service so token key is consistent
   const googleLogin = async (credential) => {
     const res = await api.post('/auth/google', { credential });
     if (res?.data) {
@@ -154,7 +149,6 @@ export const AuthProvider = ({ children }) => {
   const switchWorkspace = (workspace) => {
     setActiveWorkspace(workspace);
     localStorage.setItem('worksphere_active_workspace', JSON.stringify(workspace));
-    // Trigger page re-render / reload or event
     window.location.reload();
   };
 

@@ -1,10 +1,8 @@
-// src/pages/Projects.jsx
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/common/ConfirmModal';
-import { PageLoader } from '../components/common/Loader';
 import {
   FolderKanban,
   Plus,
@@ -34,7 +32,6 @@ const Projects = () => {
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // New Project Form State
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('Medium');
@@ -44,11 +41,9 @@ const Projects = () => {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
-  // Delete Project Modal State
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Edit Project Modal State
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [editName, setEditName] = useState('');
   const [editDesc, setEditDesc] = useState('');
@@ -82,7 +77,6 @@ const Projects = () => {
         }
       }
     } catch (e) {
-      // quiet
     }
   };
 
@@ -201,7 +195,6 @@ const Projects = () => {
   const isAuthorizedToCreate =
     activeWorkspace?.memberRole === 'Owner' || activeWorkspace?.memberRole === 'Manager';
 
-  // Aesthetic project icon colors matching user reference image 2
   const iconBgPalette = [
     'bg-amber-500/10 text-amber-600 border-amber-200',
     'bg-emerald-500/10 text-emerald-600 border-emerald-200',
@@ -213,8 +206,7 @@ const Projects = () => {
 
   return (
     <div className="space-y-6">
-      
-      {/* Top Header & Project Action Controls */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -238,10 +230,8 @@ const Projects = () => {
         )}
       </div>
 
-      {/* Tabs and Search Bar */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        
-        {/* Underline Tabs */}
+
         <div className="flex items-center gap-1 overflow-x-auto w-full md:w-auto border-b border-slate-200 pb-0.5">
           {tabs.map((tab) => (
             <button
@@ -261,7 +251,6 @@ const Projects = () => {
           ))}
         </div>
 
-        {/* Search Input */}
         <div className="relative w-full md:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -274,10 +263,9 @@ const Projects = () => {
         </div>
       </div>
 
-      {/* Projects Grid */}
       {loading ? (
         <div className="p-12 flex items-center justify-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
-          <PageLoader text="Loading projects..." />
+          <div className="w-7 h-7 rounded-full border-2 border-indigo-100 border-t-indigo-600 animate-spin" />
         </div>
       ) : filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -294,14 +282,14 @@ const Projects = () => {
                 className="group p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-indigo-200 transition-all duration-200 flex flex-col justify-between relative"
               >
                 <div>
-                  {/* Top Icon Badge & Delete action */}
+                  
                   <div className="flex items-center justify-between mb-4">
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${iconStyle} shadow-xs`}>
                       <FolderKanban className="w-5 h-5" />
                     </div>
 
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {/* Edit Project: Owner or designated Manager */}
+                      
                       {(activeWorkspace?.memberRole === 'Owner' ||
                         (activeWorkspace?.memberRole === 'Manager' &&
                           (p.manager?._id === (user?._id || user?.id) ||
@@ -315,7 +303,6 @@ const Projects = () => {
                         </button>
                       )}
 
-                      {/* Archive/Delete Project: Owner OR Manager of THIS project */}
                       {(activeWorkspace?.memberRole === 'Owner' ||
                         (activeWorkspace?.memberRole === 'Manager' &&
                           (p.manager?._id === (user?._id || user?.id) ||
@@ -332,7 +319,6 @@ const Projects = () => {
                     </div>
                   </div>
 
-                  {/* Title and Short Description */}
                   <Link to={`/projects/${p._id}`} className="block group-hover:text-indigo-600 transition-colors">
                     <h3 className="text-sm font-semibold text-slate-900 truncate tracking-tight mb-1">
                       {p.name}
@@ -342,7 +328,6 @@ const Projects = () => {
                     {p.description || 'No description provided.'}
                   </p>
 
-                  {/* Team Avatars cluster */}
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex -space-x-2 overflow-hidden">
                       {p.members && p.members.length > 0 ? (
@@ -369,7 +354,6 @@ const Projects = () => {
                   </div>
                 </div>
 
-                {/* Progress Bar & Footer */}
                 <div className="pt-3 border-t border-slate-100">
                   <div className="flex items-center justify-between text-xs font-medium text-slate-600 mb-1.5">
                     <span className="text-[11px] text-slate-400">Progress</span>
@@ -418,7 +402,6 @@ const Projects = () => {
         </div>
       )}
 
-      {/* Create Project Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-200">
@@ -520,7 +503,6 @@ const Projects = () => {
         </div>
       )}
 
-      {/* Edit Project Modal */}
       {projectToEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 max-w-lg w-full p-6 animate-in zoom-in-95 duration-150">
@@ -629,7 +611,6 @@ const Projects = () => {
         </div>
       )}
 
-      {/* Delete/Archive Project Confirmation Modal */}
       <ConfirmModal
         isOpen={!!projectToDelete}
         onClose={() => setProjectToDelete(null)}
